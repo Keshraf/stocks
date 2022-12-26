@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  company   Company?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Worker {
+  id        String   @id @default(uuid())
+  username  String
+  password  String
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Company {
+  id        String    @id @default(uuid())
+  name      String
+  logo      String?
+  user      User      @relation(fields: [userEmail], references: [email])
+  userEmail String    @unique
+  worker    Worker[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  quality   Quality[]
+}
+
+model Mill {
+  name      String    @unique
+  quality   Quality[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Quality {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  mill      Mill     @relation(fields: [millName], references: [name])
+  millName  String
+  stock     Stock[]
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stock {
+  id          String   @id @default(uuid())
+  quality     Quality  @relation(fields: [qualityName], references: [name])
+  qualityName String
+  breadth     Float
+  length      Float?
+  weight      Float
+  gsm         Int
+  sheet       Int
+  quantity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order       Order[]
+  //orderHistory OrderHistory[]
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  stock           Stock    @relation(fields: [stockId], references: [id])
+  stockId         String   @unique
+  quantity        Int
+  status          String
+  clientName      String
+  client          Client   @relation(fields: [clientName], references: [name])
+  billingAddress  String
+  shippingAddress String
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  address   String[]
+  number    BigInt
+  email     String?
+  gst       String?
+  order     Order[]
+  //orderHistory OrderHistory[]
+}
+
+//model OrderHistory {
+//  id Int @id @default(autoincrement())
+//  clientName String
+//  client     Client   @relation(fields: [clientName], references: [name])
+//  stock      Stock    @relation(fields: [stockId], references: [id])
+// stockId    String   @unique
+// order Order @relation(fields: [orderId], references: [id])
+// orderId String @unique
+// }
