@@ -16,8 +16,9 @@ const Datepicker = ({
       placeholder="Pick date"
       inputFormat="MMMM D, YYYY"
       size="md"
+      allowFreeInput
       radius="md"
-      clearable={true}
+      clearable={false}
       styles={() => ({
         dropdown: {
           background: "#fff",

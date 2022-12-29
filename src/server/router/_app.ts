@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { procedure, router } from "../trpc";
+import connectDB from "~/utils/prisma";
+import { publicProcedure, router, protectedProcedure } from "../trpc";
 
 export const appRouter = router({
-  hello: procedure
+  hello: protectedProcedure
     .input(
       z.object({
         text: z.string(),

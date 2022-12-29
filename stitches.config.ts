@@ -93,5 +93,19 @@ export const { styled, css, getCssText, theme } = createStitches({
       justifyContent: "flex-start",
       alignItems: "center",
     }),
+
+    column: (
+      value: boolean
+    ): {
+      display: string;
+      flexDirection: string;
+      justifyContent: string;
+      alignItems: string;
+    } => ({
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+    }),
   },
 });
