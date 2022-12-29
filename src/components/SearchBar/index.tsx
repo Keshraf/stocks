@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { styled } from "../../../stitches.config";
 import { BiSearch } from "react-icons/bi";
+import { Dispatch, SetStateAction } from "react";
+
+const Container = styled("div", {
+  width: "stretch",
+  height: "50px",
+  start: true,
+  gap: "$gapMedium",
+});
 
 const Bar = styled("input", {
   width: "stretch",
@@ -22,6 +30,7 @@ const Bar = styled("input", {
 
 const IconContainer = styled("button", {
   width: "50px",
+  minWidth: "50px",
   height: "100%",
   display: "flex",
   center: true,
@@ -31,8 +40,6 @@ const IconContainer = styled("button", {
   cursor: "pointer",
 });
 
-import { Dispatch, SetStateAction } from "react";
-
 const SearchBar = ({
   query,
   setQuery,
@@ -41,7 +48,7 @@ const SearchBar = ({
   setQuery: Dispatch<SetStateAction<string>>;
 }) => {
   return (
-    <>
+    <Container>
       <Bar
         value={query}
         id="search"
@@ -52,7 +59,7 @@ const SearchBar = ({
       <IconContainer>
         <BiSearch fontSize={20} color={"#000"} />
       </IconContainer>
-    </>
+    </Container>
   );
 };
 
