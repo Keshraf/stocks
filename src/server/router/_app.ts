@@ -1,19 +1,10 @@
 import { z } from "zod";
 import connectDB from "~/utils/prisma";
 import { publicProcedure, router, protectedProcedure } from "../trpc";
+import { authRouter } from "./auth";
 
 export const appRouter = router({
-  hello: protectedProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .query(({ input }) => {
-      return {
-        greeting: `hello ${input.text}`,
-      };
-    }),
+  auth: authRouter,
 });
 
 // export type definition of API

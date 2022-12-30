@@ -9,7 +9,7 @@ import { ReactElement, ReactNode } from "react";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
-  isAuth?: boolean;
+  removeNav?: boolean;
 };
 
 type AppPropsWithLayout = AppProps & {
@@ -23,10 +23,10 @@ const poppins = Poppins({
 
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
-  const isAuth = Component.isAuth;
+  const removeNav = Component.removeNav;
   return (
     <main className={poppins.className}>
-      {isAuth ? (
+      {removeNav ? (
         getLayout(<Component {...pageProps} />)
       ) : (
         <Layout>{getLayout(<Component {...pageProps} />)}</Layout>

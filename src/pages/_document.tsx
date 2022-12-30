@@ -9,6 +9,9 @@ export default function Document() {
           id="stitches"
           dangerouslySetInnerHTML={{ __html: getCssText() }}
         />
+        <meta name="description" content="Stock Management Application" />
+        <link rel="icon" href="/Logo.svg" />
+        {/* <meta name="viewport" content="width=device-width, initial-scale=1" /> */}
       </Head>
       <body>
         <Main />

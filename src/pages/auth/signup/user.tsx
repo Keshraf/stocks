@@ -7,6 +7,12 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
+import { Badge } from "@mantine/core";
+import Policy from "~/components/Policy";
+import Logo from "~/components/Logo";
+import Head from "next/head";
+import { trpc } from "~/utils/trpc";
+import { NewUserSchema, type NewUser } from "~/types/user";
 
 const Page = styled("section", {
   width: "100%",
@@ -30,61 +36,45 @@ const Modal = styled("div", {
   gap: "$gapLarge",
 });
 
-const UserSchema = z
-  .object({
-    name: z
-      .string({
-        required_error: "Name is required",
-        invalid_type_error: "Name must be a string",
-      })
-      .min(3, { message: "Name must contain atleast 3 letters" })
-      .max(10, { message: "Name can contain atmost 10 letters" })
-      .trim(),
-    email: z
-      .string({
-        required_error: "Email is required",
-        invalid_type_error: "Email must be a string",
-      })
-      .email({ message: "Invalid Email Address" })
-      .trim(),
-    password: z
-      .string()
-      .min(5, { message: "Password must contain atleast 5 letters" })
-      .trim(),
-    confirm: z.string().trim(),
-  })
-  .refine((data) => data.password === data.confirm, {
-    message: "Passwords don't match!",
-  });
-
-type User = z.infer<typeof UserSchema>;
-
-const Signup = () => {
+const UserSignup = () => {
   const [name, setName] = useState<string>("");
+  const [company, setCompany] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirm, setConfirm] = useState<string>("");
+  const [checked, setChecked] = useState<boolean>(false);
+
+  const createUser = trpc.auth.createUser.useMutation();
 
   const submitHandler = (e: FormEvent) => {
     e.preventDefault();
-    const data: User = {
+    if (!checked) {
+      toast.error("Please accept terms of service");
+      return;
+    }
+    const data: NewUser = {
       name,
       email,
+      company,
       password,
       confirm,
     };
-    const result = UserSchema.safeParse(data);
+    const result = NewUserSchema.safeParse(data);
     if (!result.success) {
       result.error.issues.forEach((issue) => {
         toast.error(issue.message);
       });
     } else {
       console.log(data);
+      createUser.mutate(data);
     }
   };
 
   return (
     <>
+      <Head>
+        <title>Sign up - Balaji Khata</title>
+      </Head>
       <Toaster
         position="top-center"
         toastOptions={{
@@ -96,9 +86,17 @@ const Signup = () => {
         }}
       />
       <Page>
+        <Logo />
         <Modal>
           <div className={flex({ width: "full", justify: "center" })}>
-            <Text type="LargeBold">Sign Up </Text>
+            <Text type="LargeBold">
+              <div className={flex({ gap: "small" })}>
+                Sign Up
+                <Badge size="lg" radius="md">
+                  User
+                </Badge>
+              </div>
+            </Text>
           </div>
           <form
             className={flex({
@@ -146,6 +144,21 @@ const Signup = () => {
                 gap: "medium",
               })}
             >
+              <Text type="SmallMedium">Company Name</Text>
+              <Input
+                type="text"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+              />
+            </div>
+            <div
+              className={flex({
+                direction: "column",
+                align: "start",
+                width: "full",
+                gap: "medium",
+              })}
+            >
               <Text type="SmallMedium">Set Password</Text>
               <Input
                 type="password"
@@ -168,6 +181,7 @@ const Signup = () => {
                 onChange={(e) => setConfirm(e.target.value)}
               />
             </div>
+            <Policy checked={checked} setChecked={setChecked} />
             <ActionButton type="submit" css={{ width: "100%" }}>
               Submit
             </ActionButton>
@@ -181,7 +195,7 @@ const Signup = () => {
                   textDecoration: "underline",
                 }}
               >
-                <Link href="/signin">Sign In</Link>
+                <Link href="/auth/signin/user">Sign In</Link>
               </span>
             </Text>
           </div>
@@ -191,6 +205,6 @@ const Signup = () => {
   );
 };
 
-Signup.isAuth = true;
+UserSignup.removeNav = true;
 
-export default Signup;
+export default UserSignup;

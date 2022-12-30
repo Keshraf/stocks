@@ -7,6 +7,9 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
+import { Badge } from "@mantine/core";
+import Logo from "~/components/Logo";
+import Head from "next/head";
 
 const Page = styled("section", {
   width: "100%",
@@ -30,13 +33,20 @@ const Modal = styled("div", {
   gap: "$gapLarge",
 });
 
-const UserSchema = z.object({
-  email: z
+const WorkerSchema = z.object({
+  username: z
     .string({
       required_error: "Email is required",
       invalid_type_error: "Email must be a string",
     })
     .email({ message: "Invalid Email Address" })
+    .trim(),
+  company: z
+    .string({
+      required_error: "Company is required",
+      invalid_type_error: "Company must be a string",
+    })
+    .min(3, { message: "Name must contain atleast 3 letters" })
     .trim(),
   password: z
     .string()
@@ -44,19 +54,21 @@ const UserSchema = z.object({
     .trim(),
 });
 
-type User = z.infer<typeof UserSchema>;
+type Worker = z.infer<typeof WorkerSchema>;
 
-const Signin = () => {
-  const [email, setEmail] = useState<string>("");
+const Worker = () => {
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [company, setCompany] = useState<string>("");
 
   const submitHandler = (e: FormEvent) => {
     e.preventDefault();
-    const data: User = {
-      email,
+    const data: Worker = {
+      username,
+      company,
       password,
     };
-    const result = UserSchema.safeParse(data);
+    const result = WorkerSchema.safeParse(data);
     if (!result.success) {
       result.error.issues.forEach((issue) => {
         toast.error(issue.message);
@@ -68,6 +80,9 @@ const Signin = () => {
 
   return (
     <>
+      <Head>
+        <title>Sign In - Balaji Khata</title>
+      </Head>
       <Toaster
         position="top-center"
         toastOptions={{
@@ -78,10 +93,18 @@ const Signin = () => {
           },
         }}
       />
+      <Logo />
       <Page>
         <Modal>
           <div className={flex({ width: "full", justify: "center" })}>
-            <Text type="LargeBold">Sign In </Text>
+            <Text type="LargeBold">
+              <div className={flex({ gap: "small" })}>
+                Sign In
+                <Badge size="lg" radius="md">
+                  Team
+                </Badge>
+              </div>
+            </Text>
           </div>
           <form
             className={flex({
@@ -99,11 +122,26 @@ const Signin = () => {
                 gap: "medium",
               })}
             >
-              <Text type="SmallMedium">Email Address</Text>
+              <Text type="SmallMedium">Username</Text>
               <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div
+              className={flex({
+                direction: "column",
+                align: "start",
+                width: "full",
+                gap: "medium",
+              })}
+            >
+              <Text type="SmallMedium">Company</Text>
+              <Input
+                type="text"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
               />
             </div>
             <div
@@ -121,6 +159,7 @@ const Signin = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+
             <ActionButton type="submit" css={{ width: "100%" }}>
               Submit
             </ActionButton>
@@ -134,7 +173,7 @@ const Signin = () => {
                   textDecoration: "underline",
                 }}
               >
-                <Link href="/signup">Sign up</Link>
+                <Link href="/auth/signup/user">Sign up</Link>
               </span>
             </Text>
           </div>
@@ -144,6 +183,6 @@ const Signin = () => {
   );
 };
 
-Signin.isAuth = true;
+Worker.removeNav = true;
 
-export default Signin;
+export default Worker;
