@@ -91,14 +91,12 @@ const UserSignin = () => {
 
         <Modal>
           <div className={flex({ width: "full", justify: "center" })}>
-            <Text type="LargeBold">
-              <div className={flex({ gap: "small" })}>
-                Sign In
-                <Badge size="lg" radius="md">
-                  User
-                </Badge>
-              </div>
-            </Text>
+            <div className={flex({ gap: "small" })}>
+              <Text type="LargeBold">Sign In</Text>
+              <Badge size="lg" radius="md">
+                User
+              </Badge>
+            </div>
           </div>
           <form
             className={flex({
