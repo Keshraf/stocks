@@ -34,3 +34,19 @@ export const NewUserSchema = z
   });
 
 export type NewUser = z.infer<typeof NewUserSchema>;
+
+export const SigninUserSchema = z.object({
+  email: z
+    .string({
+      required_error: "Email is required",
+      invalid_type_error: "Email must be a string",
+    })
+    .email({ message: "Invalid Email Address" })
+    .trim(),
+  password: z
+    .string()
+    .min(5, { message: "Password must contain atleast 5 letters" })
+    .trim(),
+});
+
+export type SigninUser = z.infer<typeof SigninUserSchema>;

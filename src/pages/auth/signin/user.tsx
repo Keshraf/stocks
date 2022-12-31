@@ -5,12 +5,12 @@ import { Input } from "~/components/UI/Input";
 import { ActionButton } from "~/components/UI/Buttons";
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { z } from "zod";
 import toast, { Toaster } from "react-hot-toast";
 import { Badge } from "@mantine/core";
-import Image from "next/image";
 import Logo from "~/components/Logo";
 import Head from "next/head";
+import { SigninUserSchema, type SigninUser } from "~/types/user";
+import { trpc } from "~/utils/trpc";
 
 const Page = styled("section", {
   width: "100%",
@@ -34,39 +34,30 @@ const Modal = styled("div", {
   gap: "$gapLarge",
 });
 
-const UserSchema = z.object({
-  email: z
-    .string({
-      required_error: "Email is required",
-      invalid_type_error: "Email must be a string",
-    })
-    .email({ message: "Invalid Email Address" })
-    .trim(),
-  password: z
-    .string()
-    .min(5, { message: "Password must contain atleast 5 letters" })
-    .trim(),
-});
-
-type User = z.infer<typeof UserSchema>;
-
 const UserSignin = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const submitHandler = (e: FormEvent) => {
+  const signinUser = trpc.auth.signinUser.useMutation();
+  console.log(signinUser);
+
+  const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
-    const data: User = {
+    const data: SigninUser = {
       email,
       password,
     };
-    const result = UserSchema.safeParse(data);
+    const result = SigninUserSchema.safeParse(data);
     if (!result.success) {
       result.error.issues.forEach((issue) => {
         toast.error(issue.message);
       });
     } else {
       console.log(data);
+      const response = await signinUser.mutateAsync(data);
+      console.log(response);
+      if (signinUser.error) {
+      }
     }
   };
 

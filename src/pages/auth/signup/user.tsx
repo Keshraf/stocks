@@ -46,7 +46,7 @@ const UserSignup = () => {
 
   const createUser = trpc.auth.createUser.useMutation();
 
-  const submitHandler = (e: FormEvent) => {
+  const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
     if (!checked) {
       toast.error("Please accept terms of service");
@@ -66,7 +66,8 @@ const UserSignup = () => {
       });
     } else {
       console.log(data);
-      createUser.mutate(data);
+      const createdUser = await createUser.mutate(data);
+      console.log("CREATED USER: ", createdUser);
     }
   };
 

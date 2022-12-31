@@ -1,7 +1,29 @@
 import { PrismaClient } from "@prisma/client";
 import { inferAsyncReturnType } from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
+import { NextApiRequest } from "next";
+import jwt from "jsonwebtoken";
+import { env } from "~/env/server.mjs";
 /* import prisma from "../utils/prisma"; */
+
+interface CtxUser {
+  email: string;
+  id: string;
+}
+
+const getUserFromCookie = (req: NextApiRequest) => {
+  const token = req.cookies.STOCKS_ACCESS_TOKEN;
+
+  if (token) {
+    try {
+      const verified = jwt.verify(token, env.JWT_SECRET);
+      return verified;
+    } catch (error) {
+      return null;
+    }
+  }
+  return null;
+};
 
 /**
  * Creates context for an incoming request
@@ -9,10 +31,12 @@ import * as trpcNext from "@trpc/server/adapters/next";
  */
 export async function createContext(opts: trpcNext.CreateNextContextOptions) {
   const prisma = new PrismaClient();
+  const user = getUserFromCookie(opts.req);
   return {
     req: opts.req,
     res: opts.res,
     prisma,
+    user,
   };
 }
 
