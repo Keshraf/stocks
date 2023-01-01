@@ -11,6 +11,7 @@ import Logo from "~/components/Logo";
 import Head from "next/head";
 import { SigninUserSchema, type SigninUser } from "~/types/user";
 import { trpc } from "~/utils/trpc";
+import { useRouter } from "next/router";
 
 const Page = styled("section", {
   width: "100%",
@@ -37,12 +38,14 @@ const Modal = styled("div", {
 const UserSignin = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const router = useRouter();
 
   const signinUser = trpc.auth.signinUser.useMutation();
   console.log(signinUser);
 
   const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
+
     const data: SigninUser = {
       email,
       password,
@@ -53,11 +56,30 @@ const UserSignin = () => {
         toast.error(issue.message);
       });
     } else {
+      const toastId = toast.loading("Signing in...", {
+        duration: 10000,
+      });
       console.log(data);
-      const response = await signinUser.mutateAsync(data);
-      console.log(response);
-      if (signinUser.error) {
-      }
+      const SigninPromise = await signinUser
+        .mutateAsync(data)
+        .then((response) => {
+          toast.success("Succesfully signed In", {
+            id: toastId,
+          });
+          console.log(response);
+          router.push("/stocks");
+        })
+        .catch((err) => {
+          if (signinUser.error && signinUser.error.message) {
+            toast.error(signinUser.error.message, {
+              id: toastId,
+            });
+          } else {
+            toast.error("Unable to Sign In", {
+              id: toastId,
+            });
+          }
+        });
     }
   };
 
@@ -69,7 +91,7 @@ const UserSignin = () => {
       <Toaster
         position="top-center"
         toastOptions={{
-          duration: 2000,
+          duration: 1000,
           style: {
             background: theme.colors.white.value,
             color: theme.colors.content.value,

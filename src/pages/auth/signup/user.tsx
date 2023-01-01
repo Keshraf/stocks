@@ -13,6 +13,7 @@ import Logo from "~/components/Logo";
 import Head from "next/head";
 import { trpc } from "~/utils/trpc";
 import { NewUserSchema, type NewUser } from "~/types/user";
+import { useRouter } from "next/router";
 
 const Page = styled("section", {
   width: "100%",
@@ -45,6 +46,7 @@ const UserSignup = () => {
   const [checked, setChecked] = useState<boolean>(false);
 
   const createUser = trpc.auth.createUser.useMutation();
+  const router = useRouter();
 
   const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
@@ -65,9 +67,30 @@ const UserSignup = () => {
         toast.error(issue.message);
       });
     } else {
+      const toastId = toast.loading("Creating an account...", {
+        duration: 10000,
+      });
       console.log(data);
-      const createdUser = await createUser.mutate(data);
-      console.log("CREATED USER: ", createdUser);
+      const SigninPromise = await createUser
+        .mutateAsync(data)
+        .then((response) => {
+          toast.success("Succesfully Created!", {
+            id: toastId,
+          });
+          console.log(response);
+          router.push("/stocks");
+        })
+        .catch((err) => {
+          if (createUser.error && createUser.error.message) {
+            toast.error(createUser.error.message, {
+              id: toastId,
+            });
+          } else {
+            toast.error("Unable to create user", {
+              id: toastId,
+            });
+          }
+        });
     }
   };
 

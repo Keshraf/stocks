@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 import { env } from "~/env/server.mjs";
+import { TRPCError } from "@trpc/server";
 
 export const createUserRouter = router({
   createUser: publicProcedure
@@ -27,9 +28,10 @@ export const createUserRouter = router({
           },
         });
       } catch (error) {
-        return {
-          error: "User already exists!",
-        };
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "User already exists!",
+        });
       }
 
       const token = jwt.sign(
