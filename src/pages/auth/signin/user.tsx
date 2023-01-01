@@ -41,7 +41,7 @@ const UserSignin = () => {
   const router = useRouter();
 
   const signinUser = trpc.auth.signinUser.useMutation();
-  console.log(signinUser);
+  const userData = trpc.check.useMutation();
 
   const submitHandler = async (e: FormEvent) => {
     e.preventDefault();
@@ -62,11 +62,12 @@ const UserSignin = () => {
       console.log(data);
       const SigninPromise = await signinUser
         .mutateAsync(data)
-        .then((response) => {
+        .then(async (response) => {
           toast.success("Succesfully signed In", {
             id: toastId,
           });
           console.log(response);
+          console.log("User Data: ", await userData.mutateAsync());
           router.push("/stocks");
         })
         .catch((err) => {

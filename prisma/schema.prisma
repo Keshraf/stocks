@@ -36,15 +36,22 @@ model Company {
   logo      String?
   user      User      @relation(fields: [userEmail], references: [email])
   userEmail String    @unique
+  quality   Quality[]
+  mill      Mill[]
   worker    Worker[]
+  client    Client[]
+  stock     Stock[]
+  order     Order[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  quality   Quality[]
 }
 
 model Mill {
+  id        String    @id @default(uuid())
   name      String    @unique
   quality   Quality[]
+  company   Company   @relation(fields: [companyId], references: [id])
+  companyId String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -74,7 +81,8 @@ model Stock {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order[]
-  //orderHistory OrderHistory[]
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
 }
 
 model Order {
@@ -85,8 +93,10 @@ model Order {
   stockId         String   @unique
   quantity        Int
   status          String
-  clientName      String
-  client          Client   @relation(fields: [clientName], references: [name])
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id])
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
   billingAddress  String
   shippingAddress String
 }
@@ -95,21 +105,12 @@ model Client {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String   @unique
+  name      String
   address   String[]
-  number    BigInt
+  mobile    BigInt
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
   email     String?
   gst       String?
   order     Order[]
-  //orderHistory OrderHistory[]
 }
-
-//model OrderHistory {
-//  id Int @id @default(autoincrement())
-//  clientName String
-//  client     Client   @relation(fields: [clientName], references: [name])
-//  stock      Stock    @relation(fields: [stockId], references: [id])
-// stockId    String   @unique
-// order Order @relation(fields: [orderId], references: [id])
-// orderId String @unique
-// }

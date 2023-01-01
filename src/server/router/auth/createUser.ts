@@ -34,10 +34,17 @@ export const createUserRouter = router({
         });
       }
 
+      const companyData = await ctx.prisma.company.findUnique({
+        where: {
+          userEmail: user.email,
+        },
+      });
+
       const token = jwt.sign(
         {
           email: user.email,
           id: user.id,
+          company: companyData?.id,
           time: Date.now(),
         },
         env.JWT_SECRET,

@@ -13,7 +13,6 @@ interface CtxUser {
 
 const getUserFromCookie = (req: NextApiRequest) => {
   const token = req.cookies.STOCKS_ACCESS_TOKEN;
-
   if (token) {
     try {
       const verified = jwt.verify(token, env.JWT_SECRET);

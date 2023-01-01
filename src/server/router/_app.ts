@@ -5,6 +5,9 @@ import { authRouter } from "./auth";
 
 export const appRouter = router({
   auth: authRouter,
+  check: protectedProcedure.mutation(({ ctx }) => {
+    return ctx.user;
+  }),
 });
 
 // export type definition of API
