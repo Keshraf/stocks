@@ -1,6 +1,8 @@
-import prisma from "../src/utils/prisma";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { seedData } from "./data";
+
+const prisma = new PrismaClient();
 
 const run = async () => {
   console.log("seeding...");
