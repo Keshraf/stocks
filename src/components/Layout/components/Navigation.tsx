@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { useState } from "react";
-import { styled } from "../../../../stitches.config";
+import { useEffect, useMemo, useState } from "react";
+import { styled, theme } from "../../../../stitches.config";
 import { AiOutlineUser } from "react-icons/ai";
 import Text from "../../UI/Text";
+import { useRouter } from "next/router";
+import console from "console";
 
 const Container = styled("nav", {
   width: "100%",
@@ -58,28 +60,41 @@ type NavArr = {
 
 const Navigation = () => {
   const [activeNav, setActiveNav] = useState<NavText>("Stocks");
-  const navLinks: NavArr[] = [
-    {
-      text: "Stocks",
-      link: "/",
-    },
-    {
-      text: "Orders",
-      link: "/orders",
-    },
-    {
-      text: "Clients",
-      link: "/clients",
-    },
-    {
-      text: "Upload",
-      link: "/upload",
-    },
-    {
-      text: "Analytics",
-      link: "/analytics",
-    },
-  ];
+  const router = useRouter();
+  const navLinks: NavArr[] = useMemo(
+    () => [
+      {
+        text: "Stocks",
+        link: "/stocks",
+      },
+      {
+        text: "Orders",
+        link: "/orders",
+      },
+      {
+        text: "Clients",
+        link: "/clients",
+      },
+      {
+        text: "Upload",
+        link: "/upload",
+      },
+      {
+        text: "Analytics",
+        link: "/analytics",
+      },
+    ],
+    []
+  );
+
+  useEffect(() => {
+    const path = router.pathname;
+    navLinks.forEach((nav) => {
+      if (nav.link === path) {
+        setActiveNav(nav.text);
+      }
+    });
+  }, [router.pathname, navLinks]);
 
   return (
     <Container>
@@ -104,7 +119,7 @@ const Navigation = () => {
         })}
       </NavLinks>
       <IconContainer>
-        <AiOutlineUser fontSize={24} color={"#000"} />
+        <AiOutlineUser fontSize={24} color={theme.colors.content.value} />
       </IconContainer>
     </Container>
   );
