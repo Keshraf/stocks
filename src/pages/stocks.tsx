@@ -1,9 +1,13 @@
 import Head from "next/head";
 import { NextPageWithLayout } from "./_app";
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import ActionHeader from "../components/ActionHeader/ActionHeader";
 import { styled } from "../../stitches.config";
 import StocksTable from "../components/Table/StocksTable";
+import { trpc } from "~/utils/trpc";
+import { useRouter } from "next/router";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { JwtPayload } from "jsonwebtoken";
 
 const Main = styled("main", {
   width: "100%",
@@ -19,16 +23,32 @@ const Main = styled("main", {
 });
 
 const Page: NextPageWithLayout = () => {
-  return (
-    <>
-      <Head>
-        <title>Balaji Khata</title>
-      </Head>
-      <Main>
-        <StocksTable />
-      </Main>
-    </>
-  );
+  const user = trpc.getMe.useQuery();
+  const router = useRouter();
+
+  switch (user.status) {
+    case "loading": {
+      return <h2>Loading...</h2>;
+    }
+    case "error": {
+      router.push("/");
+    }
+    case "success": {
+      return (
+        <>
+          <Head>
+            <title>Balaji Khata</title>
+          </Head>
+          <Main>
+            <StocksTable />
+          </Main>
+        </>
+      );
+    }
+    default: {
+      return <h2>Loading...</h2>;
+    }
+  }
 };
 
 Page.getLayout = function getLayout(page: ReactElement) {

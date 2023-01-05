@@ -6,9 +6,10 @@ import jwt from "jsonwebtoken";
 import { env } from "~/env/server.mjs";
 /* import prisma from "../utils/prisma"; */
 
-interface CtxUser {
+interface CtxUser extends jwt.JwtPayload {
   email: string;
   id: string;
+  company: string;
 }
 
 const getUserFromCookie = (req: NextApiRequest) => {
@@ -16,6 +17,10 @@ const getUserFromCookie = (req: NextApiRequest) => {
   if (token) {
     try {
       const verified = jwt.verify(token, env.JWT_SECRET);
+      if (typeof verified === "string") {
+        return null;
+      }
+
       return verified;
     } catch (error) {
       return null;

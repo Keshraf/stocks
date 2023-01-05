@@ -1,13 +1,14 @@
-import { z } from "zod";
-import connectDB from "~/utils/prisma";
-import { publicProcedure, router, protectedProcedure } from "../trpc";
+import { router, protectedProcedure } from "../trpc";
 import { authRouter } from "./auth";
+import { stocksRouter } from "./stocks";
 
 export const appRouter = router({
   auth: authRouter,
-  check: protectedProcedure.mutation(({ ctx }) => {
+  getMe: protectedProcedure.query(({ ctx }) => {
+    console.log(ctx.user);
     return ctx.user;
   }),
+  stocks: stocksRouter,
 });
 
 // export type definition of API

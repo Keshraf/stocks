@@ -9,7 +9,6 @@ const t = initTRPC.context<Context>().create({
   transformer: superjson,
 });
 // Base router and procedure helpers
-
 const isAuthed = t.middleware(async ({ next, ctx }) => {
   if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
