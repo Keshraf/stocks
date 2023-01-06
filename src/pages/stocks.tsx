@@ -1,4 +1,3 @@
-import Head from "next/head";
 import { NextPageWithLayout } from "./_app";
 import { ReactElement, useEffect } from "react";
 import ActionHeader from "../components/ActionHeader/ActionHeader";
@@ -36,9 +35,6 @@ const Page: NextPageWithLayout = () => {
     case "success": {
       return (
         <>
-          <Head>
-            <title>Balaji Khata</title>
-          </Head>
           <Main>
             <StocksTable />
           </Main>

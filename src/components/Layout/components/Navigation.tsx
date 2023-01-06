@@ -5,6 +5,7 @@ import { AiOutlineUser } from "react-icons/ai";
 import Text from "../../UI/Text";
 import { useRouter } from "next/router";
 import console from "console";
+import Head from "next/head";
 
 const Container = styled("nav", {
   width: "100%",
@@ -97,31 +98,36 @@ const Navigation = () => {
   }, [router.pathname, navLinks]);
 
   return (
-    <Container>
-      <NavLinks>
-        {navLinks.map((value) => {
-          if (activeNav === value.text) {
+    <>
+      <Head>
+        <title>{activeNav}</title>
+      </Head>
+      <Container>
+        <NavLinks>
+          {navLinks.map((value) => {
+            if (activeNav === value.text) {
+              return (
+                <NavLink variant="active" key={value.text} href={value.link}>
+                  <Text type="MediumSemibold">{value.text}</Text>
+                </NavLink>
+              );
+            }
             return (
-              <NavLink variant="active" key={value.text} href={value.link}>
+              <NavLink
+                key={value.text}
+                href={value.link}
+                onClick={() => setActiveNav(value.text)}
+              >
                 <Text type="MediumSemibold">{value.text}</Text>
               </NavLink>
             );
-          }
-          return (
-            <NavLink
-              key={value.text}
-              href={value.link}
-              onClick={() => setActiveNav(value.text)}
-            >
-              <Text type="MediumSemibold">{value.text}</Text>
-            </NavLink>
-          );
-        })}
-      </NavLinks>
-      <IconContainer>
-        <AiOutlineUser fontSize={24} color={theme.colors.content.value} />
-      </IconContainer>
-    </Container>
+          })}
+        </NavLinks>
+        <IconContainer>
+          <AiOutlineUser fontSize={24} color={theme.colors.content.value} />
+        </IconContainer>
+      </Container>
+    </>
   );
 };
 

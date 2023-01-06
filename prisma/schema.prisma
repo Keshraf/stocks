@@ -76,8 +76,9 @@ model Stock {
   length      Float?
   weight      Float
   gsm         Int
-  sheet       Int
+  sheets      Int
   quantity    Int
+  bundle      Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order[]

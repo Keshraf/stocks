@@ -11,16 +11,24 @@ export default async function middleware(
   request: NextRequest,
   response: NextResponse
 ) {
-  /* console.log(request.nextUrl.pathname); */
+  const path = request.nextUrl.pathname;
 
-  if (request.nextUrl.pathname.includes("/stocks")) {
+  if (
+    path.includes("/stocks") ||
+    path.includes(
+      "/upload" ||
+        path.includes("/orders") ||
+        path.includes("/clients") ||
+        path.includes("/analytics")
+    )
+  ) {
     const token = request.cookies.get("STOCKS_ACCESS_TOKEN")?.value;
     if (token === undefined) {
       return NextResponse.redirect(`${getBaseUrl()}/`);
     }
   }
 
-  if (request.nextUrl.pathname === "/") {
+  if (path === "/") {
     const token = request.cookies.get("STOCKS_ACCESS_TOKEN")?.value;
     if (token !== undefined) {
       return NextResponse.redirect(`${getBaseUrl()}/stocks`);

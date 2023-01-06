@@ -32,7 +32,7 @@ export const signinUserRouter = router({
             {
               id: user.id,
               email: user.email,
-              comapny: companyData?.id,
+              company: companyData?.id,
               time: Date.now(),
             },
             env.JWT_SECRET,

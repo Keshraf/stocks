@@ -32,4 +32,14 @@ export const ActionButton = styled("button", {
   borderRadius: "$roundMedium",
   border: "1px solid $ctaLight",
   cursor: "pointer",
+  variants: {
+    status: {
+      active: {
+        backgroundColor: "$cta",
+      },
+      inactive: {
+        backgroundColor: "$ctaLight",
+      },
+    },
+  },
 });
