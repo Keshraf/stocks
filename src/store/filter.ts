@@ -83,6 +83,10 @@ export interface DeactivateFilterPayload {
   group: "stocks";
 }
 
+export interface RemoveAllFilterPayload {
+  group: "stocks";
+}
+
 export const filterSlice = createSlice({
   name: "filter",
   initialState,
@@ -110,9 +114,20 @@ export const filterSlice = createSlice({
         return item;
       });
     },
+    removeAllFilters: (
+      state,
+      action: PayloadAction<RemoveAllFilterPayload>
+    ) => {
+      const { group } = action.payload;
+      state[group].map((item) => {
+        item.active = false;
+        return item;
+      });
+    },
   },
 });
 
-export const { setFilter, deactivateFilter } = filterSlice.actions;
+export const { setFilter, deactivateFilter, removeAllFilters } =
+  filterSlice.actions;
 
 export default filterSlice.reducer;

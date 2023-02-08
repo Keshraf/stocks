@@ -3,7 +3,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { BiFilter } from "react-icons/bi";
 import { styled, theme } from "stitches.config";
-import { useAppSelector } from "~/store";
+import { useAppDispatch, useAppSelector } from "~/store";
+import { removeAllFilters } from "~/store/filter";
 import { Button } from "../UI/Buttons";
 import Text from "../UI/Text";
 import FilterInput from "./components/FilterInput";
@@ -31,11 +32,14 @@ export default function Filter2() {
   const [opened, setOpened] = useState(false);
   const filter = useAppSelector((state) => state.filter);
   const [filterOptions, setFilterOptions] = useState<any>([]);
+  const [location, setLocation] = useState<"stocks">();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     console.log(router.pathname.split("/")[1]);
 
     if (router.pathname.split("/")[1] === "stocks") {
+      setLocation("stocks");
       setFilterOptions(filter.stocks);
     }
   }, [router.pathname, filter]);
@@ -53,6 +57,14 @@ export default function Filter2() {
     return count.toString();
   };
 
+  const removeFilterHanlder = () => {
+    dispatch(
+      removeAllFilters({
+        group: location,
+      })
+    );
+  };
+
   return (
     <>
       <Drawer
@@ -68,6 +80,9 @@ export default function Filter2() {
           {filterOptions.map((data: any, index: number) => {
             return <FilterInput data={data} key={index} />;
           })}
+          <Button size={"full"} onClick={removeFilterHanlder}>
+            Remove All Filters
+          </Button>
         </Wrapper>
       </Drawer>
 

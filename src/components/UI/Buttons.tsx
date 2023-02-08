@@ -23,6 +23,9 @@ export const Button = styled("button", {
         fontSize: "$medium",
         height: "42px",
       },
+      full: {
+        width: "100%",
+      },
     },
   },
 
