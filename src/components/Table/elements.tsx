@@ -15,6 +15,7 @@ export const TableItem = styled("td", {
 export const TableHeadItem = styled("th", {
   width: "10%",
   height: "auto",
+  lineHeight: "20px",
   fontFamily: "Poppins",
   fontSize: "$large",
   color: "$content",
@@ -23,6 +24,12 @@ export const TableHeadItem = styled("th", {
   whiteSpace: "nowrap",
   textAlign: "left",
   fontWeight: "$semibold",
+  userSelect: "none",
+  "&:hover": {
+    textDecoration: "underline",
+    textUnderlineOffset: "2px",
+    textDecorationThickness: "2px",
+  },
 });
 
 export const TableRow = styled("tr", {

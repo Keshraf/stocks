@@ -56,9 +56,9 @@ const SearchBar = ({
         placeholder="Search"
         onChange={(e) => setQuery(e.target.value)}
       />
-      <IconContainer>
+      {/* <IconContainer>
         <BiSearch fontSize={20} color={"#000"} />
-      </IconContainer>
+      </IconContainer> */}
     </Container>
   );
 };

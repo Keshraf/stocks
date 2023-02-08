@@ -1,55 +1,74 @@
 import { protectedProcedure, router } from "~/server/trpc";
 import { StockSchema, StockArrSchema } from "~/types/stocks";
 
+interface Mill {
+  [key: string]: string;
+}
+
+const millsName: Mill = {
+  SH: "SAHOTA PAPERS LIMITED",
+  EDI: "EDICON PAPER PRODUCTS PRIVATE LIMITED ",
+  VP: " VISHAL PAPERTECH (INDIA) LTD",
+  KD: "KAILASHIDEVI PULPS & PAPER PRODUCTS",
+  EM: "EMAMI PAPER MILLS LIMITED",
+  DP: "DIYAN PAPERS LLP",
+  TN: "TAMILNADU NEWSPRINT AND PAPERS LIMITED",
+  LEM: "LEMIT PAPERS LLP",
+  DS: "DEEVYA SHAKTI INDIA PRIVATE LIMITED",
+  UNI: "UNIGLOBAL PAPERS PRIVATE LIMITED",
+};
+
 export const postStocksBulkRouter = router({
   postStocksBulk: protectedProcedure
     .input(StockArrSchema)
     .mutation(async ({ input, ctx }) => {
       console.log(ctx);
-      /* return {
-        message: "bc",
-      };
- */
-      const data = input.map(async (val) => {
-        const mill = await ctx.prisma.mill.upsert({
-          where: {
-            name: val.mill,
-          },
-          update: {},
-          create: {
-            name: val.mill,
-            companyId: ctx.user.company,
-          },
-        });
 
-        const quality = await ctx.prisma.quality.upsert({
-          where: {
-            name: val.qualityName,
-          },
-          update: {},
-          create: {
-            name: val.qualityName,
-            millName: val.mill,
-            companyId: ctx.user.company,
-          },
-        });
+      const companyId = ctx.user.company;
 
-        const stock = await ctx.prisma.stock.create({
+      if (!companyId) {
+        throw new Error("User is not associated with a company");
+      }
+
+      const mills = await ctx.prisma.mill.createMany({
+        data: input.map((stock) => ({
+          name: stock.mill,
+          companyId,
+          fullname: millsName[stock.mill] || stock.mill,
+        })),
+        skipDuplicates: true,
+      });
+
+      const qualities = await ctx.prisma.quality.createMany({
+        data: input.map((stock) => ({
+          name: stock.qualityName,
+          millName: stock.mill,
+          companyId,
+        })),
+        skipDuplicates: true,
+      });
+
+      input.forEach(async (stock) => {
+        await ctx.prisma.specs.create({
           data: {
-            ...val,
-            companyId: ctx.user.company,
+            qualityName: stock.qualityName,
+            breadth: stock.breadth,
+            length: stock.length || undefined,
+            sheets: stock.sheets,
+            weight: stock.weight,
+            gsm: stock.gsm,
+            stock: {
+              create: {
+                quantity: stock.quantity,
+                bundle: stock.bundle || undefined,
+              },
+            },
           },
         });
-
-        return {
-          mill,
-          quality,
-          stock,
-        };
       });
 
       return {
-        data,
+        message: "Stocks added successfully",
       };
     }),
 });

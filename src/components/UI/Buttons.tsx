@@ -1,4 +1,5 @@
 import { styled } from "../../../stitches.config";
+import { Button as MantineButton } from "@mantine/core";
 
 export const Button = styled("button", {
   width: "fit-content",
@@ -15,6 +16,20 @@ export const Button = styled("button", {
   borderRadius: "$roundMedium",
   border: "1px solid $highlight",
   cursor: "pointer",
+  variants: {
+    size: {
+      small: {
+        padding: "0px 12px",
+        fontSize: "$medium",
+        height: "42px",
+      },
+    },
+  },
+
+  "&:hover": {
+    backgroundColor: "transparent",
+    border: "1px solid $content",
+  },
 });
 
 export const ActionButton = styled("button", {
@@ -39,6 +54,13 @@ export const ActionButton = styled("button", {
       },
       inactive: {
         backgroundColor: "$ctaLight",
+      },
+    },
+    size: {
+      small: {
+        padding: "0px 12px",
+        fontSize: "$medium",
+        height: "42px",
       },
     },
   },

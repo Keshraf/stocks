@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "~/env/server.mjs";
+import { trpc } from "./utils/trpc";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url

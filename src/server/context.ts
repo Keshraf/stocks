@@ -7,16 +7,17 @@ import { env } from "~/env/server.mjs";
 /* import prisma from "../utils/prisma"; */
 
 interface CtxUser extends jwt.JwtPayload {
-  email: string;
-  id: string;
-  company: string;
+  email?: string;
+  id?: string;
+  company?: string;
+  username?: string;
 }
 
 const getUserFromCookie = (req: NextApiRequest) => {
   const token = req.cookies.STOCKS_ACCESS_TOKEN;
   if (token) {
     try {
-      const verified = jwt.verify(token, env.JWT_SECRET);
+      const verified: CtxUser | string = jwt.verify(token, env.JWT_SECRET);
       if (typeof verified === "string") {
         return null;
       }
@@ -33,6 +34,7 @@ const getUserFromCookie = (req: NextApiRequest) => {
  * Creates context for an incoming request
  * @link https://trpc.io/docs/context
  */
+
 export async function createContext(opts: trpcNext.CreateNextContextOptions) {
   const prisma = new PrismaClient();
   const user = getUserFromCookie(opts.req);

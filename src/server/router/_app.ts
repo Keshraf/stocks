@@ -5,8 +5,9 @@ import { stocksRouter } from "./stocks";
 export const appRouter = router({
   auth: authRouter,
   getMe: protectedProcedure.query(({ ctx }) => {
-    console.log(ctx.user);
-    return ctx.user;
+    return {
+      message: "Authorized!",
+    };
   }),
   stocks: stocksRouter,
 });

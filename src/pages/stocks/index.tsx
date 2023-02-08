@@ -1,12 +1,10 @@
-import { NextPageWithLayout } from "./_app";
-import { ReactElement, useEffect } from "react";
-import ActionHeader from "../components/ActionHeader/ActionHeader";
-import { styled } from "../../stitches.config";
-import StocksTable from "../components/Table/StocksTable";
+import { NextPageWithLayout } from "../_app";
+import { ReactElement } from "react";
+import ActionHeader from "../../components/ActionHeader/ActionHeader";
+import { styled } from "../../../stitches.config";
+import StocksTable from "../../components/Table/StocksTable";
 import { trpc } from "~/utils/trpc";
 import { useRouter } from "next/router";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { JwtPayload } from "jsonwebtoken";
 
 const Main = styled("main", {
   width: "100%",
@@ -23,6 +21,7 @@ const Main = styled("main", {
 
 const Page: NextPageWithLayout = () => {
   const user = trpc.getMe.useQuery();
+  const stocks = trpc.stocks.getStocks.useQuery();
   const router = useRouter();
 
   switch (user.status) {
@@ -33,13 +32,17 @@ const Page: NextPageWithLayout = () => {
       router.push("/");
     }
     case "success": {
-      return (
-        <>
-          <Main>
-            <StocksTable />
-          </Main>
-        </>
-      );
+      if (stocks.status === "success") {
+        return (
+          <>
+            <Main>
+              <StocksTable data={stocks.data} />
+            </Main>
+          </>
+        );
+      } else {
+        return <h2>Loading...</h2>;
+      }
     }
     default: {
       return <h2>Loading...</h2>;

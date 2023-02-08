@@ -6,6 +6,8 @@ import { Poppins } from "@next/font/google";
 import Layout from "../components/Layout";
 import "../styles/globals.css";
 import { ReactElement, ReactNode } from "react";
+import { Provider as ReduxProvider } from "react-redux";
+import store from "~/store";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -25,13 +27,15 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
   const removeNav = Component.removeNav;
   return (
-    <main className={poppins.className}>
-      {removeNav ? (
-        getLayout(<Component {...pageProps} />)
-      ) : (
-        <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
-      )}
-    </main>
+    <ReduxProvider store={store}>
+      <main className={poppins.className}>
+        {removeNav ? (
+          getLayout(<Component {...pageProps} />)
+        ) : (
+          <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+        )}
+      </main>
+    </ReduxProvider>
   );
 }
 

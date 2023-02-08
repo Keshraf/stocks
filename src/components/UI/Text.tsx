@@ -4,6 +4,8 @@ import { styled } from "../../../stitches.config";
 export const DefaultText = styled("p", {
   fontFamily: "$Poppins",
   color: "$content",
+  display: "block",
+  gap: "2px",
   variants: {
     size: {
       small: { fontSize: "12px" },

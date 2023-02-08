@@ -32,6 +32,7 @@ export const { styled, css, getCssText, theme } = createStitches({
     },
     space: {
       gapSmall: "5px",
+      gapReguler: "8px",
       gapMedium: "12px",
       gapLarge: "15px",
       gapXLarge: "18px",

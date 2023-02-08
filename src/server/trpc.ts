@@ -14,6 +14,50 @@ const isAuthed = t.middleware(async ({ next, ctx }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
+  if (!ctx.user.company) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  const company = await ctx.prisma.company.findUnique({
+    where: {
+      id: ctx.user.company,
+    },
+  });
+
+  if (!company) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
+
+const isAuthedAdmin = t.middleware(async ({ next, ctx }) => {
+  if (!ctx.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (!ctx.user.company) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  if (!ctx.user.email) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  const user = await ctx.prisma.user.findUnique({
+    where: {
+      email: ctx.user.email,
+    },
+  });
+
+  if (!user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
   return next({
     ctx: {
       user: ctx.user,
@@ -25,3 +69,4 @@ export const router = t.router;
 export const mergeRouters = t.mergeRouters;
 export const publicProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthed);
+export const protectedAdminProcedure = t.procedure.use(isAuthedAdmin);

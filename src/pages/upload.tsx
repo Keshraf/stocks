@@ -57,30 +57,28 @@ const Upload = () => {
         mill = val;
       }
       // Dissects the KG String
-      else if (val.includes("KG")) {
+      else if (val.includes("KG") && val.includes("-")) {
         // Splits size & KG
-        if (val.includes("-")) {
-          const s = val.split("-");
-          if (s.length > 0 && s[0]) {
-            if (s[0].includes("X")) {
-              // Splits the SIZE str
-              const size = s[0].split("X");
-              // Gets breadth & length
-              if (size.length === 2 && size[0] && size[1]) {
-                breadth = Number(size[0]);
-                length = Number(size[1]);
-              }
-              // Just gets the Breadth
-              else if (size[0]) {
-                breadth = Number(size[0]);
-              }
+        const s = val.split("-");
+        if (s.length > 0 && s[0]) {
+          if (s[0].includes("X")) {
+            // Splits the SIZE str
+            const size = s[0].split("X");
+            // Gets breadth & length
+            if (size.length === 2 && size[0] && size[1]) {
+              breadth = Number(size[0]);
+              length = Number(size[1]);
+            }
+            // Just gets the Breadth
+            else if (size[0]) {
+              breadth = Number(size[0]);
             }
           }
+        }
 
-          // Gets the KG
-          if (s[1]) {
-            weight = Number(s[1].substring(0, s[1].length - 2));
-          }
+        // Gets the KG
+        if (s[1]) {
+          weight = Number(s[1].substring(0, s[1].length - 2));
         }
       } else if (
         (val.includes("G") && index === splitStr.length - 2) ||
@@ -101,13 +99,13 @@ const Upload = () => {
 
     return {
       gsm,
-      mill,
-      qualityName: qualityName.trim(),
+      sheets,
       breadth,
       length,
       weight,
-      sheets,
+      qualityName: qualityName.trim(),
       bundle,
+      mill,
     };
   }
 
@@ -132,17 +130,17 @@ const Upload = () => {
         const specs = getSpecs(item.name);
 
         return {
+          ...specs,
           quantity: item.quantity,
           packets: item.packets,
-          ...specs,
         };
       });
 
     console.log(StockArrSchema.safeParse(formatedData));
     console.log(formatedData);
-    /* const response = await sendStocks.mutateAsync(formatedData);
+    const response = await sendStocks.mutateAsync(formatedData);
 
-    console.log("Response", response); */
+    console.log("Response", response);
   };
   return (
     <>

@@ -22,7 +22,7 @@ model User {
 
 model Worker {
   id        String   @id @default(uuid())
-  username  String
+  username  String   @unique
   password  String
   company   Company  @relation(fields: [companyId], references: [id])
   companyId String
@@ -31,24 +31,21 @@ model Worker {
 }
 
 model Company {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
   logo      String?
-  user      User      @relation(fields: [userEmail], references: [email])
-  userEmail String    @unique
-  quality   Quality[]
+  user      User     @relation(fields: [userEmail], references: [email])
+  userEmail String   @unique
   mill      Mill[]
   worker    Worker[]
-  client    Client[]
-  stock     Stock[]
-  order     Order[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Mill {
   id        String    @id @default(uuid())
   name      String    @unique
+  fullname  String?
   quality   Quality[]
   company   Company   @relation(fields: [companyId], references: [id])
   companyId String
@@ -61,14 +58,13 @@ model Quality {
   name      String   @unique
   mill      Mill     @relation(fields: [millName], references: [name])
   millName  String
-  stock     Stock[]
+  specs     Specs[]
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Stock {
+model Specs {
   id          String   @id @default(uuid())
   quality     Quality  @relation(fields: [qualityName], references: [name])
   qualityName String
@@ -77,27 +73,34 @@ model Stock {
   weight      Float
   gsm         Int
   sheets      Int
-  quantity    Int
-  bundle      Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order[]
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id])
+  stock       Stock[]
+
+  @@unique([qualityName, breadth, length, weight, gsm, sheets])
+}
+
+model Stock {
+  id        String   @id @default(uuid())
+  specs     Specs    @relation(fields: [specsId], references: [id])
+  specsId   String
+  quantity  Float
+  bundle    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Order {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  stock           Stock    @relation(fields: [stockId], references: [id])
-  stockId         String   @unique
+  specs           Specs    @relation(fields: [specsId], references: [id])
+  specsId         String
   quantity        Int
   status          String
   clientId        String
   client          Client   @relation(fields: [clientId], references: [id])
-  companyId       String
-  company         Company  @relation(fields: [companyId], references: [id])
   billingAddress  String
   shippingAddress String
 }
@@ -110,7 +113,6 @@ model Client {
   address   String[]
   mobile    BigInt
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
   email     String?
   gst       String?
   order     Order[]

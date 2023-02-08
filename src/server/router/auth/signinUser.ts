@@ -10,8 +10,6 @@ export const signinUserRouter = router({
   signinUser: publicProcedure
     .input(SigninUserSchema)
     .mutation(async ({ input, ctx }) => {
-      console.log(input);
-      const salt = bcrypt.genSaltSync();
       const { email, password } = input;
 
       const user = await ctx.prisma.user.findUnique({
