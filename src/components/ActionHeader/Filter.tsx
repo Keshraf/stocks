@@ -58,6 +58,7 @@ export default function Filter2() {
   };
 
   const removeFilterHanlder = () => {
+    if (!location) return;
     dispatch(
       removeAllFilters({
         group: location,
