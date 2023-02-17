@@ -75,9 +75,9 @@ export type PrismaDataClient = {
   id: string;
   name: string;
   address: string[];
-  mobile: number;
-  email?: string;
-  gst?: string;
+  mobile: bigint | null;
+  email: string | null;
+  gst: string | null;
   order?: PrismaOrder[];
   createdAt: Date;
   updatedAt: Date;

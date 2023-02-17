@@ -3,6 +3,10 @@ import { Button as MantineButton } from "@mantine/core";
 
 export const Button = styled("button", {
   width: "fit-content",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
   paddingLeft: "18px",
   paddingRight: "18px",
   height: "50px",
@@ -26,11 +30,15 @@ export const Button = styled("button", {
       full: {
         width: "100%",
       },
+      fit: {
+        width: "fit-content",
+        height: "100%",
+      },
     },
   },
 
   "&:hover": {
-    backgroundColor: "transparent",
+    backgroundColor: "white",
     border: "1px solid $content",
   },
 });
@@ -64,6 +72,10 @@ export const ActionButton = styled("button", {
         padding: "0px 12px",
         fontSize: "$medium",
         height: "42px",
+      },
+      fit: {
+        width: "fit-content",
+        height: "100%",
       },
     },
   },

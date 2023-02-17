@@ -38,6 +38,7 @@ model Company {
   userEmail String   @unique
   mill      Mill[]
   worker    Worker[]
+  client    Client[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -111,7 +112,8 @@ model Client {
   updatedAt DateTime @updatedAt
   name      String
   address   String[]
-  mobile    BigInt
+  mobile    BigInt?
+  company   Company  @relation(fields: [companyId], references: [id])
   companyId String
   email     String?
   gst       String?

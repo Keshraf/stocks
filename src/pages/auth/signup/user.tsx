@@ -99,16 +99,6 @@ const UserSignup = () => {
       <Head>
         <title>Sign up - Balaji Khata</title>
       </Head>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          duration: 2000,
-          style: {
-            background: theme.colors.white.value,
-            color: theme.colors.content.value,
-          },
-        }}
-      />
       <Page>
         <Logo />
         <Modal>

@@ -83,16 +83,6 @@ const Worker = () => {
       <Head>
         <title>Sign In - Balaji Khata</title>
       </Head>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          duration: 2000,
-          style: {
-            background: theme.colors.white.value,
-            color: theme.colors.content.value,
-          },
-        }}
-      />
       <Logo />
       <Page>
         <Modal>
