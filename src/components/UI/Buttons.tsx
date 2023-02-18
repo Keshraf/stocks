@@ -78,7 +78,7 @@ export const ActionButton = styled("button", {
         height: "100%",
       },
     },
-    type: {
+    purpose: {
       danger: {
         backgroundColor: "#FF6B6B",
         border: "1px solid #FF6B6B",

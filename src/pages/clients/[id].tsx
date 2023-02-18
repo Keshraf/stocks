@@ -194,7 +194,7 @@ const ClientIdPage = () => {
         </ContentWrapper>
         <InfoRow>
           <ActionButton onClick={editClientHandler}>Edit Client</ActionButton>
-          <ActionButton type="danger" onClick={() => setOpened(true)}>
+          <ActionButton purpose="danger" onClick={() => setOpened(true)}>
             Delete Client
           </ActionButton>
         </InfoRow>
