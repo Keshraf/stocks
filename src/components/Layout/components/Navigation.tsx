@@ -4,7 +4,6 @@ import { styled, theme } from "../../../../stitches.config";
 import { AiOutlineUser } from "react-icons/ai";
 import Text from "../../UI/Text";
 import { useRouter } from "next/router";
-import console from "console";
 import Head from "next/head";
 
 const Container = styled("nav", {
@@ -91,7 +90,7 @@ const Navigation = () => {
   useEffect(() => {
     const path = router.pathname;
     navLinks.forEach((nav) => {
-      if (nav.link === path) {
+      if (path.includes(nav.link)) {
         setActiveNav(nav.text);
       }
     });

@@ -14,4 +14,9 @@ export const NewClientSchema = z.object({
   gst: z.string().optional(),
 });
 
+export const ClientWithIdSchema = NewClientSchema.extend({
+  id: z.string(),
+});
+
 export type NewClientType = z.infer<typeof NewClientSchema>;
+export type ClientWithIdType = z.infer<typeof ClientWithIdSchema>;

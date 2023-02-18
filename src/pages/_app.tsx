@@ -10,6 +10,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import store from "~/store";
 import { Toaster } from "react-hot-toast";
 import { theme } from "stitches.config";
+import { MantineProvider } from "@mantine/core";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -32,21 +33,24 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     <>
       <ReduxProvider store={store}>
         <main className={poppins.className}>
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              duration: 1000,
-              style: {
-                background: theme.colors.white.value,
-                color: theme.colors.content.value,
-              },
-            }}
-          />
-          {removeNav ? (
-            getLayout(<Component {...pageProps} />)
-          ) : (
-            <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
-          )}
+          <MantineProvider theme={{ fontFamily: "Poppins" }}>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 1000,
+                style: {
+                  background: theme.colors.white.value,
+                  color: theme.colors.content.value,
+                  fontFamily: "Poppins",
+                },
+              }}
+            />
+            {removeNav ? (
+              getLayout(<Component {...pageProps} />)
+            ) : (
+              <Layout>{getLayout(<Component {...pageProps} />)}</Layout>
+            )}
+          </MantineProvider>
         </main>
       </ReduxProvider>
     </>

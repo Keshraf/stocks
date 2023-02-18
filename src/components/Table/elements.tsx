@@ -10,6 +10,7 @@ export const TableItem = styled("td", {
   overflow: "hidden",
   whiteSpace: "nowrap",
   textAlign: "left",
+  lineHeight: "18px",
 });
 
 export const TableHeadItem = styled("th", {
@@ -41,6 +42,7 @@ export const TableRow = styled("tr", {
   alignContent: "center",
   borderRadius: "$roundSmall",
   padding: "12px",
+  position: "relative",
   "&:hover": {
     backgroundColor: "$highlight",
   },
@@ -49,7 +51,7 @@ export const TableRow = styled("tr", {
 export const TableBody = styled("tbody", {
   width: "100%",
   height: "auto",
-  display: "flex",
+  display: "table",
   flexDirection: "column",
   justifyContent: "flex-start",
   gap: "8px",
@@ -59,13 +61,14 @@ export const TableBody = styled("tbody", {
 export const TableHead = styled("thead", {
   width: "100%",
   height: "auto",
-  display: "flex",
+  display: "table",
   flexDirection: "column",
   justifyContent: "space-between",
   background: "$highlight",
   borderRadius: "$roundSmall",
   position: "sticky",
   top: 0,
+  zIndex: 3,
 });
 
 export const TableWrapper = styled("table", {
@@ -75,7 +78,7 @@ export const TableWrapper = styled("table", {
   flexDirection: "column",
   justifyContent: "flex-start",
   alignItems: "flex-start",
-  overflowY: "auto",
-  position: "relative",
   maxHeight: "66vh",
+  overflow: "scroll",
+  position: "relative",
 });

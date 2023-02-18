@@ -1,12 +1,17 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
 import { z } from "zod";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import { Input } from "~/components/UI/Input";
 import Text from "~/components/UI/Text";
-import { NewClientSchema } from "~/types/clients";
+import {
+  ClientWithIdSchema,
+  ClientWithIdType,
+  NewClientSchema,
+  NewClientType,
+} from "~/types/clients";
 import { trpc } from "~/utils/trpc";
 
 const Main = styled("main", {
@@ -53,8 +58,13 @@ const NewClientPage = () => {
   const [mobile, setMobile] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [gst, setGst] = useState<string>("");
+  const [mode, setMode] = useState<"add" | "edit">("add");
+  const [id, setId] = useState<string>("");
 
   const addClient = trpc.clients.addClient.useMutation();
+  const updateClient = trpc.clients.updateClientById.useMutation();
+  const { data: clientData, isLoading: clientIsLoading } =
+    trpc.clients.getClientById.useQuery({ id });
 
   const addAddress = () => {
     if (!inputAddress) return;
@@ -72,7 +82,7 @@ const NewClientPage = () => {
   };
 
   const addClientHandler = () => {
-    const client = {
+    const client: NewClientType = {
       name,
       mobile: Number(mobile),
       email,
@@ -103,9 +113,63 @@ const NewClientPage = () => {
     }
   };
 
+  const updateClientHandler = () => {
+    const client: ClientWithIdType = {
+      name,
+      mobile: Number(mobile),
+      email,
+      gst,
+      address: addresses,
+      id,
+    };
+
+    const result = ClientWithIdSchema.safeParse(client);
+    if (!result.success) {
+      result.error.errors.map((e) =>
+        toast.error(e.message, {
+          position: "top-right",
+        })
+      );
+    } else {
+      console.log(result.data);
+      const ClientPromise = updateClient.mutateAsync(result.data);
+
+      toast.promise(ClientPromise, {
+        loading: "Updating Client...",
+        success: "Client Updated",
+        error: "Error Updating Client",
+      });
+
+      ClientPromise.then(() => {
+        router.push("/clients");
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (router.isReady) {
+      const { id } = router.query;
+      if (typeof id !== "string") return;
+      setId(id);
+    }
+  }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    if (!clientData || !clientData.id) return;
+
+    setName(clientData.name ? clientData.name : "");
+    setMobile(clientData.mobile ? clientData.mobile.toString() : "");
+    setEmail(clientData.email ? clientData.email : "");
+    setGst(clientData.gst ? clientData.gst : "");
+    setAddresses(clientData.address ? clientData.address : []);
+    setMode("edit");
+  }, [clientData]);
+
   return (
     <Main>
-      <Text type="LargeBold">Add New Client</Text>
+      <Text type="LargeBold">
+        {mode === "add" ? "Add New Client" : "Update Client"}
+      </Text>
       <InputWrapper>
         <Text type="MediumSemibold">
           {"Name"}
@@ -174,8 +238,10 @@ const NewClientPage = () => {
         })}
       </InputWrapper>
       <Row style={{ justifyContent: "flex-start" }}>
-        <ActionButton onClick={addClientHandler}>
-          Confirm Client Details
+        <ActionButton
+          onClick={mode === "add" ? addClientHandler : updateClientHandler}
+        >
+          {mode === "add" ? "Confirm Client Details" : "Confirm Update"}
         </ActionButton>
         <Button onClick={() => router.push("/clients")}>Go Back</Button>
       </Row>

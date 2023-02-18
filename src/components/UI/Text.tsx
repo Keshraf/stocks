@@ -8,10 +8,10 @@ export const DefaultText = styled("p", {
   gap: "2px",
   variants: {
     size: {
-      small: { fontSize: "12px" },
-      medium: { fontSize: "14px" },
-      large: { fontSize: "18px" },
-      extralarge: { fontSize: "24px" },
+      small: { fontSize: "12px", lineHeight: "14px" },
+      medium: { fontSize: "14px", lineHeight: "16px" },
+      large: { fontSize: "18px", lineHeight: "20px" },
+      extralarge: { fontSize: "24px", lineHeight: "28px" },
     },
     weight: {
       light: {
@@ -39,6 +39,7 @@ type Weight = "light" | "regular" | "medium" | "semibold" | "bold";
 const weight: Weight[] = ["light", "regular", "medium", "semibold", "bold"];
 
 type Props = {
+  width?: string;
   type: Names;
   children: ReactNode;
 };
@@ -87,10 +88,19 @@ const config = TextCombinations.map((val) => {
   };
 });
 
-const Text = ({ type, children }: Props) => {
+const Text = ({ type, children, width }: Props) => {
   let index = names.indexOf(type);
 
-  return <DefaultText {...config[index]}>{children}</DefaultText>;
+  return (
+    <DefaultText
+      style={{
+        width: width,
+      }}
+      {...config[index]}
+    >
+      {children}
+    </DefaultText>
+  );
 };
 
 export default Text;

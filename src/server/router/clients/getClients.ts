@@ -7,6 +7,9 @@ export const getClientsRouter = router({
       where: {
         companyId,
       },
+      include: {
+        order: true,
+      },
     });
 
     return clients;
