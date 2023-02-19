@@ -2,6 +2,7 @@ import { router, protectedProcedure } from "../trpc";
 import { authRouter } from "./auth";
 import { clientsRouter } from "./clients";
 import { stocksRouter } from "./stocks";
+import { millsRouter } from "./mills";
 
 export const appRouter = router({
   auth: authRouter,
@@ -12,6 +13,7 @@ export const appRouter = router({
   }),
   stocks: stocksRouter,
   clients: clientsRouter,
+  mills: millsRouter,
 });
 
 // export type definition of API

@@ -5,6 +5,8 @@ import { AiOutlineUser } from "react-icons/ai";
 import Text from "../../UI/Text";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { useAppDispatch } from "~/store";
+import { setSearch } from "~/store/search";
 
 const Container = styled("nav", {
   width: "100%",
@@ -61,6 +63,7 @@ type NavArr = {
 const Navigation = () => {
   const [activeNav, setActiveNav] = useState<NavText>("Stocks");
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const navLinks: NavArr[] = useMemo(
     () => [
       {

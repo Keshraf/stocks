@@ -84,13 +84,14 @@ const NewClientPage = () => {
   const addClientHandler = () => {
     const client: NewClientType = {
       name,
-      mobile: Number(mobile),
+      mobile,
       email,
       gst,
       address: addresses,
     };
 
     const result = NewClientSchema.safeParse(client);
+    console.log(result);
     if (!result.success) {
       result.error.errors.map((e) =>
         toast.error(e.message, {
@@ -99,6 +100,7 @@ const NewClientPage = () => {
       );
     } else {
       console.log(result.data);
+
       const ClientPromise = addClient.mutateAsync(result.data);
 
       toast.promise(ClientPromise, {
@@ -116,7 +118,7 @@ const NewClientPage = () => {
   const updateClientHandler = () => {
     const client: ClientWithIdType = {
       name,
-      mobile: Number(mobile),
+      mobile,
       email,
       gst,
       address: addresses,
@@ -124,6 +126,7 @@ const NewClientPage = () => {
     };
 
     const result = ClientWithIdSchema.safeParse(client);
+
     if (!result.success) {
       result.error.errors.map((e) =>
         toast.error(e.message, {

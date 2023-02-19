@@ -65,6 +65,7 @@ model Quality {
   updatedAt DateTime @updatedAt
 }
 
+// Different types of a Single Quality
 model Specs {
   id          String   @id @default(uuid())
   quality     Quality  @relation(fields: [qualityName], references: [name])
@@ -82,12 +83,16 @@ model Specs {
   @@unique([qualityName, breadth, length, weight, gsm, sheets])
 }
 
+// Individual Stock Additions of a Single Specication of a Quality
 model Stock {
   id        String   @id @default(uuid())
   specs     Specs    @relation(fields: [specsId], references: [id])
   specsId   String
-  quantity  Float
+  quantity  Int
   bundle    Int?
+  reason    String?
+  transit   Int?
+  ordered   Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -112,7 +117,7 @@ model Client {
   updatedAt DateTime @updatedAt
   name      String
   address   String[]
-  mobile    BigInt?
+  mobile    String?
   company   Company  @relation(fields: [companyId], references: [id])
   companyId String
   email     String?

@@ -10,7 +10,12 @@ export const StockSchema = z.object({
   sheets: z.number().nonnegative(),
   bundle: z.number().nonnegative(),
   quantity: z.number().nonnegative(),
-  packets: z.number().nonnegative(),
+  /*   packets: z.number().nonnegative(), */
+});
+
+export const AddStockSchema = StockSchema.extend({
+  transit: z.number().nonnegative(),
+  ordered: z.number().nonnegative(),
 });
 
 export type PrismaQuality = {

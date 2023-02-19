@@ -15,7 +15,7 @@
     "@mantine/form": "^5.9.5",
     "@mantine/hooks": "^5.9.5",
     "@next/font": "13.1.0",
-    "@prisma/client": "^4.8.0",
+    "@prisma/client": "^4.10.1",
     "@reduxjs/toolkit": "^1.9.2",
     "@stitches/react": "^1.2.8",
     "@tanstack/react-query": "^4.20.4",
@@ -48,7 +48,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/cookie": "^0.5.1",
     "@types/jsonwebtoken": "^9.0.0",
-    "prisma": "^4.8.0"
+    "prisma": "^4.10.1"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

@@ -1,6 +1,8 @@
 import { Checkbox } from "@mantine/core";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { styled } from "stitches.config";
+import { useAppSelector } from "~/store";
 import { PrismaDataClient } from "~/types/stocks";
 import {
   TableItem,
@@ -20,11 +22,27 @@ const Wrapper = styled("div", {
   overflow: "scroll",
 });
 
+interface ClientTableData {
+  name: string;
+  mobile: string;
+  email: string;
+  order: string;
+  address: string[];
+}
+
+interface Headers {
+  name: string;
+  key: "name" | "mobile" | "email" | "order" | "address";
+  width: string;
+}
+
 const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
+  const [formattedData, setFormattedData] = useState<PrismaDataClient[]>([]);
   console.log("CLIENTS", data);
+  const search = useAppSelector((state) => state.search);
   const router = useRouter();
 
-  const headers = [
+  const headers: Headers[] = [
     {
       name: "Client Name",
       key: "name",
@@ -50,12 +68,14 @@ const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
       key: "address",
       width: "300px",
     },
-    {
-      name: "Actions",
-      key: "actions",
-      width: "200px",
-    },
   ];
+
+  useEffect(() => {
+    const filteredData = data.filter((client) => {
+      return client.name.toLowerCase().includes(search.toLowerCase());
+    });
+    setFormattedData(filteredData);
+  }, [data, search]);
 
   return (
     <Wrapper>
@@ -78,10 +98,9 @@ const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((client) => {
+          {formattedData.map((client) => {
             const updatedClient = {
               ...client,
-              mobile: Number(client.mobile),
               actions: "actions",
             };
 
@@ -99,7 +118,9 @@ const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
                         key={header.key}
                       >
                         {/* @ts-ignore */}
-                        {updatedClient[header.key]}
+                        {updatedClient[header.key]
+                          ? updatedClient[header.key]
+                          : "-"}
                       </TableItem>
                     );
                   } else {

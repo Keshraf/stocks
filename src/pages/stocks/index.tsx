@@ -7,6 +7,8 @@ import { trpc } from "~/utils/trpc";
 import { useRouter } from "next/router";
 import { Loader } from "@mantine/core";
 import UserCheck from "~/components/UserCheck";
+import { useAppSelector } from "~/store";
+import StockTableActions from "~/components/Table/components/StockTableActions";
 
 const Main = styled("main", {
   width: "100%",
@@ -19,6 +21,7 @@ const Main = styled("main", {
   borderRadius: "$roundLarge",
   border: "1px solid $highlight",
   padding: "20px",
+  position: "relative",
 });
 
 const Page: NextPageWithLayout = () => {
@@ -29,6 +32,7 @@ const Page: NextPageWithLayout = () => {
       <>
         <Main>
           <StocksTable data={stocks.data} />
+          <StockTableActions />
         </Main>
       </>
     );

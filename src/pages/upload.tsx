@@ -131,8 +131,7 @@ const Upload = () => {
 
         return {
           ...specs,
-          quantity: item.quantity,
-          packets: item.packets,
+          quantity: item.packets,
         };
       });
 

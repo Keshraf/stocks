@@ -11,7 +11,13 @@ import {
 import { PrismaStock, type Stock } from "../../types/stocks";
 import { type PrismaSpecs } from "../../types/stocks";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAppSelector } from "~/store";
+import { useAppDispatch, useAppSelector } from "~/store";
+import { Checkbox } from "@mantine/core";
+import {
+  addSelectedStock,
+  removeStock,
+  resetSelectedStock,
+} from "~/store/selectedStock";
 
 const Wrapper = styled("div", {
   width: "100%",
@@ -19,9 +25,11 @@ const Wrapper = styled("div", {
   display: "flex",
   justifyContent: "flex-start",
   alignItems: "flex-start",
+  boxSizing: "border-box",
 });
 
 interface StocksTableData {
+  id: string;
   breadth: number;
   length: number | null;
   weight: number;
@@ -41,9 +49,20 @@ const StocksTable = ({ data }: { data: PrismaSpecs[] }) => {
   const [formattedData, setFormattedData] = useState<StocksTableData[]>([]);
   const [originalData, setOriginalData] = useState<StocksTableData[]>([]);
   const [mill, setMill] = useState(false);
+  const [tableCheckbox, setTableCheckbox] = useState(false);
   const [quantity, setQuantity] = useState(true);
   const search = useAppSelector((state) => state.search);
   const { stocks: filter } = useAppSelector((state) => state.filter);
+
+  const selectedStocks = useAppSelector((state) => state.selectedStock);
+  const dispatch = useAppDispatch();
+
+  console.log("Received Data: ", data);
+
+  // Reset the selected stocks when the component Mounts
+  useEffect(() => {
+    dispatch(resetSelectedStock());
+  }, [dispatch]);
 
   // Capitalise the first letter of each word in a string
   const capitalise = useCallback((string: string | null | undefined) => {
@@ -84,6 +103,7 @@ const StocksTable = ({ data }: { data: PrismaSpecs[] }) => {
       }
 
       return {
+        id: item.id,
         breadth: item.breadth,
         length: item.length,
         weight: item.weight,
@@ -99,10 +119,8 @@ const StocksTable = ({ data }: { data: PrismaSpecs[] }) => {
         quantity:
           item.stock && item.stock.length > 0
             ? quantity
-              ? `${Math.round(
-                  getTotalStockQuantity(item.stock) / item.weight
-                )} PKT`
-              : `${getTotalStockQuantity(item.stock)} KG`
+              ? `${Math.round(getTotalStockQuantity(item.stock))} PKT`
+              : `${getTotalStockQuantity(item.stock) * item.weight} KG`
             : 0,
       };
     });
@@ -189,13 +207,43 @@ const StocksTable = ({ data }: { data: PrismaSpecs[] }) => {
     setFormattedData(newFormattedData);
   }, [search, originalData, filter]);
 
+  const checkHandler = (
+    checked: boolean,
+    item: StocksTableData,
+    id: string
+  ) => {
+    if (checked) {
+      dispatch(
+        addSelectedStock({
+          id,
+          millName: item.millCode,
+          qualityName: item.qualityName,
+          breadth: item.breadth,
+          length: item.length ? item.length : 0,
+          weight: item.weight,
+          gsm: item.gsm,
+          sheets: item.sheets,
+        })
+      );
+    } else {
+      dispatch(removeStock(id));
+    }
+  };
+
   return (
     <>
       <Wrapper>
         <TableWrapper>
           <TableHead>
             <TableRow>
-              <TableHeadItem css={{ width: "4%" }}>Sl. No.</TableHeadItem>
+              <TableHeadItem css={{ width: "25px" }}>
+                <Checkbox
+                  checked={tableCheckbox}
+                  onChange={(e) => setTableCheckbox(e.currentTarget.checked)}
+                  size="xs"
+                />
+              </TableHeadItem>
+              <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem>
               <TableHeadItem onClick={() => setMill((prev) => !prev)}>
                 {mill ? "Mill Name" : "Mill Code"}
               </TableHeadItem>
@@ -207,14 +255,33 @@ const StocksTable = ({ data }: { data: PrismaSpecs[] }) => {
               <TableHeadItem onClick={() => setQuantity((prev) => !prev)}>
                 {"Quantity"}
               </TableHeadItem>
-              <TableHeadItem>{"Actions"}</TableHeadItem>
             </TableRow>
           </TableHead>
           <TableBody>
             {formattedData.map((item, index) => {
+              let checked = false;
+              if (
+                selectedStocks.findIndex((stock) => stock.id === item.id) !== -1
+              ) {
+                checked = true;
+              }
+
+              if (tableCheckbox && !checked) {
+                return <></>;
+              }
+
               return (
                 <TableRow key={index}>
-                  <TableItem css={{ width: "4%" }}>{index + 1}</TableItem>
+                  <TableItem css={{ width: "25px" }}>
+                    <Checkbox
+                      checked={checked}
+                      onChange={(event) =>
+                        checkHandler(event.currentTarget.checked, item, item.id)
+                      }
+                      size="xs"
+                    />
+                  </TableItem>
+                  <TableItem css={{ width: "50px" }}>{index + 1}</TableItem>
                   <TableItem>{item.millName}</TableItem>
                   <TableItem css={{ fontWeight: "$semibold" }}>
                     {item.qualityName}
@@ -224,7 +291,6 @@ const StocksTable = ({ data }: { data: PrismaSpecs[] }) => {
                   <TableItem>{item.gsm} G</TableItem>
                   <TableItem>{item.sheets} S</TableItem>
                   <TableItem>{item.quantity}</TableItem>
-                  <TableItem>{"Actions"}</TableItem>
                 </TableRow>
               );
             })}

@@ -1,7 +1,7 @@
 import { styled } from "../../../stitches.config";
 
 export const TableItem = styled("td", {
-  width: "10%",
+  width: "100px",
   height: "auto",
   fontFamily: "Poppins",
   fontSize: "$large",
@@ -11,10 +11,14 @@ export const TableItem = styled("td", {
   whiteSpace: "nowrap",
   textAlign: "left",
   lineHeight: "18px",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  alignItems: "center",
 });
 
 export const TableHeadItem = styled("th", {
-  width: "10%",
+  width: "100px",
   height: "auto",
   lineHeight: "20px",
   fontFamily: "Poppins",
@@ -26,6 +30,10 @@ export const TableHeadItem = styled("th", {
   textAlign: "left",
   fontWeight: "$semibold",
   userSelect: "none",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  alignItems: "center",
   "&:hover": {
     textDecoration: "underline",
     textUnderlineOffset: "2px",
@@ -81,4 +89,5 @@ export const TableWrapper = styled("table", {
   maxHeight: "66vh",
   overflow: "scroll",
   position: "relative",
+  paddingBottom: "60px",
 });
