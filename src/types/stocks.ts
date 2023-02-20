@@ -55,6 +55,8 @@ export type PrismaSpecs = {
 export type PrismaStock = {
   id: string;
   quantity: number;
+  transit: number;
+  ordered: number;
   bundle?: number | null;
   createdAt: Date;
   updatedAt: Date;
@@ -80,7 +82,7 @@ export type PrismaDataClient = {
   id: string;
   name: string;
   address: string[];
-  mobile: bigint | null;
+  mobile: string | null;
   email: string | null;
   gst: string | null;
   order?: PrismaOrder[];

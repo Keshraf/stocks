@@ -77,38 +77,73 @@ model Specs {
   sheets      Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  order       Order[]
   stock       Stock[]
 
   @@unique([qualityName, breadth, length, weight, gsm, sheets])
 }
 
-// Individual Stock Additions of a Single Specication of a Quality
-model Stock {
+// Stock Invoice from a Mill
+model StockInvoice {
   id        String   @id @default(uuid())
-  specs     Specs    @relation(fields: [specsId], references: [id])
-  specsId   String
-  quantity  Int
-  bundle    Int?
-  reason    String?
-  transit   Int?
-  ordered   Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  invoice   String   @unique
+  stock     Stock[]
 }
 
+// Individual Stock Additions of a Single Specication of a Quality
+model Stock {
+  id          String       @id @default(uuid())
+  specs       Specs        @relation(fields: [specsId], references: [id])
+  specsId     String
+  quantity    Int
+  bundle      Int          @default(0)
+  reason      String?
+  transit     Int          @default(0)
+  ordered     Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  order       StockOrder[]
+  invoice     StockInvoice @relation(fields: [invoiceName], references: [invoice])
+  invoiceName String
+
+  @@unique([specsId, invoiceName])
+}
+
+// Connects a Single Client to a Single Order. Allowing for multiple orders in a single client
 model Order {
-  id              String   @id @default(uuid())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  specs           Specs    @relation(fields: [specsId], references: [id])
-  specsId         String
-  quantity        Int
-  status          String
+  id              String       @id @default(uuid())
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  stockOrder      StockOrder[]
   clientId        String
-  client          Client   @relation(fields: [clientId], references: [id])
+  client          Client       @relation(fields: [clientId], references: [id])
   billingAddress  String
   shippingAddress String
+}
+
+// Connects a Single Order to a Single Stock. Allowing for multiple stocks in a single order
+model StockOrder {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  quantity  Int
+  status    String   @default("pending")
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  stock     Stock    @relation(fields: [stockId], references: [id])
+  stockId   String
+  remark    Remark[]
+}
+
+// Shows any changes to the final shipped order
+model Remark {
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  remark       String
+  stockorder   StockOrder @relation(fields: [stockorderId], references: [id])
+  stockorderId String
 }
 
 model Client {

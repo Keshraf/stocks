@@ -54,7 +54,13 @@ const IconContainer = styled("div", {
   center: true,
 });
 
-type NavText = "Stocks" | "Orders" | "Clients" | "Upload" | "Analytics";
+type NavText =
+  | "Stocks"
+  | "Orders"
+  | "Clients"
+  | "Upload"
+  | "Analytics"
+  | "Mill Orders";
 type NavArr = {
   link: string;
   text: NavText;
@@ -77,6 +83,10 @@ const Navigation = () => {
       {
         text: "Clients",
         link: "/clients",
+      },
+      {
+        text: "Mill Orders",
+        link: "/mills",
       },
       {
         text: "Upload",

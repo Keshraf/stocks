@@ -9,6 +9,8 @@ export const { styled, css, getCssText, theme } = createStitches({
       cta: "#4794F4",
       ctaLight: "#B8D9FC",
       content: "#494A4B",
+      danger: "#EE0D0D",
+      alert: "#F4B400",
     },
     fontSizes: {
       h1: "18px",

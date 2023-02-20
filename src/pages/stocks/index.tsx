@@ -2,7 +2,8 @@ import { NextPageWithLayout } from "../_app";
 import { ReactElement } from "react";
 import ActionHeader from "../../components/ActionHeader/ActionHeaderStocks";
 import { styled } from "../../../stitches.config";
-import StocksTable from "../../components/Table/StocksTable";
+import SpecsTable from "~/components/Table/SpecsTable";
+("../../components/Table/SpecsTable");
 import { trpc } from "~/utils/trpc";
 import { useRouter } from "next/router";
 import { Loader } from "@mantine/core";
@@ -25,13 +26,13 @@ const Main = styled("main", {
 });
 
 const Page: NextPageWithLayout = () => {
-  const stocks = trpc.stocks.getStocks.useQuery();
+  const stocks = trpc.stocks.getSpecs.useQuery();
 
   if (stocks.status === "success") {
     return (
       <>
         <Main>
-          <StocksTable data={stocks.data} />
+          <SpecsTable data={stocks.data} />
           <StockTableActions />
         </Main>
       </>

@@ -15,6 +15,29 @@ export const TableItem = styled("td", {
   flexDirection: "row",
   justifyContent: "flex-start",
   alignItems: "center",
+  variants: {
+    status: {
+      danger: {
+        color: "$danger",
+        fontWeight: "$bold",
+      },
+      normal: {
+        color: "$content",
+      },
+      success: {
+        /* color: "$cta", */
+        fontWeight: "$semibold",
+      },
+      alert: {
+        color: "$alert",
+        fontWeight: "$medium",
+      },
+      alert2: {
+        color: "$cta",
+        fontWeight: "$medium",
+      },
+    },
+  },
 });
 
 export const TableHeadItem = styled("th", {
