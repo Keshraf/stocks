@@ -3,7 +3,7 @@ import Text from "../UI/Text";
 import { Autocomplete, Button, NumberInput, TextInput } from "@mantine/core";
 import { toast } from "react-hot-toast";
 import { removeStock, selectedSchema } from "~/store/selectedStock";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AddStockSchema } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 import { useAppDispatch } from "~/store";
@@ -99,6 +99,14 @@ const StockAdd = ({
 
   const dispatch = useAppDispatch();
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
+
+  useEffect(() => {
+    setInvoice(invoiceCode);
+  }, [invoiceCode]);
+
+  useEffect(() => {
+    setClient(clientName);
+  }, [clientName]);
 
   const StockData: StockConfig[] = [
     {
