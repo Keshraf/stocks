@@ -1,10 +1,9 @@
 import { Button } from "@mantine/core";
 import { styled } from "stitches.config";
-import Text from "~/components/UI/Text";
 import { TbPackgeImport, TbPackgeExport } from "react-icons/tb";
 import { useAppDispatch, useAppSelector } from "~/store";
 import { useRouter } from "next/router";
-import { resetSelectedStock } from "~/store/selectedStock";
+import { resetSelectedSpecs } from "~/store/selectedSpecs";
 
 const Wrapper = styled("div", {
   width: "auto",
@@ -24,12 +23,12 @@ const Wrapper = styled("div", {
   boxShadow: "0px 0px 30px rgba(0, 0, 0, 0.1)",
 });
 
-const StockTableActions = () => {
-  const selectStock = useAppSelector((state) => state.selectedStock);
+const SpecsTableActions = () => {
+  const selectSpecs = useAppSelector((state) => state.selectedSpecs);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  if (selectStock.length === 0) {
+  if (selectSpecs.length === 0) {
     return <></>;
   }
 
@@ -43,13 +42,13 @@ const StockTableActions = () => {
           e.currentTarget.innerHTML = "Clear";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.innerText = selectStock.length.toString();
+          e.currentTarget.innerText = selectSpecs.length.toString();
         }}
         onClick={() => {
-          dispatch(resetSelectedStock());
+          dispatch(resetSelectedSpecs());
         }}
       >
-        {selectStock.length}
+        {selectSpecs.length}
       </Button>
       <Button
         leftIcon={<TbPackgeImport size={18} />}
@@ -72,4 +71,4 @@ const StockTableActions = () => {
   );
 };
 
-export default StockTableActions;
+export default SpecsTableActions;

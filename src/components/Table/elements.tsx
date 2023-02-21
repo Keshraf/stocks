@@ -15,6 +15,7 @@ export const TableItem = styled("td", {
   flexDirection: "row",
   justifyContent: "flex-start",
   alignItems: "center",
+  paddingLeft: "5px",
   variants: {
     status: {
       danger: {
@@ -57,6 +58,7 @@ export const TableHeadItem = styled("th", {
   flexDirection: "row",
   justifyContent: "flex-start",
   alignItems: "center",
+  paddingLeft: "5px",
   "&:hover": {
     textDecoration: "underline",
     textUnderlineOffset: "2px",

@@ -3,13 +3,15 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 import searchReducer from "./search";
 import filterReducer from "./filter";
-import selectedStockReducer from "./selectedStock";
+import selectedSpecsReducer from "./selectedSpecs";
+import selectedStocksReducer from "./selectedStocks";
 
 const store = configureStore({
   reducer: {
     search: searchReducer,
     filter: filterReducer,
-    selectedStock: selectedStockReducer,
+    selectedSpecs: selectedSpecsReducer,
+    selectedStocks: selectedStocksReducer,
   },
 });
 

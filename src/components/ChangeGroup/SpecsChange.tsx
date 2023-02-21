@@ -2,7 +2,12 @@ import { styled } from "stitches.config";
 import Text from "../UI/Text";
 import { Autocomplete, Button, NumberInput, TextInput } from "@mantine/core";
 import { toast } from "react-hot-toast";
-import { removeStock, selectedSchema } from "~/store/selectedStock";
+import {
+  removeSpecs,
+  type InitalState,
+  changeNumberSpecs,
+  changeStringSpecs,
+} from "~/store/selectedSpecs";
 import { useEffect, useState } from "react";
 import { AddStockSchema } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
@@ -68,7 +73,8 @@ const InfoWrapper = styled("div", {
   justifyContent: "flex-start",
   alignItems: "flex-start",
   gap: "$gapMedium",
-  overflow: "auto",
+  overflowX: "auto",
+  overflowY: "hidden",
 });
 
 const DividerWrapper = styled("div", {
@@ -78,35 +84,21 @@ const DividerWrapper = styled("div", {
 });
 
 type Props = {
-  stock: selectedSchema;
-  invoiceCode?: string;
-  clientName?: string;
+  stock: InitalState;
   clientList: string[];
 };
 
-const StockAdd = ({
-  stock,
-  invoiceCode = "",
-  clientName = "",
-  clientList,
-}: Props) => {
-  const [bundle, setBundle] = useState(0);
-  const [quantity, setQuantity] = useState(0);
-  const [transit, setTransit] = useState(0);
-  const [ordered, setOrdered] = useState(0);
-  const [invoice, setInvoice] = useState<string>(invoiceCode);
-  const [client, setClient] = useState<string>(clientName);
+type FormDataType = {
+  label: string;
+  placeholder: string;
+  precision: number;
+  name: "bundle" | "quantity" | "transit" | "ordered";
+  value: number;
+};
 
+const StockAdd = ({ stock, clientList }: Props) => {
   const dispatch = useAppDispatch();
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
-
-  useEffect(() => {
-    setInvoice(invoiceCode);
-  }, [invoiceCode]);
-
-  useEffect(() => {
-    setClient(clientName);
-  }, [clientName]);
 
   const StockData: StockConfig[] = [
     {
@@ -139,38 +131,34 @@ const StockAdd = ({
     },
   ];
 
-  const formNumberData = [
+  const formNumberData: FormDataType[] = [
     {
       label: "Bundle",
       placeholder: "Enter Bundle",
       precision: 0,
       name: "bundle",
-      value: bundle,
-      setValue: setBundle,
+      value: stock.bundle,
     },
     {
       label: "Godown",
       placeholder: "Enter Godown Packets",
       precision: 0,
       name: "quantity",
-      value: quantity,
-      setValue: setQuantity,
+      value: stock.quantity,
     },
     {
       label: "Transit",
       placeholder: "Enter Transit Packets",
       precision: 0,
       name: "transit",
-      value: transit,
-      setValue: setTransit,
+      value: stock.transit,
     },
     {
       label: "Ordered",
       placeholder: "Enter Ordered Packets",
       precision: 0,
       name: "ordered",
-      value: ordered,
-      setValue: setOrdered,
+      value: stock.ordered,
     },
   ];
 
@@ -180,15 +168,15 @@ const StockAdd = ({
       qualityName: stock.qualityName,
       breadth: Number(stock.breadth),
       length: Number(stock.length),
-      quantity: Number(quantity),
+      quantity: Number(stock.quantity),
       gsm: Number(stock.gsm),
-      bundle: Number(bundle),
+      bundle: Number(stock.bundle),
       sheets: Number(stock.sheets),
       weight: Number(stock.weight),
-      transit: Number(transit),
-      ordered: Number(ordered),
-      invoice: invoice,
-      client: client,
+      transit: Number(stock.transit),
+      ordered: Number(stock.ordered),
+      invoice: stock.invoice,
+      client: stock.client,
     };
 
     const result = AddStockSchema.safeParse(data);
@@ -209,7 +197,7 @@ const StockAdd = ({
       });
 
       AddStockPromise.then(() => {
-        dispatch(removeStock(stock.id));
+        dispatch(removeSpecs(stock.id));
       }).catch(() => {
         console.log("Error");
       });
@@ -222,10 +210,10 @@ const StockAdd = ({
         {StockData.map((data, index) => {
           return (
             <InfoRow key={stock.id + "inforow" + index}>
-              <Text width="100px" type="MediumMedium">
+              <Text width="100px" type="MediumRegular">
                 {data.title}
               </Text>
-              <Text type="MediumRegular">{stock[data.key]}</Text>
+              <Text type="MediumSemibold">{stock[data.key]}</Text>
             </InfoRow>
           );
         })}
@@ -240,7 +228,13 @@ const StockAdd = ({
                 value={input.value}
                 onChange={(value) => {
                   if (value && value >= 0) {
-                    input.setValue(value);
+                    dispatch(
+                      changeNumberSpecs({
+                        id: stock.id,
+                        type: input.name,
+                        value,
+                      })
+                    );
                   }
                 }}
                 defaultValue={0}
@@ -256,18 +250,34 @@ const StockAdd = ({
       <InputWrapper>
         <Text type="MediumBold">Invoice</Text>
         <TextInput
-          value={invoice}
-          onChange={(e) => setInvoice(e.target.value.trim())}
+          value={stock.invoice}
+          onChange={(e) => {
+            dispatch(
+              changeStringSpecs({
+                id: stock.id,
+                type: "invoice",
+                value: e.target.value.trim(),
+              })
+            );
+          }}
           placeholder="Enter Invoice Code"
         />
       </InputWrapper>
       <InputWrapper>
         <Text type="MediumBold">Client</Text>
         <Autocomplete
-          value={client}
+          value={stock.client}
           limit={20}
           maxDropdownHeight={300}
-          onChange={(value) => setClient(value.trim())}
+          onChange={(value) => {
+            dispatch(
+              changeStringSpecs({
+                id: stock.id,
+                type: "client",
+                value: value.trim(),
+              })
+            );
+          }}
           placeholder="Choose Client"
           data={clientList}
         />

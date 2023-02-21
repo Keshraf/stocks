@@ -8,16 +8,12 @@ import {
   TableWrapper,
   TableHeadItem,
 } from "./elements";
-import { PrismaStock, type Stock } from "../../types/stocks";
+import { PrismaStock } from "../../types/stocks";
 import { type PrismaSpecs } from "../../types/stocks";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "~/store";
 import { Checkbox } from "@mantine/core";
-import {
-  addSelectedStock,
-  removeStock,
-  resetSelectedStock,
-} from "~/store/selectedStock";
+import { addSelectedSpecs, removeSpecs } from "~/store/selectedSpecs";
 
 const Wrapper = styled("div", {
   width: "100%",
@@ -51,32 +47,15 @@ interface MillObjects {
 const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
   const [formattedData, setFormattedData] = useState<SpecsTableData[]>([]);
   const [originalData, setOriginalData] = useState<SpecsTableData[]>([]);
-  const [mill, setMill] = useState(false);
+  /* const [mill, setMill] = useState(false); */
   const [tableCheckbox, setTableCheckbox] = useState(false);
   const [quantity, setQuantity] = useState(true);
   const search = useAppSelector((state) => state.search);
   const { stocks: filter } = useAppSelector((state) => state.filter);
 
-  const selectedStocks = useAppSelector((state) => state.selectedStock);
+  const selectedSpecs = useAppSelector((state) => state.selectedSpecs);
   const dispatch = useAppDispatch();
   const router = useRouter();
-
-  /* console.log("Received Data: ", data); */
-
-  // Reset the selected stocks when the component Mounts
-  /* useEffect(() => {
-    dispatch(resetSelectedStock());
-  }, [dispatch]); */
-
-  // Capitalise the first letter of each word in a string
-  const capitalise = useCallback((string: string | null | undefined) => {
-    if (!string) return string;
-
-    return string
-      .split(" ")
-      .map((str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase())
-      .join(" ");
-  }, []);
 
   // Get the total quantity of a stock
   const getTotalStockQuantity = useCallback((stocks: PrismaStock[]) => {
@@ -212,22 +191,15 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
     setFormattedData(filteredData);
     /* @ts-ignore */
     setOriginalData(filteredData);
-  }, [data, mill, quantity, wrangleData, generalFilterData]);
+  }, [data, quantity, wrangleData, generalFilterData]);
 
   useEffect(() => {
-    /* if (!search) return;
-    if (search === "") {
-      setFormattedData(originalData);
-      return;
-    } */
     let newFormattedData = originalData.filter((item) => {
       const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S`;
       return stockSentence.toLowerCase().includes(search.toLowerCase());
     });
-    /* console.log("NEW FORMATTED DATA", newFormattedData); */
 
     if (filter) {
-      /* console.log("FILTER", filter); */
       filter.forEach((item) => {
         if (!item.active) return;
         newFormattedData = newFormattedData.filter((stock) => {
@@ -252,7 +224,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
     e.stopPropagation();
     if (checked) {
       dispatch(
-        addSelectedStock({
+        addSelectedSpecs({
           id,
           millName: item.millCode,
           qualityName: item.qualityName,
@@ -264,7 +236,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
         })
       );
     } else {
-      dispatch(removeStock(id));
+      dispatch(removeSpecs(id));
     }
   };
 
@@ -291,9 +263,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
                 />
               </TableHeadItem>
               <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem>
-              <TableHeadItem onClick={() => setMill((prev) => !prev)}>
-                {mill ? "Mill Name" : "Mill Code"}
-              </TableHeadItem>
+              <TableHeadItem>{"Mill"}</TableHeadItem>
               <TableHeadItem>{"Quality"}</TableHeadItem>
               <TableHeadItem>{"Size"}</TableHeadItem>
               <TableHeadItem>{"Weight"}</TableHeadItem>
@@ -311,7 +281,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
             {formattedData.map((item, index) => {
               let checked = false;
               if (
-                selectedStocks.findIndex((stock) => stock.id === item.id) !== -1
+                selectedSpecs.findIndex((stock) => stock.id === item.id) !== -1
               ) {
                 checked = true;
               }

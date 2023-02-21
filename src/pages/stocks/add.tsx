@@ -1,19 +1,14 @@
-import {
-  Autocomplete,
-  Button,
-  Loader,
-  Modal,
-  NumberInput,
-  TextInput,
-} from "@mantine/core";
+import { Autocomplete, Button, Loader, Modal, TextInput } from "@mantine/core";
 import { useState } from "react";
-import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
-import StockAdd from "~/components/StockAdd";
+import SpecsChange from "~/components/ChangeGroup/SpecsChange";
 import Text from "~/components/UI/Text";
 import { useAppDispatch, useAppSelector } from "~/store";
-import { removeStock, selectedSchema } from "~/store/selectedStock";
-import { AddStockSchema } from "~/types/stocks";
+import {
+  selectedSchema,
+  setAllClientSpecs,
+  setAllInvoiceSpecs,
+} from "~/store/selectedSpecs";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {
@@ -64,12 +59,13 @@ type formInputData = {
 type AddData = selectedSchema & formInputData;
 
 const StockAddPage = () => {
-  const selectedStock = useAppSelector((state) => state.selectedStock);
+  const selectedStock = useAppSelector((state) => state.selectedSpecs);
   const [opened, setOpened] = useState<boolean>(true);
   const [invoice, setInvoice] = useState<string>("");
   const [client, setClient] = useState<string>("");
   const [disableInvoice, setDisableInvoice] = useState<boolean>(false);
   const [disableClient, setDisableClient] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   const { data: clientData, isLoading: clientLoading } =
     trpc.clients.getClients.useQuery();
@@ -90,6 +86,7 @@ const StockAddPage = () => {
 
   return (
     <Wrapper>
+      {/* MODAL START */}
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
@@ -107,7 +104,7 @@ const StockAddPage = () => {
             <Button
               disabled={disableInvoice}
               onClick={() => {
-                setDisableInvoice(true);
+                dispatch(setAllInvoiceSpecs(invoice));
               }}
             >
               Apply for all
@@ -125,22 +122,23 @@ const StockAddPage = () => {
             />
             <Button
               disabled={disableClient}
-              onClick={() => setDisableClient(true)}
+              onClick={() => {
+                dispatch(setAllClientSpecs(client));
+              }}
             >
               Apply for all
             </Button>
           </InputWrapper>
         </ModalWrapper>
       </Modal>
+      {/* MODAL END */}
       <Text>Stock Add Page</Text>
       {selectedStock.map((stock, index) => {
         return (
-          <StockAdd
+          <SpecsChange
             key={stock.id + index}
             stock={stock}
             clientList={getClientNames()}
-            invoiceCode={disableInvoice ? invoice : ""}
-            clientName={disableClient ? client : ""}
           />
         );
       })}

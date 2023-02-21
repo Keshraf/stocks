@@ -1,7 +1,8 @@
-import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Checkbox } from "@mantine/core";
+import { useEffect, useMemo, useState } from "react";
 import { type StocksTableData } from "~/pages/mills";
-import { useAppSelector } from "~/store";
+import { useAppDispatch, useAppSelector } from "~/store";
+import { addSelectedStocks, removeStocks } from "~/store/selectedStocks";
 import { styled } from "../../../stitches.config";
 import {
   TableItem,
@@ -21,25 +22,24 @@ const Wrapper = styled("div", {
   boxSizing: "border-box",
 });
 
-interface Headers {
-  name: string;
-  key: "name" | "mobile" | "email" | "order" | "address";
-  width: string;
-}
-
 const StocksTable = ({ data }: { data: StocksTableData[] }) => {
-  const search = useAppSelector((state) => state.search);
+  const [tableCheckbox, setTableCheckbox] = useState(false);
   const [formattedData, setFormattedData] = useState<StocksTableData[]>([]);
+
+  const search = useAppSelector((state) => state.search);
+  const selectedStocks = useAppSelector((state) => state.selectedStocks);
+  const dispatch = useAppDispatch();
+
   const mills = useMemo(() => {
     const mills = new Set<string>();
     data.forEach((stock) => {
-      mills.add(stock.mill);
+      mills.add(stock.millName);
     });
     const millObjects = Array.from(mills).map((mill) => {
       const qualities = new Set<string>();
       data.forEach((stock) => {
-        if (stock.mill === mill) {
-          qualities.add(stock.name);
+        if (stock.millName === mill) {
+          qualities.add(stock.qualityName);
         }
       });
 
@@ -54,9 +54,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
   const sortedData = useMemo(() => {
     const sorted = mills
       .map((mill) => {
-        const millStocks = data.filter((stock) => stock.mill === mill.mill);
+        const millStocks = data.filter((stock) => stock.millName === mill.mill);
         const sortedMillStocks = mill.qualities.map((quality) => {
-          return millStocks.filter((stock) => stock.name === quality);
+          return millStocks.filter((stock) => stock.qualityName === quality);
         });
         return sortedMillStocks;
       })
@@ -68,12 +68,43 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
 
   useEffect(() => {
     const filteredData = sortedData.filter((item) => {
-      const stockSentence = `${item.mill} ${item.name} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice}`;
+      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice}`;
 
       return stockSentence.toLowerCase().includes(search.toLowerCase());
     });
     setFormattedData(filteredData);
   }, [sortedData, search]);
+
+  function checkHandler(
+    e: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean,
+    item: StocksTableData,
+    id: string
+  ) {
+    e.stopPropagation();
+    if (checked) {
+      dispatch(
+        addSelectedStocks({
+          id,
+          millName: item.millName,
+          qualityName: item.qualityName,
+          breadth: item.breadth,
+          length: item.length ? item.length : 0,
+          weight: item.weight,
+          gsm: item.gsm,
+          sheets: item.sheets,
+          transit: item.transit,
+          ordered: item.ordered,
+          invoice: item.invoice === "-" ? "" : item.invoice,
+          client: item.client === "-" ? "" : item.client,
+          quantity: item.quantity,
+          bundle: item.bundle,
+        })
+      );
+    } else {
+      dispatch(removeStocks(id));
+    }
+  }
 
   return (
     <>
@@ -81,13 +112,21 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
         <TableWrapper>
           <TableHead>
             <TableRow>
-              <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem>
+              <TableHeadItem css={{ width: "25px" }}>
+                <Checkbox
+                  checked={tableCheckbox}
+                  onChange={(e) => setTableCheckbox(e.currentTarget.checked)}
+                  size="xs"
+                />
+              </TableHeadItem>
+              <TableHeadItem css={{ width: "50px" }}>{"Mill"}</TableHeadItem>
+              <TableHeadItem>{"Quality"}</TableHeadItem>
+              {/* <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem> */}
               <TableHeadItem css={{ width: "150px" }}>
                 Invoice Code
               </TableHeadItem>
-              <TableHeadItem css={{ width: "100px" }}>Client</TableHeadItem>
-              <TableHeadItem>{"Mill Name"}</TableHeadItem>
-              <TableHeadItem>{"Quality"}</TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem>
+
               <TableHeadItem>{"Size"}</TableHeadItem>
               <TableHeadItem>{"Weight"}</TableHeadItem>
               <TableHeadItem>{"GSM"}</TableHeadItem>
@@ -98,15 +137,40 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
           </TableHead>
           <TableBody>
             {formattedData.map((item, index) => {
+              let checked = false;
+              if (
+                selectedStocks.findIndex((stock) => stock.id === item.id) !== -1
+              ) {
+                checked = true;
+              }
+
+              if (tableCheckbox && !checked) {
+                return <></>;
+              }
+
               return (
                 <TableRow key={index}>
-                  <TableItem css={{ width: "50px" }}>{index + 1}</TableItem>
-                  <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
-                  <TableItem css={{ width: "100px" }}>{item.client}</TableItem>
-                  <TableItem>{item.mill}</TableItem>
-                  <TableItem css={{ fontWeight: "$semibold" }}>
-                    {item.name}
+                  <TableItem css={{ width: "25px" }}>
+                    <Checkbox
+                      checked={checked}
+                      onChange={(event) =>
+                        checkHandler(
+                          event,
+                          event.currentTarget.checked,
+                          item,
+                          item.id
+                        )
+                      }
+                      size="xs"
+                    />
                   </TableItem>
+                  {/* <TableItem css={{ width: "50px" }}>{index + 1}</TableItem> */}
+                  <TableItem css={{ width: "50px" }}>{item.millName}</TableItem>
+                  <TableItem css={{ fontWeight: "$semibold" }}>
+                    {item.qualityName}
+                  </TableItem>
+                  <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
+                  <TableItem css={{ width: "150px" }}>{item.client}</TableItem>
                   <TableItem>{item.breadth + " X " + item.length}</TableItem>
                   <TableItem>{item.weight} KG</TableItem>
                   <TableItem>{item.gsm} G</TableItem>

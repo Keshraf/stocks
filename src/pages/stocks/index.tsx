@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import { Loader } from "@mantine/core";
 import UserCheck from "~/components/UserCheck";
 import { useAppSelector } from "~/store";
-import StockTableActions from "~/components/Table/components/StockTableActions";
+import SpecsTableActions from "~/components/Table/components/SpecsTableActions";
 
 const Main = styled("main", {
   width: "100%",
@@ -33,7 +33,7 @@ const Page: NextPageWithLayout = () => {
       <>
         <Main>
           <SpecsTable data={stocks.data} />
-          <StockTableActions />
+          <SpecsTableActions />
         </Main>
       </>
     );

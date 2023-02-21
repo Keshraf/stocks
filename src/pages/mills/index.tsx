@@ -2,6 +2,7 @@ import { Loader } from "@mantine/core";
 import { ReactElement, useState } from "react";
 import { styled } from "stitches.config";
 import ActionHeader from "~/components/ActionHeader/ActionHeaderMillOrder";
+import StockTableActions from "~/components/Table/components/StocksTableActions";
 import StocksTable from "~/components/Table/StocksTable";
 import Text from "~/components/UI/Text";
 import UserCheck from "~/components/UserCheck";
@@ -19,6 +20,7 @@ const Wrapper = styled("main", {
   border: "1px solid $highlight",
   padding: "20px",
   gap: "$gapXLarge",
+  position: "relative",
 });
 
 export type StocksTableData = {
@@ -32,8 +34,8 @@ export type StocksTableData = {
   gsm: number;
   sheets: number;
   weight: number;
-  name: string;
-  mill: string;
+  qualityName: string;
+  millName: string;
   invoice: string;
   client: string;
 };
@@ -65,8 +67,8 @@ const MillPage = () => {
       gsm: stock.specs.gsm,
       sheets: stock.specs.sheets,
       weight: stock.specs.weight,
-      name: stock.specs.qualityName,
-      mill: stock.specs.quality.millName,
+      qualityName: stock.specs.qualityName,
+      millName: stock.specs.quality.millName,
       invoice: stock.invoiceName || "-",
       client: stock.invoice.clientName || "-",
     };
@@ -78,6 +80,7 @@ const MillPage = () => {
     <>
       <Wrapper>
         <StocksTable data={wrangledData} />
+        <StockTableActions refetch={stocks.refetch} />
       </Wrapper>
     </>
   );
