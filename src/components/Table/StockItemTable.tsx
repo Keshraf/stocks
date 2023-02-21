@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useCallback, useMemo } from "react";
+import { PrismaStock } from "~/types/stocks";
 import { styled } from "../../../stitches.config";
 import {
   TableItem,
@@ -25,15 +26,10 @@ interface Headers {
   width: string;
 }
 
-interface StockItemData {
-  bundle: number;
-  createdAt: Date;
-  updatedAt: Date;
-  id: string;
-  transit: number;
-  ordered: number;
-  quantity: number;
-}
+type StockItemData = Omit<
+  PrismaStock,
+  "updatedAt" | "specsId" | "specs" | "invoice"
+>;
 
 const StockItemTable = ({ data }: { data: StockItemData[] }) => {
   return (
@@ -43,6 +39,9 @@ const StockItemTable = ({ data }: { data: StockItemData[] }) => {
           <TableHead>
             <TableRow>
               <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>
+                Invoice Code
+              </TableHeadItem>
               <TableHeadItem css={{ width: "200px" }}>
                 {"Created At"}
               </TableHeadItem>
@@ -58,6 +57,9 @@ const StockItemTable = ({ data }: { data: StockItemData[] }) => {
               return (
                 <TableRow key={index}>
                   <TableItem css={{ width: "50px" }}>{index + 1}</TableItem>
+                  <TableItem css={{ width: "150px" }}>
+                    {item.invoiceName}
+                  </TableItem>
                   <TableItem css={{ width: "200px" }}>
                     {item.createdAt.toDateString()}
                   </TableItem>

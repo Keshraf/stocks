@@ -31,6 +31,7 @@ export const getStocksRouter = router({
               },
             },
           },
+          invoice: true,
         },
       });
 

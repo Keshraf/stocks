@@ -60,7 +60,17 @@ export const postStocksBulkRouter = router({
             stock: {
               create: {
                 quantity: stock.quantity,
-                bundle: stock.bundle || undefined,
+                bundle: stock.bundle,
+                invoice: {
+                  connectOrCreate: {
+                    where: {
+                      invoice: stock.invoice,
+                    },
+                    create: {
+                      invoice: stock.invoice,
+                    },
+                  },
+                },
               },
             },
           },

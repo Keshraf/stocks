@@ -1,7 +1,7 @@
 import { Loader } from "@mantine/core";
 import { ReactElement, useState } from "react";
 import { styled } from "stitches.config";
-import ActionHeader from "~/components/ActionHeader/ActionHeaderClient";
+import ActionHeader from "~/components/ActionHeader/ActionHeaderMillOrder";
 import StocksTable from "~/components/Table/StocksTable";
 import Text from "~/components/UI/Text";
 import UserCheck from "~/components/UserCheck";
@@ -34,6 +34,8 @@ export type StocksTableData = {
   weight: number;
   name: string;
   mill: string;
+  invoice: string;
+  client: string;
 };
 
 const MillPage = () => {
@@ -65,6 +67,8 @@ const MillPage = () => {
       weight: stock.specs.weight,
       name: stock.specs.qualityName,
       mill: stock.specs.quality.millName,
+      invoice: stock.invoiceName || "-",
+      client: stock.invoice.clientName || "-",
     };
   });
 

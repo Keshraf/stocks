@@ -46,7 +46,6 @@ model Company {
 model Mill {
   id        String    @id @default(uuid())
   name      String    @unique
-  fullname  String?
   quality   Quality[]
   company   Company   @relation(fields: [companyId], references: [id])
   companyId String
@@ -84,11 +83,13 @@ model Specs {
 
 // Stock Invoice from a Mill
 model StockInvoice {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  invoice   String   @unique
-  stock     Stock[]
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  invoice    String   @unique
+  client     Client?  @relation(fields: [clientName], references: [name])
+  clientName String?
+  stock      Stock[]
 }
 
 // Individual Stock Additions of a Single Specication of a Quality
@@ -98,7 +99,6 @@ model Stock {
   specsId     String
   quantity    Int
   bundle      Int          @default(0)
-  reason      String?
   transit     Int          @default(0)
   ordered     Int          @default(0)
   createdAt   DateTime     @default(now())
@@ -127,7 +127,6 @@ model StockOrder {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  quantity  Int
   status    String   @default("pending")
   order     Order    @relation(fields: [orderId], references: [id])
   orderId   String
@@ -147,15 +146,18 @@ model Remark {
 }
 
 model Client {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
-  address   String[]
-  mobile    String?
-  company   Company  @relation(fields: [companyId], references: [id])
-  companyId String
-  email     String?
-  gst       String?
-  order     Order[]
+  id           String         @id @default(uuid())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  name         String         @unique
+  address      String[]
+  mobile       String?
+  company      Company        @relation(fields: [companyId], references: [id])
+  companyId    String
+  email        String?
+  gst          String?
+  order        Order[]
+  stockInvoice StockInvoice[]
+
+  @@unique([name, companyId])
 }

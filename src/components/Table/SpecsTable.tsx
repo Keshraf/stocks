@@ -131,11 +131,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
         sheets: item.sheets,
         qualityName: item.quality.name,
         millCode: item.quality.millName,
-        millName: item.quality.mill
-          ? mill
-            ? capitalise(item.quality.mill.fullname)
-            : item.quality.millName
-          : item.quality.millName,
+        millName: item.quality.millName,
         quantity:
           item.stock && item.stock.length > 0
             ? quantity
@@ -162,9 +158,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
     return { wrangledData, mills, qualities };
   }, [
     data,
-    mill,
     quantity,
-    capitalise,
     getTotalStockQuantity,
     getTotalStockTransit,
     getTotalStockOrdered,

@@ -10,12 +10,13 @@ export const StockSchema = z.object({
   sheets: z.number().nonnegative(),
   bundle: z.number().nonnegative(),
   quantity: z.number().nonnegative(),
-  /*   packets: z.number().nonnegative(), */
+  invoice: z.string().trim().length(3),
 });
 
 export const AddStockSchema = StockSchema.extend({
   transit: z.number().nonnegative(),
   ordered: z.number().nonnegative(),
+  client: z.string().trim().optional(),
 });
 
 export type PrismaQuality = {
@@ -30,7 +31,6 @@ export type PrismaQuality = {
 export type PrismaMill = {
   id: string;
   name: string;
-  fullname?: string | null;
   createdAt: Date;
   updatedAt: Date;
   companyId: string;
@@ -57,25 +57,57 @@ export type PrismaStock = {
   quantity: number;
   transit: number;
   ordered: number;
-  bundle?: number | null;
+  bundle: number;
+  invoiceName: string;
+  invoice: PrismaStockInvoice[];
+  order?: PrismaStockOrder[];
   createdAt: Date;
   updatedAt: Date;
   specsId: string;
-  specs?: PrismaSpecs[];
+  specs: PrismaSpecs[];
+};
+
+export type PrismaStockOrder = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  orderId: string;
+  stockId: string;
+  order: PrismaOrder;
+  stock: PrismaStock;
+  quanity: number;
+  remark?: Remark[];
+};
+
+export type Remark = {
+  id: string;
+  remark: string;
+  createdAt: Date;
+  updatedAt: Date;
+  stockorderId: string;
+  stockorder: PrismaStockOrder;
+};
+
+export type PrismaStockInvoice = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  invoice: string;
+  stock: Stock[];
+  clientId: string | null;
+  client: PrismaDataClient[] | null;
 };
 
 export type PrismaOrder = {
   id: string;
-  quantity: number;
   createdAt: Date;
   updatedAt: Date;
   status: string;
-  specsId: string;
   clientId: string;
   billingAddress: string;
   shippingAddress: string;
-  specs?: PrismaSpecs[];
-  client?: PrismaDataClient[];
+  client?: PrismaDataClient;
+  stockorder?: PrismaStockOrder[];
 };
 
 export type PrismaDataClient = {
@@ -88,8 +120,10 @@ export type PrismaDataClient = {
   order?: PrismaOrder[];
   createdAt: Date;
   updatedAt: Date;
+  stockinvoice?: PrismaStockInvoice[];
 };
 
 export const StockArrSchema = z.array(StockSchema);
 
 export type Stock = z.infer<typeof StockSchema>;
+export type AddStock = z.infer<typeof AddStockSchema>;

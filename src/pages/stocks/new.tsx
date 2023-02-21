@@ -1,11 +1,11 @@
-import { Autocomplete, Loader, NumberInput } from "@mantine/core";
+import { Autocomplete, Loader, NumberInput, TextInput } from "@mantine/core";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
-import { AddStockSchema } from "~/types/stocks";
+import { AddStock, AddStockSchema } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {
@@ -62,11 +62,15 @@ const StockNewPage = () => {
   const [weight, setWeight] = useState<number>(0);
   const [transit, setTransit] = useState<number>(0);
   const [ordered, setOrdered] = useState<number>(0);
+  const [invoice, setInvoice] = useState<string>("");
+  const [client, setClient] = useState<string>("");
 
   const { data, isLoading } = trpc.mills.getMills.useQuery();
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
+  const { data: clientData, isLoading: clientLoading } =
+    trpc.clients.getClients.useQuery();
 
-  if (!data || isLoading) {
+  if (!data || isLoading || !clientData || clientLoading) {
     return (
       <Wrapper direction="center">
         <Loader />
@@ -94,6 +98,12 @@ const StockNewPage = () => {
         });
       })
       .flat();
+  };
+
+  const getClientNames = () => {
+    const clientNames: string[] = [];
+    clientData.forEach((client) => clientNames.push(client.name));
+    return clientNames;
   };
 
   const NumberInputs = [
@@ -163,7 +173,7 @@ const StockNewPage = () => {
   ];
 
   const addStockHandler = async () => {
-    const stock = {
+    const stock: AddStock = {
       mill: millName,
       qualityName,
       breadth,
@@ -175,6 +185,8 @@ const StockNewPage = () => {
       weight,
       transit,
       ordered,
+      invoice,
+      client,
     };
     const result = AddStockSchema.safeParse(stock);
     if (!result.success) {
@@ -195,6 +207,8 @@ const StockNewPage = () => {
 
       AddStockPromise.then(() => {
         router.push("/stocks");
+      }).catch(() => {
+        console.log("Error Adding Stock");
       });
     }
   };
@@ -239,6 +253,26 @@ const StockNewPage = () => {
             </InputWrapper>
           );
         })}
+        <InputWrapper>
+          <Text type="MediumBold">Invoice Code</Text>
+          <TextInput
+            value={invoice}
+            onChange={(e) => setInvoice(e.target.value)}
+            placeholder="Your Invoice Code"
+            withAsterisk
+          />
+        </InputWrapper>
+        <InputWrapper>
+          <Text type="MediumBold">Client</Text>
+          <Autocomplete
+            value={client}
+            limit={20}
+            maxDropdownHeight={300}
+            onChange={(value) => setClient(value.trim())}
+            placeholder="Choose Client"
+            data={getClientNames()}
+          />
+        </InputWrapper>
         <Row style={{ justifyContent: "flex-start" }}>
           <ActionButton onClick={addStockHandler}>
             {"Confirm Stock Details"}

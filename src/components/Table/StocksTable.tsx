@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type StocksTableData } from "~/pages/mills";
+import { useAppSelector } from "~/store";
 import { styled } from "../../../stitches.config";
 import {
   TableItem,
@@ -27,6 +28,8 @@ interface Headers {
 }
 
 const StocksTable = ({ data }: { data: StocksTableData[] }) => {
+  const search = useAppSelector((state) => state.search);
+  const [formattedData, setFormattedData] = useState<StocksTableData[]>([]);
   const mills = useMemo(() => {
     const mills = new Set<string>();
     data.forEach((stock) => {
@@ -63,20 +66,26 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
 
   console.log(sortedData);
 
+  useEffect(() => {
+    const filteredData = sortedData.filter((item) => {
+      const stockSentence = `${item.mill} ${item.name} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice}`;
+
+      return stockSentence.toLowerCase().includes(search.toLowerCase());
+    });
+    setFormattedData(filteredData);
+  }, [sortedData, search]);
+
   return (
     <>
       <Wrapper>
         <TableWrapper>
           <TableHead>
             <TableRow>
-              {/* <TableHeadItem css={{ width: "25px" }}>
-                <Checkbox
-                  checked={tableCheckbox}
-                  onChange={(e) => setTableCheckbox(e.currentTarget.checked)}
-                  size="xs"
-                />
-              </TableHeadItem> */}
               <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>
+                Invoice Code
+              </TableHeadItem>
+              <TableHeadItem css={{ width: "100px" }}>Client</TableHeadItem>
               <TableHeadItem>{"Mill Name"}</TableHeadItem>
               <TableHeadItem>{"Quality"}</TableHeadItem>
               <TableHeadItem>{"Size"}</TableHeadItem>
@@ -88,30 +97,12 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedData.map((item, index) => {
-              /* let checked = false;
-              if (
-                selectedStocks.findIndex((stock) => stock.id === item.id) !== -1
-              ) {
-                checked = true;
-              }
-
-              if (tableCheckbox && !checked) {
-                return <></>;
-              } */
-
+            {formattedData.map((item, index) => {
               return (
                 <TableRow key={index}>
-                  {/* <TableItem css={{ width: "25px" }}>
-                    <Checkbox
-                      checked={checked}
-                      onChange={(event) =>
-                        checkHandler(event.currentTarget.checked, item, item.id)
-                      }
-                      size="xs"
-                    />
-                  </TableItem> */}
                   <TableItem css={{ width: "50px" }}>{index + 1}</TableItem>
+                  <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
+                  <TableItem css={{ width: "100px" }}>{item.client}</TableItem>
                   <TableItem>{item.mill}</TableItem>
                   <TableItem css={{ fontWeight: "$semibold" }}>
                     {item.name}
@@ -120,16 +111,12 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                   <TableItem>{item.weight} KG</TableItem>
                   <TableItem>{item.gsm} G</TableItem>
                   <TableItem>{item.sheets} S</TableItem>
-                  {/* <TableItem status={"success"}>{item.quantity}</TableItem> */}
                   <TableItem status={item.transit > 0 ? "alert" : "normal"}>
                     {item.transit} PKT
                   </TableItem>
                   <TableItem status={item.ordered > 0 ? "alert2" : "normal"}>
                     {item.ordered} PKT
                   </TableItem>
-                  {/* <TableItem status={item.total < 100 ? "danger" : "normal"}>
-                    {item.total} PKT
-                  </TableItem> */}
                 </TableRow>
               );
             })}
