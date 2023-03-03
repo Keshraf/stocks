@@ -26,13 +26,14 @@ const Main = styled("main", {
 });
 
 const Page: NextPageWithLayout = () => {
-  const stocks = trpc.stocks.getSpecs.useQuery();
+  const specs = trpc.stocks.getSpecs.useQuery();
 
-  if (stocks.status === "success") {
+  if (specs.status === "success") {
+    console.log("Specs", specs.data);
     return (
       <>
         <Main>
-          <SpecsTable data={stocks.data} />
+          <SpecsTable data={specs.data} />
           <SpecsTableActions />
         </Main>
       </>

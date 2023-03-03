@@ -58,6 +58,9 @@ export interface PrismaStock {
   transit: number;
   ordered: number;
   bundle: number;
+  pending: number;
+  billed: number;
+  shipped: number;
   invoiceName: string;
   invoice?: PrismaStockInvoice[];
   order?: PrismaStockOrder[];

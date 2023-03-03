@@ -4,7 +4,7 @@ import * as trpcNext from "@trpc/server/adapters/next";
 import { NextApiRequest } from "next";
 import jwt from "jsonwebtoken";
 import { env } from "~/env/server.mjs";
-/* import prisma from "../utils/prisma"; */
+import { prisma } from "../utils/prisma";
 
 interface CtxUser extends jwt.JwtPayload {
   email?: string;
@@ -36,7 +36,7 @@ const getUserFromCookie = (req: NextApiRequest) => {
  */
 
 export async function createContext(opts: trpcNext.CreateNextContextOptions) {
-  const prisma = new PrismaClient();
+  /* const prisma = new PrismaClient(); */
   const user = getUserFromCookie(opts.req);
   return {
     req: opts.req,

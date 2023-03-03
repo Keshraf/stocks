@@ -248,7 +248,7 @@ const StockAdd = ({ stock, clientList }: Props) => {
         })}
       </InputGroup>
       <InputWrapper>
-        <Text type="MediumBold">Invoice</Text>
+        <Text type="MediumBold">Order No.</Text>
         <TextInput
           value={stock.invoice}
           onChange={(e) => {
@@ -260,7 +260,7 @@ const StockAdd = ({ stock, clientList }: Props) => {
               })
             );
           }}
-          placeholder="Enter Invoice Code"
+          placeholder="Enter Order No."
         />
       </InputWrapper>
       <InputWrapper>

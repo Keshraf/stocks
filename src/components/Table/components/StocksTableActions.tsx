@@ -9,6 +9,7 @@ import { trpc } from "~/utils/trpc";
 import { toast } from "react-hot-toast";
 import { TRPCFetch } from "@trpc/client";
 import { StockUpdate, StockUpdateSchema } from "~/types/stocks";
+import { z } from "zod";
 
 const Wrapper = styled("div", {
   width: "auto",
@@ -57,7 +58,7 @@ const StockTableActions = ({ refetch }: Props) => {
       };
     });
 
-    const result = StockUpdateSchema.safeParse(data);
+    const result = z.array(StockUpdateSchema).safeParse(data);
 
     if (!result.success) {
       result.error.errors.map((e) =>

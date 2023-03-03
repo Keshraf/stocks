@@ -123,7 +123,7 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               <TableHeadItem>{"Quality"}</TableHeadItem>
               {/* <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem> */}
               <TableHeadItem css={{ width: "150px" }}>
-                Invoice Code
+                {"Order No."}
               </TableHeadItem>
               <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem>
 

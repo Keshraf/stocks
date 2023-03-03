@@ -48,11 +48,11 @@ const ActionHeader = () => {
         <Text type="MediumSemibold">Stock</Text>
         <CgFileAdd fontSize={18} color={theme.colors.content.value} />
       </Button>
-      <Button as={Link} href="/orders/new">
+      {/* <Button as={Link} href="/orders/new">
         <Text type="MediumSemibold">Place</Text>
         <Text type="MediumSemibold">Order</Text>
         <AiOutlinePlus fontSize={18} color={theme.colors.content.value} />
-      </Button>
+      </Button> */}
     </Container>
   );
 };

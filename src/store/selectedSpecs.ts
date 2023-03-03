@@ -1,14 +1,37 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+export type StockSchema = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  invoiceName: string;
+  ordered: number;
+  transit: number;
+  quantity: number;
+  bundle: number;
+  specsId: string;
+};
+
 export type selectedSchema = {
   id: string;
   millName: string;
   qualityName: string;
   breadth: number;
   weight: number;
-  length: number;
+  length: number | null;
   gsm: number;
   sheets: number;
+  stock?: StockSchema[];
+};
+
+type Bundles = {
+  [key: number]: number;
+};
+
+type BundlePayload = {
+  id: string;
+  key: number;
+  value: number;
 };
 
 export type InitalState = selectedSchema & {
@@ -18,6 +41,7 @@ export type InitalState = selectedSchema & {
   quantity: number;
   transit: number;
   ordered: number;
+  bundleSelected: Bundles;
 };
 
 type ChangeNumberPayload = {
@@ -38,6 +62,23 @@ export const selectedSpecsSlice = createSlice({
   initialState,
   reducers: {
     addSelectedSpecs: (state, action: PayloadAction<selectedSchema>) => {
+      let bundleSelected: Bundles = { 0: 0 };
+      if (action.payload.stock && action.payload.stock.length > 0) {
+        const availableBundles = new Set(
+          action.payload.stock.map((item) => {
+            if (item.quantity > 0) return item.bundle;
+            if (item.transit > 0) return item.bundle;
+            if (item.ordered > 0) return item.bundle;
+            return -1;
+          })
+        );
+        bundleSelected = Array.from(availableBundles)
+          .filter((val) => val !== -1)
+          .reduce((acc, item) => {
+            return { ...acc, [item]: 0 };
+          }, {});
+      }
+
       state.push({
         ...action.payload,
         invoice: "",
@@ -46,6 +87,7 @@ export const selectedSpecsSlice = createSlice({
         quantity: 0,
         transit: 0,
         ordered: 0,
+        bundleSelected,
       });
     },
     resetSelectedSpecs: (state) => {
@@ -74,6 +116,18 @@ export const selectedSpecsSlice = createSlice({
         if (item.id === action.payload) state.splice(index, 1);
       });
     },
+    updateSelectedBundle: (state, action: PayloadAction<BundlePayload>) => {
+      state.map((item) => {
+        if (item.id === action.payload.id) {
+          console.log("action.payload.value", action.payload.value);
+          console.log(
+            "item.bundleSelected[action.payload.key]",
+            item.bundleSelected[action.payload.key]
+          );
+          item.bundleSelected[action.payload.key] = action.payload.value;
+        }
+      });
+    },
   },
 });
 
@@ -85,6 +139,7 @@ export const {
   setAllInvoiceSpecs,
   changeNumberSpecs,
   changeStringSpecs,
+  updateSelectedBundle,
 } = selectedSpecsSlice.actions;
 
 export default selectedSpecsSlice.reducer;

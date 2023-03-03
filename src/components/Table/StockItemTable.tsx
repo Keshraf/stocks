@@ -40,7 +40,7 @@ const StockItemTable = ({ data }: { data: StockItemData[] }) => {
             <TableRow>
               <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem>
               <TableHeadItem css={{ width: "150px" }}>
-                Invoice Code
+                {"Order No."}
               </TableHeadItem>
               <TableHeadItem css={{ width: "200px" }}>
                 {"Created At"}

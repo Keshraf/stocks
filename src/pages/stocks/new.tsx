@@ -254,11 +254,11 @@ const StockNewPage = () => {
           );
         })}
         <InputWrapper>
-          <Text type="MediumBold">Invoice Code</Text>
+          <Text type="MediumBold">Order No.</Text>
           <TextInput
             value={invoice}
             onChange={(e) => setInvoice(e.target.value)}
-            placeholder="Your Invoice Code"
+            placeholder="Your Order No."
             withAsterisk
           />
         </InputWrapper>

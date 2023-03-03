@@ -94,12 +94,12 @@ const StockAddPage = () => {
       >
         <ModalWrapper>
           <InputWrapper>
-            <Text type="MediumBold">Invoice</Text>
+            <Text type="MediumBold">Order No.</Text>
 
             <TextInput
               value={invoice}
               onChange={(e) => setInvoice(e.target.value.trim())}
-              placeholder="Enter Invoice Code"
+              placeholder="Enter Order No."
             />
             <Button
               disabled={disableInvoice}

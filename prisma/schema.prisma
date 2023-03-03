@@ -97,10 +97,13 @@ model Stock {
   id          String       @id @default(uuid())
   specs       Specs        @relation(fields: [specsId], references: [id])
   specsId     String
-  quantity    Int
+  quantity    Int          @default(0)
   bundle      Int          @default(0)
   transit     Int          @default(0)
   ordered     Int          @default(0)
+  pending     Int          @default(0)
+  billed      Int          @default(0)
+  shipped     Int          @default(0)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   order       StockOrder[]
@@ -116,8 +119,9 @@ model Order {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   stockOrder      StockOrder[]
-  clientId        String
-  client          Client       @relation(fields: [clientId], references: [id])
+  orderId         String       @unique // Order Id entered before the order is placed
+  clientName      String
+  client          Client       @relation(fields: [clientName], references: [name])
   billingAddress  String
   shippingAddress String
 }
@@ -128,6 +132,7 @@ model StockOrder {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   status    String   @default("pending")
+  quantity  Int      @default(0)
   order     Order    @relation(fields: [orderId], references: [id])
   orderId   String
   stock     Stock    @relation(fields: [stockId], references: [id])

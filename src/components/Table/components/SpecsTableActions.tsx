@@ -64,6 +64,7 @@ const SpecsTableActions = () => {
         radius="md"
         variant="light"
         color="orange"
+        onClick={() => router.push("/orders/add")}
       >
         Place Order
       </Button>

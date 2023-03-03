@@ -11,6 +11,8 @@ export const addStockRouter = router({
         throw new Error("User is not associated with a company");
       }
 
+      console.log("INPUT: ", input);
+
       const stock = await ctx.prisma.stock
         .create({
           data: {
@@ -26,9 +28,9 @@ export const addStockRouter = router({
                 create: {
                   invoice: input.invoice.toUpperCase(),
                   clientName:
-                    input.client !== "" || input.client !== null
-                      ? input.client
-                      : null,
+                    input.client === "" || input.client === null
+                      ? null
+                      : input.client,
                 },
               },
             },

@@ -218,21 +218,23 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
   const checkHandler = (
     e: React.ChangeEvent<HTMLInputElement>,
     checked: boolean,
-    item: SpecsTableData,
     id: string
   ) => {
     e.stopPropagation();
+    const item = data.find((item) => item.id === id);
+    if (!item) return;
     if (checked) {
       dispatch(
         addSelectedSpecs({
           id,
-          millName: item.millCode,
+          millName: item.quality.millName,
           qualityName: item.qualityName,
           breadth: item.breadth,
           length: item.length ? item.length : 0,
           weight: item.weight,
           gsm: item.gsm,
           sheets: item.sheets,
+          stock: item.stock,
         })
       );
     } else {
@@ -302,7 +304,6 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
                         checkHandler(
                           event,
                           event.currentTarget.checked,
-                          item,
                           item.id
                         )
                       }
