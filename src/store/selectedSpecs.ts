@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PrismaStockInvoice } from "~/types/stocks";
 
 export type StockSchema = {
   id: string;
@@ -10,6 +11,7 @@ export type StockSchema = {
   quantity: number;
   bundle: number;
   specsId: string;
+  invoice?: PrismaStockInvoice;
 };
 
 export type selectedSchema = {
@@ -41,13 +43,14 @@ export type InitalState = selectedSchema & {
   quantity: number;
   transit: number;
   ordered: number;
+  rate: number;
   bundleSelected: Bundles;
 };
 
 type ChangeNumberPayload = {
   id: string;
   value: number;
-  type: "bundle" | "quantity" | "transit" | "ordered";
+  type: "bundle" | "quantity" | "transit" | "ordered" | "rate";
 };
 type ChangeStringPayload = {
   id: string;
@@ -87,6 +90,7 @@ export const selectedSpecsSlice = createSlice({
         quantity: 0,
         transit: 0,
         ordered: 0,
+        rate: 0,
         bundleSelected,
       });
     },

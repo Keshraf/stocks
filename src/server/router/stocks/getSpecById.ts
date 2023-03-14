@@ -10,17 +10,7 @@ export const getSpecByIdRouter = router({
           id: input,
         },
         include: {
-          stock: {
-            select: {
-              id: true,
-              quantity: true,
-              transit: true,
-              ordered: true,
-              bundle: true,
-              invoiceName: true,
-              createdAt: true,
-            },
-          },
+          stock: true,
           quality: {
             select: {
               millName: true,

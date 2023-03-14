@@ -17,6 +17,7 @@ export const AddStockSchema = StockSchema.extend({
   transit: z.number().nonnegative(),
   ordered: z.number().nonnegative(),
   client: z.string().trim().optional(),
+  rate: z.number().positive(),
 });
 
 export interface PrismaQuality {
@@ -58,11 +59,9 @@ export interface PrismaStock {
   transit: number;
   ordered: number;
   bundle: number;
-  pending: number;
-  billed: number;
-  shipped: number;
   invoiceName: string;
-  invoice?: PrismaStockInvoice[];
+  rate: number;
+  invoice?: PrismaStockInvoice;
   order?: PrismaStockOrder[];
   createdAt: Date;
   updatedAt: Date;
@@ -97,7 +96,7 @@ export interface PrismaStockInvoice {
   updatedAt: Date;
   invoice: string;
   stock: Stock[];
-  clientId: string | null;
+  clientName: string | null;
   client: PrismaDataClient[] | null;
 }
 
@@ -109,6 +108,7 @@ export interface PrismaOrder {
   clientId: string;
   billingAddress: string;
   shippingAddress: string;
+  orderId: string;
   client?: PrismaDataClient;
   stockorder?: PrismaStockOrder[];
 }

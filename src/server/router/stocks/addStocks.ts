@@ -20,6 +20,7 @@ export const addStockRouter = router({
             bundle: input.bundle,
             transit: input.transit,
             ordered: input.ordered,
+            rate: input.rate,
             invoice: {
               connectOrCreate: {
                 where: {

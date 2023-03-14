@@ -77,6 +77,25 @@ const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
     setFormattedData(filteredData);
   }, [data, search]);
 
+  const getClientLastOrder = (client: PrismaDataClient) => {
+    if (client.order && client.order.length > 0) {
+      // sort by date
+      const sortedOrders = client.order.sort((a, b) => {
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
+
+      if (sortedOrders[0]?.orderId) {
+        return sortedOrders[0]?.orderId;
+      } else {
+        return "-";
+      }
+    } else {
+      return "-";
+    }
+  };
+
   return (
     <Wrapper>
       <TableWrapper>
@@ -111,6 +130,36 @@ const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
                 style={{ cursor: "pointer" }}
               >
                 {headers.map((header) => {
+                  if (header.key === "order") {
+                    return (
+                      <TableItem
+                        style={{ width: header.width }}
+                        key={header.key}
+                      >
+                        {getClientLastOrder(client)}
+                      </TableItem>
+                    );
+                  }
+
+                  if (header.key === "address") {
+                    return (
+                      <TableItem
+                        style={{ width: header.width }}
+                        key={header.key}
+                      >
+                        {client.address.map((address, index) => {
+                          return (
+                            <p key={index} style={{ marginRight: "14px" }}>
+                              {index + 1}
+                              {". "}
+                              {address}
+                            </p>
+                          );
+                        })}
+                      </TableItem>
+                    );
+                  }
+
                   if (Object.keys(updatedClient).includes(header.key)) {
                     return (
                       <TableItem

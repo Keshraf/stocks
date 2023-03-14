@@ -101,43 +101,42 @@ model Stock {
   bundle      Int          @default(0)
   transit     Int          @default(0)
   ordered     Int          @default(0)
-  pending     Int          @default(0)
-  billed      Int          @default(0)
-  shipped     Int          @default(0)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  rate        Float        @default(0)
   order       StockOrder[]
   invoice     StockInvoice @relation(fields: [invoiceName], references: [invoice])
   invoiceName String
-
-  @@unique([specsId, invoiceName])
 }
 
 // Connects a Single Client to a Single Order. Allowing for multiple orders in a single client
 model Order {
-  id              String       @id @default(uuid())
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  stockOrder      StockOrder[]
-  orderId         String       @unique // Order Id entered before the order is placed
-  clientName      String
-  client          Client       @relation(fields: [clientName], references: [name])
-  billingAddress  String
-  shippingAddress String
+  id                 String       @id @default(uuid())
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  stockOrder         StockOrder[]
+  orderId            String       @unique // Order Id entered before the order is placed
+  clientName         String
+  client             Client       @relation(fields: [clientName], references: [name])
+  shippingClientName String
+  billingAddress     String
+  shippingAddress    String
 }
 
 // Connects a Single Order to a Single Stock. Allowing for multiple stocks in a single order
 model StockOrder {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  status    String   @default("pending")
-  quantity  Int      @default(0)
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   String
-  stock     Stock    @relation(fields: [stockId], references: [id])
-  stockId   String
-  remark    Remark[]
+  id           String   @id @default(uuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  status       String   @default("pending")
+  quantity     Int      @default(0)
+  rate         Float    @default(0)
+  shippingDate DateTime
+  order        Order    @relation(fields: [orderId], references: [id])
+  orderId      String
+  stock        Stock    @relation(fields: [stockId], references: [id])
+  stockId      String
+  remark       Remark[]
 }
 
 // Shows any changes to the final shipped order

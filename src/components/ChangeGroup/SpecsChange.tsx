@@ -14,7 +14,7 @@ import { trpc } from "~/utils/trpc";
 import { useAppDispatch } from "~/store";
 
 const InfoRow = styled("div", {
-  width: "100%",
+  width: "auto",
   height: "auto",
   display: "flex",
   flexDirection: "column",
@@ -53,6 +53,7 @@ type StockConfig = {
     | "weight"
     | "gsm"
     | "sheets";
+  add: string;
 };
 
 const StockWrapper = styled("div", {
@@ -72,7 +73,7 @@ const InfoWrapper = styled("div", {
   flexDirection: "row",
   justifyContent: "flex-start",
   alignItems: "flex-start",
-  gap: "$gapMedium",
+  gap: "10px",
   overflowX: "auto",
   overflowY: "hidden",
 });
@@ -104,30 +105,37 @@ const StockAdd = ({ stock, clientList }: Props) => {
     {
       title: "Mill Name",
       key: "millName",
+      add: "",
     },
     {
       title: "Quality",
       key: "qualityName",
+      add: "",
     },
     {
       title: "Breadth",
       key: "breadth",
+      add: "X",
     },
     {
       title: "Length",
       key: "length",
+      add: "-",
     },
     {
       title: "Weight",
       key: "weight",
+      add: "KG",
     },
     {
       title: "GSM",
       key: "gsm",
+      add: "G",
     },
     {
       title: "Sheets",
       key: "sheets",
+      add: "S",
     },
   ];
 
@@ -210,10 +218,10 @@ const StockAdd = ({ stock, clientList }: Props) => {
         {StockData.map((data, index) => {
           return (
             <InfoRow key={stock.id + "inforow" + index}>
-              <Text width="100px" type="MediumRegular">
+              {/* <Text width="100px" type="MediumRegular">
                 {data.title}
-              </Text>
-              <Text type="MediumSemibold">{stock[data.key]}</Text>
+              </Text> */}
+              <Text type="MediumSemibold">{stock[data.key] + data.add}</Text>
             </InfoRow>
           );
         })}

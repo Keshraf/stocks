@@ -87,12 +87,17 @@ const OrderAddPage = () => {
   const [client, setClient] = useState("");
   const [billingAddress, setBillingAddress] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
+
   const router = useRouter();
+
   const selectedStock = useAppSelector((state) => state.selectedSpecs);
   const dispatch = useAppDispatch();
+
   const { data: clientData, isLoading: clientLoading } =
     trpc.clients.getClients.useQuery();
   const { mutateAsync: createOrder } = trpc.orders.createOrder.useMutation();
+  const { data: invoiceData, isLoading: invoiceLoading } =
+    trpc.invoices.getInvoices.useQuery();
 
   const getClientNames = useMemo(() => {
     if (!clientData) return [];
@@ -126,7 +131,7 @@ const OrderAddPage = () => {
     };
   }, [router.events, dispatch]);
 
-  if (!clientData || clientLoading) {
+  if (!clientData || clientLoading || !invoiceData || invoiceLoading) {
     return (
       <Wrapper direction="center">
         <Loader />
@@ -159,7 +164,7 @@ const OrderAddPage = () => {
 
   const submitHandler = async () => {
     console.log("submit");
-
+    if (true) return;
     const mergedStocks = selectedStock
       .map((stock) => {
         if (!stock.stock || stock.stock.length === 0) return;

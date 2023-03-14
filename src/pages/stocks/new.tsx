@@ -64,6 +64,7 @@ const StockNewPage = () => {
   const [ordered, setOrdered] = useState<number>(0);
   const [invoice, setInvoice] = useState<string>("");
   const [client, setClient] = useState<string>("");
+  const [rate, setRate] = useState<number>(0);
 
   const { data, isLoading } = trpc.mills.getMills.useQuery();
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
@@ -170,6 +171,13 @@ const StockNewPage = () => {
       placeholder: "Enter Ordered Packets",
       precision: 0,
     },
+    {
+      variable: rate,
+      setVariable: setRate,
+      label: "Rate",
+      placeholder: "Enter Rate",
+      precision: 0,
+    },
   ];
 
   const addStockHandler = async () => {
@@ -187,6 +195,7 @@ const StockNewPage = () => {
       ordered,
       invoice,
       client,
+      rate,
     };
     const result = AddStockSchema.safeParse(stock);
     if (!result.success) {

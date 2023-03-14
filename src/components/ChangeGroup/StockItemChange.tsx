@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { styled } from "stitches.config";
 import { NumberInput } from "@mantine/core";
 import { useAppDispatch } from "~/store";
+import BundleTable from "../Table/BundleTable";
 const InfoWrapper = styled("div", {
   width: "100%",
   height: "auto",
@@ -59,19 +60,23 @@ type StockConfig = {
   value: string | number | null;
 };
 
-type BundleConfig = {
+type Client = {
+  clientName: string;
+  quantity: number;
+};
+
+export type BundleConfig = {
   title: string;
+  quantity: number;
+  transit: number;
+  ordered: number;
+  clientQuantity: number;
+  client: Client[];
   total: number;
   bundle: number;
 };
 
 const StockItemChange = ({ stock }: StockItemChangeProps) => {
-  const stockName = useMemo(() => {
-    return `${stock.millName}  ${stock.qualityName}  ${stock.breadth}${
-      stock.length !== null ? `X${stock.length}` : ""
-    }  ${stock.weight}KG  ${stock.gsm}G  ${stock.sheets}S`;
-  }, [stock]);
-
   const StockData: StockConfig[] = [
     {
       title: "Mill",
@@ -107,8 +112,26 @@ const StockItemChange = ({ stock }: StockItemChangeProps) => {
     const bundleNames = new Set<number>();
     const bundleData = stock.stock?.map((item) => {
       bundleNames.add(item.bundle);
+      let clientTotal = 0;
+      let client = {
+        clientName: "",
+        quantity: 0,
+      };
+      if (item.invoice?.clientName) {
+        clientTotal += item.quantity + item.transit + item.ordered;
+        client = {
+          clientName: item.invoice?.clientName,
+          quantity: clientTotal,
+        };
+      }
+
       return {
         title: `1X${item.bundle}`,
+        quantity: item.quantity,
+        transit: item.transit,
+        ordered: item.ordered,
+        clientQuantity: clientTotal,
+        client: [client],
         total: item.quantity + item.transit + item.ordered,
         bundle: item.bundle,
       };
@@ -121,18 +144,58 @@ const StockItemChange = ({ stock }: StockItemChangeProps) => {
         return bundleData
           .filter((item) => item.bundle === bundle)
           .reduce((acc, item) => {
+            let client = [];
+            if (item.client.length === 0 || acc.client[0]?.clientName === "") {
+              client = [...acc.client];
+            } else {
+              client = [...acc.client, ...item.client];
+            }
+
             return {
               title: `1X${item.bundle}`,
+              quantity: acc.quantity + item.quantity,
+              transit: acc.transit + item.transit,
+              ordered: acc.ordered + item.ordered,
+              clientQuantity: acc.clientQuantity + item.clientQuantity,
+              client,
               total: acc.total + item.total,
               bundle: item.bundle,
             };
           });
       })
       .sort((a, b) => a.bundle - b.bundle)
-      .filter((item) => item.total > 0);
+      .filter((item) => item.total > 0)
+      .map((item) => {
+        /* THIS WILL FILTER EMPTY CLIENTS AND MERGE THE REST */
+
+        // Create new array to store client
+        const foundClient: Client[] = [];
+        // Remove empty client
+        const allClients: Client[] = item.client.filter(
+          (item) => item.clientName !== ""
+        );
+
+        allClients.forEach((client) => {
+          const found = foundClient.find(
+            (item) => item.clientName === client.clientName
+          );
+          if (found) {
+            found.quantity += client.quantity;
+          } else {
+            foundClient.push(client);
+          }
+        });
+
+        return {
+          ...item,
+          client: foundClient,
+        };
+      });
 
     return finalBundleData;
   }, [stock]);
+
+  console.log("BUNDLES", bundles);
 
   return (
     <>
@@ -147,7 +210,8 @@ const StockItemChange = ({ stock }: StockItemChangeProps) => {
             </InfoRow>
           );
         })}
-        {bundles.map((data, index) => {
+
+        {/* {bundles.map((data, index) => {
           return (
             <BundleItemChange
               data={data}
@@ -155,8 +219,11 @@ const StockItemChange = ({ stock }: StockItemChangeProps) => {
               key={stock.id + "inforow" + index}
             />
           );
-        })}
+        })} */}
       </InfoWrapper>
+      <div style={{ width: "70%" }}>
+        <BundleTable data={bundles} />
+      </div>
       <DividerWrapper />
     </>
   );
