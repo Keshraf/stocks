@@ -5,12 +5,14 @@ import { postStocksBulkRouter } from "./postStocksBulk";
 import { addStockRouter } from "./addStocks";
 import { getSpecByIdRouter } from "./getSpecById";
 import { updateStocksQuantityRouter } from "./updateStocksQuantity";
+import { getSpecsByIdsRouter } from "./getSpecsByIds";
 
 export const stocksRouter = mergeRouters(
   getSpecsRouter,
   postStocksBulkRouter,
   getStocksRouter,
   getSpecByIdRouter,
+  getSpecsByIdsRouter,
   updateStocksQuantityRouter,
   addStockRouter
 );

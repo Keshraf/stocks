@@ -95,7 +95,7 @@ const StockIdPage = () => {
     },
     {
       label: "Size",
-      value: `${data.length ? `${data.length} X ` : ""}${data.breadth}`,
+      value: `${data.breadth}${data.length ? ` X ${data.length}` : ""}`,
     },
     {
       label: "GSM",

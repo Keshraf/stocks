@@ -137,44 +137,6 @@ const StockAdd = ({ stock, clientList, index }: Props) => {
     },
   ];
 
-  /*   const addStockHandler = async () => {
-    const data = {
-      mill: stock.millName,
-      qualityName: stock.qualityName,
-      breadth: Number(stock.breadth),
-      length: Number(stock.length),
-      gsm: Number(stock.gsm),
-      sheets: Number(stock.sheets),
-      weight: Number(stock.weight),
-      invoice: stock.invoice,
-      client: stock.client,
-    };
-
-    const result = AddStockSchema.safeParse(data);
-    if (!result.success) {
-      result.error.errors.map((e) =>
-        toast.error(e.message, {
-          position: "top-right",
-        })
-      );
-    } else {
-      console.log(result.data);
-      const AddStockPromise = addStock(result.data);
-
-      toast.promise(AddStockPromise, {
-        loading: "Adding Stock...",
-        success: "Stock Added",
-        error: "Error Adding Stock",
-      });
-
-      AddStockPromise.then(() => {
-        dispatch(removeSpecs(stock.id));
-      }).catch(() => {
-        console.log("Error");
-      });
-    }
-  }; */
-
   const updateStockById = ({ value, type }: UpdateStock) => {
     dispatch(
       updateAddStockById({

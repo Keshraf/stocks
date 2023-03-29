@@ -4,7 +4,7 @@ export const StockSchema = z.object({
   mill: z.string(),
   qualityName: z.string().trim(),
   breadth: z.number().positive(),
-  length: z.number().nonnegative(),
+  length: z.number().nonnegative().nullable(),
   weight: z.number().positive(),
   gsm: z.number().positive(),
   sheets: z.number().nonnegative(),

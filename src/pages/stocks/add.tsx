@@ -13,6 +13,7 @@ import Text from "~/components/UI/Text";
 import { useAppDispatch, useAppSelector } from "~/store";
 import {
   clearAddStock,
+  selectedAddStockSchema,
   setAllAddStockClient,
   setAllAddStockInvoice,
 } from "~/store/selectedAddStock";
@@ -20,7 +21,11 @@ import { trpc } from "~/utils/trpc";
 import { useRouter } from "next/router";
 import { resetSelectedSpecs } from "~/store/selectedSpecs";
 import { toast } from "react-hot-toast";
-import { AddStockSchema, type AddStock } from "~/types/stocks";
+import {
+  AddStockSchema,
+  AddStockSchemaArr,
+  type AddStock,
+} from "~/types/stocks";
 import { z } from "zod";
 
 const Wrapper = styled("main", {
@@ -103,8 +108,6 @@ const StockAddPage = () => {
   const [opened, setOpened] = useState<boolean>(true);
   const [invoice, setInvoice] = useState<string>("");
   const [client, setClient] = useState<string>("");
-  const [disableInvoice, setDisableInvoice] = useState<boolean>(false);
-  const [disableClient, setDisableClient] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -196,38 +199,50 @@ const StockAddPage = () => {
       return;
     }
 
-    const data: any[] = [];
+    console.log("wcejo: ", selectedStock);
+    const finalData: AddStock[] = [];
+
     selectedStock.forEach((stock) => {
-      if (stock.godownOrder > 0) {
-        const copyStock: any = { ...stock };
-        copyStock.quantity = stock.godownOrder;
-        copyStock.mill = stock.millName;
-        delete copyStock.godownOrder;
-        delete copyStock.clientOrder;
-        delete copyStock.client;
-        delete copyStock.millName;
+      const data = {
+        mill: stock.millName,
+        qualityName: stock.qualityName,
+        breadth: stock.breadth,
+        length: stock.length,
+        weight: stock.weight,
+        gsm: stock.gsm,
+        sheets: stock.sheets,
+        invoice: stock.invoice,
+        rate: stock.rate,
+      };
+      let godownOrder: AddStock;
+      let clientOrder: AddStock;
+      let stockData: AddStock[];
 
-        data.push({
-          ...copyStock,
-        });
+      if (stock.client && stock.clientOrder > 0) {
+        godownOrder = {
+          ...data,
+          quantity: stock.godownOrder,
+          client: "",
+        };
+        clientOrder = {
+          ...data,
+          quantity: stock.clientOrder,
+          client: stock.client,
+        };
+        stockData = [godownOrder, clientOrder];
+      } else {
+        godownOrder = {
+          ...data,
+          quantity: stock.godownOrder,
+          client: "",
+        };
+        stockData = [godownOrder];
       }
-      if (stock.clientOrder > 0) {
-        const copyStock: any = { ...stock };
-        copyStock.quantity = stock.clientOrder;
-        copyStock.mill = stock.millName;
-        delete copyStock.godownOrder;
-        delete copyStock.clientOrder;
-        delete copyStock.millName;
 
-        data.push({
-          ...copyStock,
-        });
-      }
+      finalData.push(...stockData);
     });
 
-    console.log(data);
-
-    const result = z.array(AddStockSchema).safeParse(data);
+    const result = AddStockSchemaArr.safeParse(finalData);
     if (!result.success) {
       console.log(result);
       result.error.errors.map((e) =>
@@ -272,7 +287,6 @@ const StockAddPage = () => {
               placeholder="Enter Order No."
             />
             <MantineButton
-              disabled={disableInvoice}
               onClick={() => {
                 dispatch(setAllAddStockInvoice(invoice));
               }}
@@ -291,7 +305,6 @@ const StockAddPage = () => {
               data={getClientNames()}
             />
             <MantineButton
-              disabled={disableClient}
               onClick={() => {
                 dispatch(setAllAddStockClient(client));
               }}

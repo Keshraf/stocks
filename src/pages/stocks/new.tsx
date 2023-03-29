@@ -145,14 +145,14 @@ const StockNewPage = () => {
     {
       variable: quantity,
       setVariable: setQuantity,
-      label: "In-Stock Godown Packets",
+      label: "Godown Order",
       placeholder: "Enter Godown Packets",
       precision: 0,
     },
     {
       variable: clientQuantity,
       setVariable: setClientQuantity,
-      label: "Client Order Quantity",
+      label: "Client Order",
       placeholder: "Enter Client Packets",
       precision: 0,
     },
@@ -176,7 +176,7 @@ const StockNewPage = () => {
       sheets,
       weight,
       invoice,
-      client,
+      client: "",
       rate,
     };
 
@@ -193,6 +193,7 @@ const StockNewPage = () => {
       clientData = {
         ...stock,
         quantity: clientQuantity,
+        client,
       };
       stockArray = [godownData, clientData];
     } else {
