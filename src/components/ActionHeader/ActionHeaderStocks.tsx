@@ -45,6 +45,7 @@ const ActionHeader = () => {
       <Filter />
       <Button as={Link} href="/stocks/new">
         <Text type="MediumSemibold">Add</Text>
+        <Text type="MediumSemibold">New</Text>
         <Text type="MediumSemibold">Stock</Text>
         <CgFileAdd fontSize={18} color={theme.colors.content.value} />
       </Button>

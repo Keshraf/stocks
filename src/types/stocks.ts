@@ -17,6 +17,8 @@ export const AddStockSchema = StockSchema.extend({
   rate: z.number().positive(),
 });
 
+export const AddStockSchemaArr = z.array(AddStockSchema);
+
 export interface PrismaQuality {
   id: string;
   name: string;
@@ -57,7 +59,7 @@ export interface PrismaStock {
   ordered: number;
   invoiceName: string;
   rate: number;
-  invoice?: PrismaStockInvoice;
+  invoice: PrismaStockInvoice;
   order?: PrismaStockOrder[];
   createdAt: Date;
   updatedAt: Date;
@@ -73,9 +75,11 @@ export interface PrismaStockOrder {
   updatedAt: Date;
   orderId: string;
   stockId: string;
-  order: PrismaOrder;
-  stock: PrismaStock;
-  quanity: number;
+  order?: PrismaOrder;
+  stock?: PrismaStock;
+  pending: number;
+  billed: number;
+  shipped: number;
   remark?: Remark[];
 }
 
@@ -93,7 +97,7 @@ export interface PrismaStockInvoice {
   createdAt: Date;
   updatedAt: Date;
   invoice: string;
-  stock: Stock[];
+  stock?: Stock[];
 }
 
 export interface PrismaOrder {

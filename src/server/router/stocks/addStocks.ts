@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "~/server/trpc";
-import { AddStockSchema, type AddStock } from "~/types/stocks";
+import { AddStockSchemaArr, type AddStock } from "~/types/stocks";
 
 export const addStockRouter = router({
   addStock: protectedProcedure
-    .input(z.array(AddStockSchema))
+    .input(AddStockSchemaArr)
     .mutation(async ({ ctx, input }) => {
       const companyId = ctx.user.company;
 
@@ -22,6 +22,14 @@ export const addStockRouter = router({
         const stock = await ctx.prisma.stock
           .create({
             data: {
+              client:
+                value.client && value.client !== ""
+                  ? {
+                      connect: {
+                        name: value.client,
+                      },
+                    }
+                  : undefined,
               quantity: value.quantity,
               rate: value.rate,
               invoice: {
@@ -31,10 +39,6 @@ export const addStockRouter = router({
                   },
                   create: {
                     invoice: value.invoice.toUpperCase(),
-                    clientName:
-                      value.client === "" || value.client === null
-                        ? null
-                        : value.client,
                   },
                 },
               },
@@ -88,7 +92,8 @@ export const addStockRouter = router({
             },
           })
           .catch((err) => {
-            throw new Error("Error adding stock");
+            console.log("Error adding stock: ", err);
+            throw new Error("Error adding stock: ", err);
           });
 
         return stock;

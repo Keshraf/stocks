@@ -9,7 +9,6 @@ export type StockSchema = {
   ordered: number;
   transit: number;
   quantity: number;
-  bundle: number;
   specsId: string;
   invoice?: PrismaStockInvoice;
 };
@@ -26,10 +25,6 @@ export type selectedSchema = {
   stock?: StockSchema[];
 };
 
-type Bundles = {
-  [key: number]: number;
-};
-
 type BundlePayload = {
   id: string;
   key: number;
@@ -44,13 +39,12 @@ export type InitalState = selectedSchema & {
   transit: number;
   ordered: number;
   rate: number;
-  bundleSelected: Bundles;
 };
 
 type ChangeNumberPayload = {
   id: string;
   value: number;
-  type: "bundle" | "quantity" | "transit" | "ordered" | "rate";
+  type: "quantity" | "transit" | "ordered" | "rate";
 };
 type ChangeStringPayload = {
   id: string;
@@ -65,23 +59,6 @@ export const selectedSpecsSlice = createSlice({
   initialState,
   reducers: {
     addSelectedSpecs: (state, action: PayloadAction<selectedSchema>) => {
-      let bundleSelected: Bundles = { 0: 0 };
-      if (action.payload.stock && action.payload.stock.length > 0) {
-        const availableBundles = new Set(
-          action.payload.stock.map((item) => {
-            if (item.quantity > 0) return item.bundle;
-            if (item.transit > 0) return item.bundle;
-            if (item.ordered > 0) return item.bundle;
-            return -1;
-          })
-        );
-        bundleSelected = Array.from(availableBundles)
-          .filter((val) => val !== -1)
-          .reduce((acc, item) => {
-            return { ...acc, [item]: 0 };
-          }, {});
-      }
-
       state.push({
         ...action.payload,
         invoice: "",
@@ -91,7 +68,6 @@ export const selectedSpecsSlice = createSlice({
         transit: 0,
         ordered: 0,
         rate: 0,
-        bundleSelected,
       });
     },
     resetSelectedSpecs: (state) => {
@@ -120,18 +96,6 @@ export const selectedSpecsSlice = createSlice({
         if (item.id === action.payload) state.splice(index, 1);
       });
     },
-    updateSelectedBundle: (state, action: PayloadAction<BundlePayload>) => {
-      state.map((item) => {
-        if (item.id === action.payload.id) {
-          console.log("action.payload.value", action.payload.value);
-          console.log(
-            "item.bundleSelected[action.payload.key]",
-            item.bundleSelected[action.payload.key]
-          );
-          item.bundleSelected[action.payload.key] = action.payload.value;
-        }
-      });
-    },
   },
 });
 
@@ -143,7 +107,6 @@ export const {
   setAllInvoiceSpecs,
   changeNumberSpecs,
   changeStringSpecs,
-  updateSelectedBundle,
 } = selectedSpecsSlice.actions;
 
 export default selectedSpecsSlice.reducer;

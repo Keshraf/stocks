@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
-import { AddStock, AddStockSchema } from "~/types/stocks";
+import { AddStock, AddStockSchema, AddStockSchemaArr } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {
@@ -60,8 +60,7 @@ const StockNewPage = () => {
   const [bundle, setBundle] = useState<number>(0);
   const [sheets, setSheets] = useState<number>(0);
   const [weight, setWeight] = useState<number>(0);
-  const [transit, setTransit] = useState<number>(0);
-  const [ordered, setOrdered] = useState<number>(0);
+  const [clientQuantity, setClientQuantity] = useState<number>(0);
   const [invoice, setInvoice] = useState<string>("");
   const [client, setClient] = useState<string>("");
   const [rate, setRate] = useState<number>(0);
@@ -144,13 +143,6 @@ const StockNewPage = () => {
       precision: 0,
     },
     {
-      variable: bundle,
-      setVariable: setBundle,
-      label: "Bundle",
-      placeholder: "Enter Bundle",
-      precision: 0,
-    },
-    {
       variable: quantity,
       setVariable: setQuantity,
       label: "In-Stock Godown Packets",
@@ -158,17 +150,10 @@ const StockNewPage = () => {
       precision: 0,
     },
     {
-      variable: transit,
-      setVariable: setTransit,
-      label: "Transit Packets",
-      placeholder: "Enter Transit Packets",
-      precision: 0,
-    },
-    {
-      variable: ordered,
-      setVariable: setOrdered,
-      label: "Ordered Packets",
-      placeholder: "Enter Ordered Packets",
+      variable: clientQuantity,
+      setVariable: setClientQuantity,
+      label: "Client Order Quantity",
+      placeholder: "Enter Client Packets",
       precision: 0,
     },
     {
@@ -188,16 +173,33 @@ const StockNewPage = () => {
       length,
       quantity,
       gsm,
-      bundle,
       sheets,
       weight,
-      transit,
-      ordered,
       invoice,
       client,
       rate,
     };
-    const result = AddStockSchema.safeParse(stock);
+
+    let godownData: AddStock;
+    let clientData: AddStock;
+    let stockArray: AddStock[] = [];
+
+    if (client !== "" && clientQuantity > 0) {
+      godownData = {
+        ...stock,
+        quantity: quantity,
+        client: undefined,
+      };
+      clientData = {
+        ...stock,
+        quantity: clientQuantity,
+      };
+      stockArray = [godownData, clientData];
+    } else {
+      stockArray = [stock];
+    }
+
+    const result = AddStockSchemaArr.safeParse(stockArray);
     if (!result.success) {
       result.error.errors.map((e) =>
         toast.error(e.message, {
