@@ -166,7 +166,6 @@ const ClientsTable = ({ data }: { data: PrismaDataClient[] }) => {
                         style={{ width: header.width }}
                         key={header.key}
                       >
-                        {/* @ts-ignore */}
                         {updatedClient[header.key]
                           ? updatedClient[header.key]
                           : "-"}

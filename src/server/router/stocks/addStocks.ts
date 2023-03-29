@@ -30,7 +30,7 @@ export const addStockRouter = router({
                       },
                     }
                   : undefined,
-              quantity: value.quantity,
+              ordered: value.quantity,
               rate: value.rate,
               invoice: {
                 connectOrCreate: {

@@ -104,10 +104,10 @@ export interface PrismaOrder {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  status: string;
-  clientId: string;
+  clientName: string;
   billingAddress: string;
   shippingAddress: string;
+  shippingClientName: string;
   orderId: string;
   client?: PrismaDataClient;
   stockorder?: PrismaStockOrder[];
