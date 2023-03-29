@@ -94,12 +94,8 @@ const StockIdPage = () => {
       value: data.qualityName,
     },
     {
-      label: "Breadth",
-      value: data.breadth,
-    },
-    {
-      label: "Length",
-      value: data.length,
+      label: "Size",
+      value: `${data.length ? `${data.length} X ` : ""}${data.breadth}`,
     },
     {
       label: "GSM",
