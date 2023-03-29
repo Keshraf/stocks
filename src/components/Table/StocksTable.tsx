@@ -98,7 +98,6 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
           invoice: item.invoice === "-" ? "" : item.invoice,
           client: item.client === "-" ? "" : item.client,
           quantity: item.quantity,
-          bundle: item.bundle,
         })
       );
     } else {
@@ -121,16 +120,14 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               </TableHeadItem>
               <TableHeadItem css={{ width: "50px" }}>{"Mill"}</TableHeadItem>
               <TableHeadItem>{"Quality"}</TableHeadItem>
-              {/* <TableHeadItem css={{ width: "50px" }}>Sl. No.</TableHeadItem> */}
-              <TableHeadItem css={{ width: "150px" }}>
-                {"Order No."}
-              </TableHeadItem>
-              <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem>
-
               <TableHeadItem>{"Size"}</TableHeadItem>
               <TableHeadItem>{"Weight"}</TableHeadItem>
               <TableHeadItem>{"GSM"}</TableHeadItem>
               <TableHeadItem>{"Sheets"}</TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>
+                {"Order No."}
+              </TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem>
               <TableHeadItem>{"Transit"}</TableHeadItem>
               <TableHeadItem>{"Ordered"}</TableHeadItem>
             </TableRow>
@@ -169,12 +166,12 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                   <TableItem css={{ fontWeight: "$semibold" }}>
                     {item.qualityName}
                   </TableItem>
-                  <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
-                  <TableItem css={{ width: "150px" }}>{item.client}</TableItem>
                   <TableItem>{item.breadth + " X " + item.length}</TableItem>
                   <TableItem>{item.weight} KG</TableItem>
                   <TableItem>{item.gsm} G</TableItem>
                   <TableItem>{item.sheets} S</TableItem>
+                  <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
+                  <TableItem css={{ width: "150px" }}>{item.client}</TableItem>
                   <TableItem status={item.transit > 0 ? "alert" : "normal"}>
                     {item.transit} PKT
                   </TableItem>

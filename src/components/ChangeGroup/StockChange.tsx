@@ -13,7 +13,6 @@ import {
   type SelectedStocksSchema,
   type InitialState,
   changeNumberStocks,
-  changeStringStocks,
 } from "~/store/selectedStocks";
 import { useEffect, useMemo, useState } from "react";
 import { AddStockSchema, StockUpdate, StockUpdateSchema } from "~/types/stocks";
@@ -62,6 +61,14 @@ const IconWrapper = styled("div", {
 type StockConfig = {
   title: string;
   value: string | number;
+  width: string;
+};
+
+type InputConfig = {
+  title: string;
+  key: "changedQuantity" | "changedTransit" | "changedOrdered";
+  value: number;
+  width: string;
 };
 
 const StockWrapper = styled("div", {
@@ -110,239 +117,136 @@ const StockChange = ({ stock }: Props) => {
   const { mutateAsync: updateStock } =
     trpc.stocks.updateStocksQuantity.useMutation();
 
+  const remaining = useMemo(() => {
+    return (
+      stock.quantity +
+      stock.transit +
+      stock.ordered -
+      (stock.changedQuantity + stock.changedTransit + stock.changedOrdered)
+    );
+  }, [stock]);
+
   const StockData: StockConfig[] = [
     {
-      title: "Mill Name",
+      title: "Mill",
       value: stock.millName,
+      width: "30px",
     },
     {
       title: "Quality",
       value: stock.qualityName,
+      width: "70px",
     },
     {
-      title: "Breadth",
-      value: stock.breadth,
-    },
-    {
-      title: "Length",
-      value: stock.length ? stock.length : "0",
+      title: "Size",
+      value: `${stock.breadth}${stock.length ? ` X ${stock.length}` : ""}`,
+      width: "70px",
     },
     {
       title: "Weight",
-      value: stock.weight,
+      value: `${stock.weight}KG`,
+      width: "50px",
     },
     {
       title: "GSM",
-      value: stock.gsm,
+      value: `${stock.gsm}G`,
+      width: "50px",
     },
     {
       title: "Sheets",
-      value: stock.sheets,
+      value: `${stock.sheets}S`,
+      width: "50px",
+    },
+    {
+      title: "Order No.",
+      value: stock.invoice,
+      width: "150px",
+    },
+    {
+      title: "Client",
+      value: stock.client ? stock.client : "-",
+      width: "150px",
+    },
+    {
+      title: "Remaining",
+      value: remaining,
+      width: "100px",
     },
   ];
 
-  const StockStats: StockConfig[] = [
+  const InputStockData: InputConfig[] = [
     {
       title: "Godown",
-      value: stock.quantity,
+      key: "changedQuantity",
+      value: stock.changedQuantity,
+      width: "100px",
     },
     {
       title: "Transit",
-      value: stock.transit,
+      key: "changedTransit",
+      value: stock.changedTransit,
+      width: "100px",
     },
     {
       title: "Ordered",
-      value: stock.ordered,
+      key: "changedOrdered",
+      value: stock.changedOrdered,
+      width: "100px",
     },
   ];
-
-  const formNumberData: FormDataType[] = [
-    {
-      label: "Bundle",
-      placeholder: "Enter Bundle",
-      precision: 0,
-      name: "bundle",
-      value: stock.bundle,
-    },
-    {
-      label: "Godown",
-      placeholder: "Enter Godown Packets",
-      precision: 0,
-      name: "quantity",
-      value: stock.quantity,
-    },
-    {
-      label: "Transit",
-      placeholder: "Enter Transit Packets",
-      precision: 0,
-      name: "transit",
-      value: stock.transit,
-    },
-    {
-      label: "Ordered",
-      placeholder: "Enter Ordered Packets",
-      precision: 0,
-      name: "ordered",
-      value: stock.ordered,
-    },
-  ];
-
-  const updateStockHandler = () => {
-    if (stock.amount > maxValue) {
-      toast.error("Amount cannot be greater than max value");
-      return;
-    }
-
-    const from =
-      stock.from === "Godown"
-        ? "quantity"
-        : stock.from === "Transit"
-        ? "transit"
-        : "ordered";
-    const to =
-      stock.to === "Godown"
-        ? "quantity"
-        : stock.to === "Transit"
-        ? "transit"
-        : "ordered";
-
-    const data: StockUpdate = {
-      id: stock.id,
-      from,
-      to,
-      quantity: stock.amount,
-    };
-
-    const result = StockUpdateSchema.safeParse(data);
-
-    if (!result.success) {
-      result.error.errors.map((e) =>
-        toast.error(e.message, {
-          position: "top-right",
-        })
-      );
-    } else {
-      const updatePromise = updateStock([data]);
-
-      toast.promise(updatePromise, {
-        loading: "Updating stocks...",
-        success: "Stocks updated successfully",
-        error: "Error updating stocks",
-      });
-
-      updatePromise
-        .then(() => {
-          dispatch(removeStocks(stock.id));
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    }
-  };
-
-  const optionChangeHandler = (value: string, dir: "from" | "to") => {
-    if (value === "Godown" || value === "Transit" || value === "Ordered") {
-      if (dir === "from") {
-        if (stock.to !== value) {
-          dispatch(
-            changeStringStocks({ id: stock.id, type: "from", value: value })
-          );
-        }
-      } else {
-        if (stock.from !== value) {
-          dispatch(
-            changeStringStocks({ id: stock.id, type: "to", value: value })
-          );
-        }
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (stock.from === "Godown") {
-      setMaxValue(stock.quantity);
-    } else if (stock.from === "Transit") {
-      setMaxValue(stock.transit);
-    } else if (stock.from === "Ordered") {
-      setMaxValue(stock.ordered);
-    }
-  }, [stock.from, stock.quantity, stock.transit, stock.ordered]);
 
   return (
     <StockWrapper>
-      <Text type="LargeSemibold">{"Details"}</Text>
       <InfoWrapper>
         {StockData.map((data, index) => {
-          return (
-            <InfoRow key={stock.id + "inforow" + index}>
-              <Text width="100px" type="MediumRegular">
-                {data.title}
-              </Text>
-              <Text type="MediumSemibold">{data.value}</Text>
-            </InfoRow>
-          );
-        })}
-      </InfoWrapper>
-      <Text type="LargeSemibold">{"Quantity"}</Text>
-      <InfoWrapper>
-        {StockStats.map((data, index) => {
-          return (
-            <InfoRow key={stock.id + "inforow" + index}>
-              <Text width="100px" type="MediumRegular">
-                {data.title}
-              </Text>
-              <Text type="MediumSemibold">{data.value}</Text>
-            </InfoRow>
-          );
-        })}
-      </InfoWrapper>
-      <InputGroup>
-        <InputWrapper>
-          <NativeSelect
-            data={["Godown", "Transit", "Ordered"]}
-            label="From"
-            value={stock.from}
-            onChange={(e) => optionChangeHandler(e.currentTarget.value, "from")}
-            withAsterisk
-          />
-        </InputWrapper>
-        <IconWrapper>
-          <BiArrowFromLeft size={18} color={"#000"} />
-        </IconWrapper>
-        <InputWrapper>
-          <NativeSelect
-            data={["Godown", "Transit", "Ordered"]}
-            label="To"
-            value={stock.to}
-            onChange={(e) => optionChangeHandler(e.currentTarget.value, "to")}
-            withAsterisk
-          />
-        </InputWrapper>
-      </InputGroup>
-      <InputWrapper>
-        <NumberInput
-          withAsterisk
-          label="Amount"
-          max={maxValue}
-          placeholder="Enter Amount"
-          precision={0}
-          value={stock.amount}
-          onChange={(value) => {
-            if (!value) return;
-            dispatch(
-              changeNumberStocks({
-                type: "amount",
-                value,
-                id: stock.id,
-              })
+          if (data.title === "Remaining" && (remaining < 0 || remaining > 0))
+            return (
+              <InfoRow
+                css={{ width: data.width }}
+                key={stock.id + "inforow" + index}
+              >
+                <Text type="MediumSemibold" color="$danger">
+                  {data.value}
+                </Text>
+              </InfoRow>
             );
-          }}
-        />
-      </InputWrapper>
-      <Button onClick={updateStockHandler} type="submit">
-        Update
-      </Button>
-      <DividerWrapper />
+
+          return (
+            <InfoRow
+              css={{ width: data.width }}
+              key={stock.id + "inforow" + index}
+            >
+              <Text type="MediumSemibold">{data.value}</Text>
+            </InfoRow>
+          );
+        })}
+        {InputStockData.map((data, index) => {
+          return (
+            <InfoRow
+              css={{ width: data.width }}
+              key={stock.id + "inforow" + index}
+            >
+              <NumberInput
+                placeholder={`Enter ${data.title}`}
+                defaultValue={0}
+                precision={0}
+                min={0}
+                value={data.value}
+                onChange={(value) => {
+                  if (value === undefined || value === null) return;
+                  dispatch(
+                    changeNumberStocks({
+                      type: data.key,
+                      value,
+                      id: stock.id,
+                    })
+                  );
+                }}
+              />
+            </InfoRow>
+          );
+        })}
+      </InfoWrapper>
     </StockWrapper>
   );
 };

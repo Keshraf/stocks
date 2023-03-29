@@ -39,6 +39,7 @@ type Weight = "light" | "regular" | "medium" | "semibold" | "bold";
 const weight: Weight[] = ["light", "regular", "medium", "semibold", "bold"];
 
 type Props = {
+  color?: string;
   width?: string;
   type?: Names;
   children: ReactNode;
@@ -88,13 +89,19 @@ const config = TextCombinations.map((val) => {
   };
 });
 
-const Text = ({ type = "ExtralargeBold", children, width }: Props) => {
+const Text = ({
+  type = "ExtralargeBold",
+  children,
+  width,
+  color = "$content",
+}: Props) => {
   let index = names.indexOf(type);
 
   return (
     <DefaultText
-      style={{
+      css={{
         width: width,
+        color: color,
       }}
       {...config[index]}
     >

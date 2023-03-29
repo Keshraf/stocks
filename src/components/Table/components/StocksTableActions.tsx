@@ -50,12 +50,28 @@ const StockTableActions = ({ refetch }: Props) => {
       to = "transit";
     }
     const data: StockUpdate[] = selectStocks.map((stock) => {
-      return {
-        id: stock.id,
-        from,
-        to,
-        quantity: stock[from],
-      };
+      if (from === "ordered") {
+        return {
+          id: stock.id,
+          quantity: stock.quantity,
+          transit: stock.transit + stock.ordered,
+          ordered: 0,
+        };
+      } else if (from === "transit") {
+        return {
+          id: stock.id,
+          quantity: stock.quantity + stock.transit,
+          transit: 0,
+          ordered: stock.ordered,
+        };
+      } else {
+        return {
+          id: stock.id,
+          quantity: stock.quantity,
+          transit: stock.transit,
+          ordered: stock.ordered,
+        };
+      }
     });
 
     const result = z.array(StockUpdateSchema).safeParse(data);
@@ -115,22 +131,21 @@ const StockTableActions = ({ refetch }: Props) => {
       >
         Change
       </Button>
-
-      <Button
-        onClick={() => transferStocks("transit")}
-        radius="md"
-        variant="light"
-        color="orange"
-      >
-        Godown ← Transit
-      </Button>
       <Button
         radius="md"
         variant="light"
         color="indigo"
         onClick={() => transferStocks("ordered")}
       >
-        Transit ← Ordered
+        Ordered → Transit
+      </Button>
+      <Button
+        onClick={() => transferStocks("transit")}
+        radius="md"
+        variant="light"
+        color="orange"
+      >
+        Transit → Godown
       </Button>
     </Wrapper>
   );

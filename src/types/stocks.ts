@@ -129,8 +129,8 @@ export interface PrismaDataClient {
 export const StockUpdateSchema = z.object({
   id: z.string(),
   quantity: z.number(),
-  from: z.enum(["transit", "ordered", "quantity"]),
-  to: z.enum(["transit", "ordered", "quantity"]),
+  transit: z.number(),
+  ordered: z.number(),
 });
 
 export type StockUpdate = z.infer<typeof StockUpdateSchema>;
