@@ -4,6 +4,7 @@ import { TbPackgeImport, TbPackgeExport } from "react-icons/tb";
 import { useAppDispatch, useAppSelector } from "~/store";
 import { useRouter } from "next/router";
 import { resetSelectedSpecs } from "~/store/selectedSpecs";
+import { addStockSelected } from "~/store/selectedAddStock";
 
 const Wrapper = styled("div", {
   width: "auto",
@@ -32,6 +33,29 @@ const SpecsTableActions = () => {
     return <></>;
   }
 
+  const addStockHandler = () => {
+    const selected = selectSpecs.map((spec) => {
+      return {
+        id: spec.id,
+        millName: spec.millName,
+        qualityName: spec.qualityName,
+        breadth: spec.breadth,
+        weight: spec.weight,
+        length: spec.length,
+        gsm: spec.gsm,
+        sheets: spec.sheets,
+        godownOrder: 0,
+        clientOrder: 0,
+        rate: 0,
+        client: "",
+        invoice: "",
+      };
+    });
+
+    dispatch(addStockSelected(selected));
+    router.push("/stocks/add");
+  };
+
   return (
     <Wrapper>
       <Button
@@ -55,7 +79,7 @@ const SpecsTableActions = () => {
         radius="md"
         variant="light"
         color="indigo"
-        onClick={() => router.push("/stocks/add")}
+        onClick={addStockHandler}
       >
         Add Stock
       </Button>

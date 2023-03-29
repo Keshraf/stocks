@@ -5,6 +5,7 @@ import searchReducer from "./search";
 import filterReducer from "./filter";
 import selectedSpecsReducer from "./selectedSpecs";
 import selectedStocksReducer from "./selectedStocks";
+import selectedAddStockReducer from "./selectedAddStock";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     filter: filterReducer,
     selectedSpecs: selectedSpecsReducer,
     selectedStocks: selectedStocksReducer,
+    selectedAddStock: selectedAddStockReducer,
   },
 });
 

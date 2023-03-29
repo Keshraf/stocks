@@ -29,7 +29,7 @@ export const getSpecsRouter = router({
     return specs.map((spec) => {
       const stock = spec.stock.map((stock) => {
         const reduced = stock.order.reduce((acc, order) => {
-          return acc + order.quantity;
+          return acc + order.pending + order.shipped + order.billed;
         }, 0);
 
         // Fix first reduce quantity then reduce transit then reduce ordered

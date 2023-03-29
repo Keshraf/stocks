@@ -83,13 +83,11 @@ model Specs {
 
 // Stock Invoice from a Mill
 model StockInvoice {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  invoice    String   @unique
-  client     Client?  @relation(fields: [clientName], references: [name])
-  clientName String?
-  stock      Stock[]
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  invoice   String   @unique
+  stock     Stock[]
 }
 
 // Individual Stock Additions of a Single Specication of a Quality
@@ -98,7 +96,6 @@ model Stock {
   specs       Specs        @relation(fields: [specsId], references: [id])
   specsId     String
   quantity    Int          @default(0)
-  bundle      Int          @default(0)
   transit     Int          @default(0)
   ordered     Int          @default(0)
   createdAt   DateTime     @default(now())
@@ -106,6 +103,8 @@ model Stock {
   rate        Float        @default(0)
   order       StockOrder[]
   invoice     StockInvoice @relation(fields: [invoiceName], references: [invoice])
+  client      Client?      @relation(fields: [clientName], references: [name])
+  clientName  String?
   invoiceName String
 }
 
@@ -128,8 +127,9 @@ model StockOrder {
   id           String   @id @default(uuid())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  status       String   @default("pending")
-  quantity     Int      @default(0)
+  pending      Int      @default(0)
+  billed       Int      @default(0)
+  shipped      Int      @default(0)
   rate         Float    @default(0)
   shippingDate DateTime
   order        Order    @relation(fields: [orderId], references: [id])
@@ -150,18 +150,18 @@ model Remark {
 }
 
 model Client {
-  id           String         @id @default(uuid())
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  name         String         @unique
-  address      String[]
-  mobile       String?
-  company      Company        @relation(fields: [companyId], references: [id])
-  companyId    String
-  email        String?
-  gst          String?
-  order        Order[]
-  stockInvoice StockInvoice[]
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @unique
+  address   String[]
+  mobile    String?
+  company   Company  @relation(fields: [companyId], references: [id])
+  companyId String
+  email     String?
+  gst       String?
+  order     Order[]
+  stock     Stock[]
 
   @@unique([name, companyId])
 }

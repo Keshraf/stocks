@@ -8,14 +8,11 @@ export const StockSchema = z.object({
   weight: z.number().positive(),
   gsm: z.number().positive(),
   sheets: z.number().nonnegative(),
-  bundle: z.number().nonnegative(),
   quantity: z.number().nonnegative(),
   invoice: z.string().trim().min(3),
 });
 
 export const AddStockSchema = StockSchema.extend({
-  transit: z.number().nonnegative(),
-  ordered: z.number().nonnegative(),
   client: z.string().trim().optional(),
   rate: z.number().positive(),
 });
@@ -58,7 +55,6 @@ export interface PrismaStock {
   quantity: number;
   transit: number;
   ordered: number;
-  bundle: number;
   invoiceName: string;
   rate: number;
   invoice?: PrismaStockInvoice;
@@ -67,6 +63,8 @@ export interface PrismaStock {
   updatedAt: Date;
   specsId: string;
   specs?: PrismaSpecs[];
+  clientName?: string | null;
+  client?: PrismaDataClient[] | null;
 }
 
 export interface PrismaStockOrder {
@@ -96,8 +94,6 @@ export interface PrismaStockInvoice {
   updatedAt: Date;
   invoice: string;
   stock: Stock[];
-  clientName: string | null;
-  client: PrismaDataClient[] | null;
 }
 
 export interface PrismaOrder {

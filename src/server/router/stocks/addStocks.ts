@@ -1,9 +1,10 @@
+import { z } from "zod";
 import { router, protectedProcedure } from "~/server/trpc";
-import { AddStockSchema } from "~/types/stocks";
+import { AddStockSchema, type AddStock } from "~/types/stocks";
 
 export const addStockRouter = router({
   addStock: protectedProcedure
-    .input(AddStockSchema)
+    .input(z.array(AddStockSchema))
     .mutation(async ({ ctx, input }) => {
       const companyId = ctx.user.company;
 
@@ -13,85 +14,98 @@ export const addStockRouter = router({
 
       console.log("INPUT: ", input);
 
-      const stock = await ctx.prisma.stock
-        .create({
-          data: {
-            quantity: input.quantity,
-            bundle: input.bundle,
-            transit: input.transit,
-            ordered: input.ordered,
-            rate: input.rate,
-            invoice: {
-              connectOrCreate: {
-                where: {
-                  invoice: input.invoice.toUpperCase(),
-                },
-                create: {
-                  invoice: input.invoice.toUpperCase(),
-                  clientName:
-                    input.client === "" || input.client === null
-                      ? null
-                      : input.client,
-                },
-              },
-            },
-            specs: {
-              connectOrCreate: {
-                where: {
-                  qualityName_breadth_length_weight_gsm_sheets: {
-                    qualityName: input.qualityName,
-                    breadth: input.breadth,
-                    length: input.length,
-                    weight: input.weight,
-                    gsm: input.gsm,
-                    sheets: input.sheets,
+      if (!input) {
+        throw new Error("No input");
+      }
+
+      const createStock = async (value: AddStock) => {
+        const stock = await ctx.prisma.stock
+          .create({
+            data: {
+              quantity: value.quantity,
+              rate: value.rate,
+              invoice: {
+                connectOrCreate: {
+                  where: {
+                    invoice: value.invoice.toUpperCase(),
+                  },
+                  create: {
+                    invoice: value.invoice.toUpperCase(),
+                    clientName:
+                      value.client === "" || value.client === null
+                        ? null
+                        : value.client,
                   },
                 },
-                create: {
-                  breadth: input.breadth,
-                  length: input.length,
-                  weight: input.weight,
-                  gsm: input.gsm,
-                  sheets: input.sheets,
-                  quality: {
-                    connectOrCreate: {
-                      where: {
-                        name: input.qualityName,
-                      },
-                      create: {
-                        name: input.qualityName,
-                        mill: {
-                          connectOrCreate: {
-                            where: {
-                              name: input.mill,
-                            },
-                            create: {
-                              name: input.mill,
-                              company: {
-                                connect: {
-                                  id: companyId,
+              },
+              specs: {
+                connectOrCreate: {
+                  where: {
+                    qualityName_breadth_length_weight_gsm_sheets: {
+                      qualityName: value.qualityName,
+                      breadth: value.breadth,
+                      length: value.length,
+                      weight: value.weight,
+                      gsm: value.gsm,
+                      sheets: value.sheets,
+                    },
+                  },
+                  create: {
+                    breadth: value.breadth,
+                    length: value.length,
+                    weight: value.weight,
+                    gsm: value.gsm,
+                    sheets: value.sheets,
+                    quality: {
+                      connectOrCreate: {
+                        where: {
+                          name: value.qualityName,
+                        },
+                        create: {
+                          name: value.qualityName,
+                          mill: {
+                            connectOrCreate: {
+                              where: {
+                                name: value.mill,
+                              },
+                              create: {
+                                name: value.mill,
+                                company: {
+                                  connect: {
+                                    id: companyId,
+                                  },
                                 },
                               },
                             },
                           },
+                          companyId: companyId,
                         },
-                        companyId: companyId,
                       },
                     },
                   },
                 },
               },
             },
-          },
-        })
-        .catch((err) => {
-          /* console.log(err); */
-          throw new Error("Error adding stock");
-        });
+          })
+          .catch((err) => {
+            throw new Error("Error adding stock");
+          });
+
+        return stock;
+      };
+
+      const stocks = [];
+      for (let i = 0; i < input.length; i++) {
+        if (!input[i] || input[i] === null || input[i] === undefined) {
+          continue;
+        } else {
+          stocks.push(await createStock(input[i] as AddStock));
+        }
+      }
 
       return {
         message: "Stock added successfully",
-        stock,
+        stocks,
       };
     }),
 });
