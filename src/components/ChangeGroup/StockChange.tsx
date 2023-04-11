@@ -162,11 +162,11 @@ const StockChange = ({ stock }: Props) => {
       value: stock.invoice,
       width: "150px",
     },
-    {
+    /* {
       title: "Client",
       value: stock.client ? stock.client : "-",
       width: "150px",
-    },
+    }, */
     {
       title: "Remaining",
       value: remaining,
