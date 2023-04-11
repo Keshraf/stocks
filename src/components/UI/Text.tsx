@@ -43,6 +43,8 @@ type Props = {
   width?: string;
   type?: Names;
   children: ReactNode;
+  textAlign?: "left" | "center" | "right";
+  justifyContent?: "flex-start" | "center" | "flex-end";
 };
 
 const TextCombinations = size
@@ -93,7 +95,9 @@ const Text = ({
   type = "ExtralargeBold",
   children,
   width,
+  textAlign = "left",
   color = "$content",
+  justifyContent = "flex-start",
 }: Props) => {
   let index = names.indexOf(type);
 
@@ -102,6 +106,8 @@ const Text = ({
       css={{
         width: width,
         color: color,
+        textAlign: textAlign,
+        justifyContent: justifyContent,
       }}
       {...config[index]}
     >

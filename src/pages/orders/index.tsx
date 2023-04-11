@@ -1,8 +1,10 @@
 import { Loader, Tabs } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { styled } from "stitches.config";
+import ActionHeader from "~/components/ActionHeader/ActionHeaderOrder";
 import OrderTable from "~/components/Table/OrderTable";
 import Text from "~/components/UI/Text";
+import UserCheck from "~/components/UserCheck";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {
@@ -27,7 +29,7 @@ const Wrapper = styled("main", {
   },
 });
 
-const Orders = () => {
+const OrderPage = () => {
   const [activeTab, setActiveTab] = useState<string | null>("pending");
   const [status, setStatus] = useState<"pending" | "billed" | "shipped">(
     "pending"
@@ -88,4 +90,14 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+OrderPage.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <UserCheck>
+      {" "}
+      <ActionHeader />
+      {page}
+    </UserCheck>
+  );
+};
+
+export default OrderPage;
