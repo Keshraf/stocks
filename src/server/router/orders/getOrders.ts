@@ -15,45 +15,27 @@ export const getOrdersRouter = router({
         throw new Error("User is not associated with a company");
       }
 
-      const order = await ctx.prisma.order.findMany({
-        where: {
-          stockOrder: {
-            some: {
-              status: input.status,
-            },
-          },
-        },
+      const orders = await await ctx.prisma.order.findMany({
         include: {
-          stockOrder: {
-            include: {
-              stock: {
-                include: {
-                  specs: {
-                    select: {
-                      id: true,
-                      qualityName: true,
-                      breadth: true,
-                      length: true,
-                      weight: true,
-                      gsm: true,
-                      sheets: true,
-                      quality: {
-                        select: {
-                          millName: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
+          stockOrder: true,
         },
+      });
+
+      const filteredOrders = orders.filter((order) => {
+        let pass = false;
+
+        order.stockOrder.forEach((stockOrder) => {
+          if (stockOrder[input.status] > 0) {
+            pass = true;
+          }
+        });
+
+        return pass;
       });
 
       return {
         message: "Order returned successfully",
-        data: order,
+        orders: filteredOrders,
       };
     }),
 });

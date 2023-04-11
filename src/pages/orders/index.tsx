@@ -54,6 +54,13 @@ const Orders = () => {
   if (!data || isLoading) {
     return (
       <Wrapper direction="center">
+        <Tabs value={activeTab} onTabChange={setActiveTab}>
+          <Tabs.List>
+            <Tabs.Tab value="pending">Pending Orders</Tabs.Tab>
+            <Tabs.Tab value="billed">Billed Orders</Tabs.Tab>
+            <Tabs.Tab value="shipped">Shipped Orders</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
         <Loader />
       </Wrapper>
     );
@@ -63,14 +70,20 @@ const Orders = () => {
 
   return (
     <Wrapper>
-      <Tabs value={activeTab} onTabChange={setActiveTab}>
+      <Tabs
+        style={{
+          width: "100%",
+        }}
+        value={activeTab}
+        onTabChange={setActiveTab}
+      >
         <Tabs.List>
           <Tabs.Tab value="pending">Pending Orders</Tabs.Tab>
           <Tabs.Tab value="billed">Billed Orders</Tabs.Tab>
           <Tabs.Tab value="shipped">Shipped Orders</Tabs.Tab>
         </Tabs.List>
       </Tabs>
-      <OrderTable data={data.data} />
+      <OrderTable data={data.orders} />
     </Wrapper>
   );
 };

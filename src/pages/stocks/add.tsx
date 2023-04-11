@@ -27,6 +27,7 @@ import {
   type AddStock,
 } from "~/types/stocks";
 import { z } from "zod";
+import { AddPreorderInput, AddPreorderSchema } from "~/types/preorder";
 
 const Wrapper = styled("main", {
   width: "100%",
@@ -112,6 +113,7 @@ const StockAddPage = () => {
   const router = useRouter();
 
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
+  const { mutateAsync: addPreorder } = trpc.preorder.addPreorder.useMutation();
   const { data: clientData, isLoading: clientLoading } =
     trpc.clients.getClients.useQuery();
 
@@ -201,6 +203,7 @@ const StockAddPage = () => {
 
     console.log("wcejo: ", selectedStock);
     const finalData: AddStock[] = [];
+    const preorderData: AddPreorderInput[] = [];
 
     selectedStock.forEach((stock) => {
       const data = {
@@ -213,36 +216,28 @@ const StockAddPage = () => {
         sheets: stock.sheets,
         invoice: stock.invoice,
         rate: stock.rate,
+        quantity: stock.godownOrder + stock.clientOrder,
       };
-      let godownOrder: AddStock;
-      let clientOrder: AddStock;
-      let stockData: AddStock[];
 
-      if (stock.client && stock.clientOrder > 0) {
-        godownOrder = {
-          ...data,
-          quantity: stock.godownOrder,
-          client: "",
-        };
-        clientOrder = {
-          ...data,
-          quantity: stock.clientOrder,
-          client: stock.client,
-        };
-        stockData = [godownOrder, clientOrder];
-      } else {
-        godownOrder = {
-          ...data,
-          quantity: stock.godownOrder,
-          client: "",
-        };
-        stockData = [godownOrder];
-      }
+      const preorder = {
+        breadth: stock.breadth,
+        length: stock.length,
+        weight: stock.weight,
+        gsm: stock.gsm,
+        sheets: stock.sheets,
+        invoiceName: stock.invoice,
+        quantity: stock.clientOrder,
+        status: "pending",
+        client: stock.client,
+        qualityName: stock.qualityName,
+      } as AddPreorderInput;
 
-      finalData.push(...stockData);
+      finalData.push(data);
+      preorderData.push(preorder);
     });
 
     const result = AddStockSchemaArr.safeParse(finalData);
+    const resultPreorder = z.array(AddPreorderSchema).safeParse(preorderData);
     if (!result.success) {
       console.log(result);
       result.error.errors.map((e) =>
@@ -260,9 +255,20 @@ const StockAddPage = () => {
         error: "Error Adding Stocks",
       });
 
-      AddStockPromise.then(() => {
+      AddStockPromise.then(async () => {
         dispatch(clearAddStock());
         dispatch(resetSelectedSpecs());
+
+        if (!resultPreorder.success) {
+          return;
+        }
+        const AddPreorderPromise = await addPreorder(
+          resultPreorder.data.filter(
+            (preorder) => preorder.quantity > 0 && preorder.client !== ""
+          )
+        );
+
+        toast.success("Preorder Added");
       }).catch(() => {
         console.log("Error");
       });

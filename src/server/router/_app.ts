@@ -5,6 +5,7 @@ import { stocksRouter } from "./stocks";
 import { millsRouter } from "./mills";
 import { ordersRouter } from "./orders";
 import { invoiceRouter } from "./invoices";
+import { preorderRouter } from "./preorder";
 
 export const appRouter = router({
   auth: authRouter,
@@ -18,6 +19,7 @@ export const appRouter = router({
   mills: millsRouter,
   orders: ordersRouter,
   invoices: invoiceRouter,
+  preorder: preorderRouter,
 });
 
 // export type definition of API

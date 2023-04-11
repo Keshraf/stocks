@@ -66,28 +66,45 @@ model Quality {
 
 // Different types of a Single Quality
 model Specs {
-  id          String   @id @default(uuid())
-  quality     Quality  @relation(fields: [qualityName], references: [name])
+  id          String     @id @default(uuid())
+  quality     Quality    @relation(fields: [qualityName], references: [name])
   qualityName String
   breadth     Float
-  length      Float?
+  length      Float      @default(0)
   weight      Float
   gsm         Int
   sheets      Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   stock       Stock[]
+  preorder    Preorder[]
 
   @@unique([qualityName, breadth, length, weight, gsm, sheets])
 }
 
+// Preorder from a Client
+model Preorder {
+  id          String       @id @default(uuid())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  client      Client       @relation(fields: [clientName], references: [name])
+  clientName  String
+  quantity    Int
+  status      String       @default("pending")
+  specs       Specs        @relation(fields: [specsId], references: [id])
+  specsId     String
+  invoice     StockInvoice @relation(fields: [invoiceName], references: [invoice])
+  invoiceName String
+}
+
 // Stock Invoice from a Mill
 model StockInvoice {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  invoice   String   @unique
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  invoice   String     @unique
   stock     Stock[]
+  preorder  Preorder[]
 }
 
 // Individual Stock Additions of a Single Specication of a Quality
@@ -103,8 +120,6 @@ model Stock {
   rate        Float        @default(0)
   order       StockOrder[]
   invoice     StockInvoice @relation(fields: [invoiceName], references: [invoice])
-  client      Client?      @relation(fields: [clientName], references: [name])
-  clientName  String?
   invoiceName String
 }
 
@@ -120,23 +135,23 @@ model Order {
   shippingClientName String
   billingAddress     String
   shippingAddress    String
+  orderDate          DateTime?
 }
 
 // Connects a Single Order to a Single Stock. Allowing for multiple stocks in a single order
 model StockOrder {
-  id           String   @id @default(uuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  pending      Int      @default(0)
-  billed       Int      @default(0)
-  shipped      Int      @default(0)
-  rate         Float    @default(0)
-  shippingDate DateTime
-  order        Order    @relation(fields: [orderId], references: [id])
-  orderId      String
-  stock        Stock    @relation(fields: [stockId], references: [id])
-  stockId      String
-  remark       Remark[]
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  pending   Int      @default(0)
+  billed    Int      @default(0)
+  shipped   Int      @default(0)
+  rate      Float    @default(0)
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  stock     Stock    @relation(fields: [stockId], references: [id])
+  stockId   String
+  remark    Remark[]
 }
 
 // Shows any changes to the final shipped order
@@ -150,18 +165,18 @@ model Remark {
 }
 
 model Client {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String   @unique
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  name      String     @unique
   address   String[]
   mobile    String?
-  company   Company  @relation(fields: [companyId], references: [id])
+  company   Company    @relation(fields: [companyId], references: [id])
   companyId String
   email     String?
   gst       String?
   order     Order[]
-  stock     Stock[]
+  preorder  Preorder[]
 
   @@unique([name, companyId])
 }

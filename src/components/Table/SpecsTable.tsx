@@ -222,7 +222,8 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
   ) => {
     e.stopPropagation();
     const item = data.find((item) => item.id === id);
-    if (!item) return;
+    const spec = formattedData.find((item) => item.id === id);
+    if (!item || !spec) return;
     if (checked) {
       dispatch(
         addSelectedSpecs({
@@ -235,6 +236,9 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
           gsm: item.gsm,
           sheets: item.sheets,
           stock: item.stock,
+          totalQuantity: Number(spec.quantity.toString().split(" ")[0]), // 10 PKTS
+          totalTransit: spec.transit,
+          totalOrdered: spec.ordered,
         })
       );
     } else {

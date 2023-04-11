@@ -33,10 +33,20 @@ export const getSpecsRouter = router({
         }, 0);
 
         // Fix first reduce quantity then reduce transit then reduce ordered
+        const quantityReduced =
+          stock.quantity > reduced ? reduced : stock.quantity;
+        let newReduced = reduced - quantityReduced;
+        const transitReduced =
+          stock.transit > newReduced ? newReduced : stock.transit;
+        newReduced = newReduced - transitReduced;
+        const orderedReduced =
+          stock.ordered > newReduced ? newReduced : stock.ordered;
 
         return {
           ...stock,
-          quantity: stock.quantity - reduced,
+          quantity: stock.quantity - quantityReduced,
+          transit: stock.transit - transitReduced,
+          ordered: stock.ordered - orderedReduced,
         };
       });
 

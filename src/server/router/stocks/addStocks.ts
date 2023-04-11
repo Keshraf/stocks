@@ -22,14 +22,6 @@ export const addStockRouter = router({
         const stock = await ctx.prisma.stock
           .create({
             data: {
-              client:
-                value.client && value.client !== ""
-                  ? {
-                      connect: {
-                        name: value.client,
-                      },
-                    }
-                  : undefined,
               ordered: value.quantity,
               rate: value.rate,
               invoice: {
@@ -48,7 +40,7 @@ export const addStockRouter = router({
                     qualityName_breadth_length_weight_gsm_sheets: {
                       qualityName: value.qualityName,
                       breadth: value.breadth,
-                      length: value.length,
+                      length: value.length ? value.length : 0,
                       weight: value.weight,
                       gsm: value.gsm,
                       sheets: value.sheets,
@@ -56,7 +48,7 @@ export const addStockRouter = router({
                   },
                   create: {
                     breadth: value.breadth,
-                    length: value.length,
+                    length: value.length ? value.length : 0,
                     weight: value.weight,
                     gsm: value.gsm,
                     sheets: value.sheets,

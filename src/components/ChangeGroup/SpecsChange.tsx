@@ -184,7 +184,7 @@ const StockAdd = ({ stock, clientList, index }: Props) => {
             limit={20}
             maxDropdownHeight={300}
             onChange={(value) => {
-              if (value) {
+              if (value !== undefined) {
                 updateStockById({ value, type: "client" });
               }
             }}

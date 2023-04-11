@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
+import { AddPreorderInput, AddPreorderSchema } from "~/types/preorder";
 import { AddStock, AddStockSchema, AddStockSchemaArr } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 
@@ -67,6 +68,7 @@ const StockNewPage = () => {
 
   const { data, isLoading } = trpc.mills.getMills.useQuery();
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
+  const { mutateAsync: addPreorder } = trpc.preorder.addPreorder.useMutation();
   const { data: clientData, isLoading: clientLoading } =
     trpc.clients.getClients.useQuery();
 
@@ -171,36 +173,29 @@ const StockNewPage = () => {
       qualityName,
       breadth,
       length,
-      quantity,
       gsm,
       sheets,
       weight,
       invoice,
-      client: "",
+      quantity: quantity + clientQuantity,
       rate,
     };
 
-    let godownData: AddStock;
-    let clientData: AddStock;
-    let stockArray: AddStock[] = [];
+    const preorderData = {
+      client: client ? client : "",
+      invoiceName: invoice,
+      quantity: clientQuantity,
+      breadth,
+      length,
+      gsm,
+      sheets,
+      weight,
+      qualityName,
+      status: "pending",
+    } as AddPreorderInput;
 
-    if (client !== "" && clientQuantity > 0) {
-      godownData = {
-        ...stock,
-        quantity: quantity,
-        client: undefined,
-      };
-      clientData = {
-        ...stock,
-        quantity: clientQuantity,
-        client,
-      };
-      stockArray = [godownData, clientData];
-    } else {
-      stockArray = [stock];
-    }
-
-    const result = AddStockSchemaArr.safeParse(stockArray);
+    const result = AddStockSchemaArr.safeParse([stock]);
+    const preorderResult = AddPreorderSchema.safeParse(preorderData);
     if (!result.success) {
       result.error.errors.map((e) =>
         toast.error(e.message, {
@@ -217,8 +212,19 @@ const StockNewPage = () => {
         error: "Error Adding Stock",
       });
 
-      AddStockPromise.then(() => {
+      AddStockPromise.then(async () => {
         router.push("/stocks");
+
+        if (!preorderResult.success) {
+          return;
+        }
+        const AddPreorderPromise = await addPreorder(
+          [preorderResult.data].filter(
+            (preorder) => preorder.quantity > 0 && preorder.client !== ""
+          )
+        );
+
+        toast.success("Preorder Added");
       }).catch(() => {
         console.log("Error Adding Stock");
       });

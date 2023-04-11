@@ -1,17 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PrismaStockInvoice } from "~/types/stocks";
-
-export type StockSchema = {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  invoiceName: string;
-  ordered: number;
-  transit: number;
-  quantity: number;
-  specsId: string;
-  invoice?: PrismaStockInvoice;
-};
+import { PrismaStock, PrismaStockInvoice } from "~/types/stocks";
 
 export type selectedSchema = {
   id: string;
@@ -22,7 +10,7 @@ export type selectedSchema = {
   length: number | null;
   gsm: number;
   sheets: number;
-  stock?: StockSchema[];
+  stock?: PrismaStock[];
 };
 
 type BundlePayload = {
@@ -39,6 +27,9 @@ export type InitalState = selectedSchema & {
   transit: number;
   ordered: number;
   rate: number;
+  totalQuantity: number;
+  totalTransit: number;
+  totalOrdered: number;
 };
 
 type ChangeNumberPayload = {
@@ -58,7 +49,16 @@ export const selectedSpecsSlice = createSlice({
   name: "selectedSpecs",
   initialState,
   reducers: {
-    addSelectedSpecs: (state, action: PayloadAction<selectedSchema>) => {
+    addSelectedSpecs: (
+      state,
+      action: PayloadAction<
+        selectedSchema & {
+          totalQuantity: number;
+          totalTransit: number;
+          totalOrdered: number;
+        }
+      >
+    ) => {
       state.push({
         ...action.payload,
         invoice: "",

@@ -24,9 +24,11 @@ interface Headers {
   name: string;
   key:
     | "createdAt"
-    | "orderId"
+    | "orderDate"
     | "clientName"
     | "billingAddress"
+    | "shippingClientName"
+    | "orderId"
     | "shippingAddress";
   width: string;
 }
@@ -35,7 +37,7 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
   const headers: Headers[] = [
     {
       name: "Date",
-      key: "createdAt",
+      key: "orderDate",
       width: "100px",
     },
     {
@@ -44,8 +46,13 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
       width: "200px",
     },
     {
-      name: "Client Name",
+      name: "Billing Client",
       key: "clientName",
+      width: "250px",
+    },
+    {
+      name: "Shipping Client",
+      key: "shippingClientName",
       width: "250px",
     },
     {
@@ -85,12 +92,13 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
             return (
               <TableRow key={client.id} style={{ cursor: "pointer" }}>
                 {headers.map((header) => {
-                  if (header.key === "createdAt") {
+                  if (header.key === "orderDate") {
                     return (
                       <TableItem
                         key={header.key}
                         style={{ width: header.width }}
                       >
+                        {/* @ts-ignore */}
                         {new Date(client[header.key]).toLocaleDateString()}
                       </TableItem>
                     );
@@ -98,6 +106,7 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
 
                   return (
                     <TableItem key={header.key} style={{ width: header.width }}>
+                      {/* @ts-ignore */}
                       {client[header.key]}
                     </TableItem>
                   );

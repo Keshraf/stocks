@@ -13,9 +13,15 @@ import StockItemChange from "~/components/ChangeGroup/StockItemChange";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
 import { useAppDispatch, useAppSelector } from "~/store";
-import { resetSelectedSpecs, StockSchema } from "~/store/selectedSpecs";
-import { CreateOrderSchema } from "~/types/orders";
+import { resetSelectedSpecs } from "~/store/selectedSpecs";
+import {
+  CreateOrderSchema,
+  CreateOrderType,
+  CreateStockOrderSchema,
+  CreateStockOrderType,
+} from "~/types/orders";
 import { trpc } from "~/utils/trpc";
+import Datepicker from "~/components/DatePicker";
 import { z } from "zod";
 
 const Wrapper = styled("main", {
@@ -81,12 +87,36 @@ const DividerWrapper = styled("div", {
   backgroundColor: "$highlight",
 });
 
+const InfoWrapper = styled("div", {
+  width: "100%",
+  height: "auto",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  gap: "$gapMedium",
+  overflowX: "auto",
+  overflowY: "hidden",
+});
+
+const InfoRow = styled("div", {
+  width: "auto",
+  height: "auto",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  gap: "$gapMedium",
+});
+
 const OrderAddPage = () => {
   const [opened, setOpened] = useState(true);
   const [invoice, setInvoice] = useState("");
-  const [client, setClient] = useState("");
+  const [billingClient, setBillingClient] = useState("");
+  const [shippingClient, setShippingClient] = useState("");
   const [billingAddress, setBillingAddress] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
+  const [date, setDate] = useState<Date | null>(null);
 
   const router = useRouter();
 
@@ -96,6 +126,8 @@ const OrderAddPage = () => {
   const { data: clientData, isLoading: clientLoading } =
     trpc.clients.getClients.useQuery();
   const { mutateAsync: createOrder } = trpc.orders.createOrder.useMutation();
+  const { mutateAsync: createStockOrder } =
+    trpc.orders.createStockOrder.useMutation();
   const { data: invoiceData, isLoading: invoiceLoading } =
     trpc.invoices.getInvoices.useQuery();
 
@@ -106,16 +138,16 @@ const OrderAddPage = () => {
     return clientNames;
   }, [clientData]);
 
-  const getClientAddress = useMemo(() => {
+  const getClientAddress = (cli: string) => {
     if (!clientData) return [];
     const clientAddress: string[] = [];
     clientData.forEach((clientItem) => {
-      if (clientItem.name === client) {
+      if (clientItem.name === cli) {
         clientAddress.push(...clientItem.address);
       }
     });
     return clientAddress;
-  }, [clientData, client]);
+  };
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -145,11 +177,11 @@ const OrderAddPage = () => {
       toast.error("Invoice Code is required");
       return;
     }
-    if (!client) {
+    if (!billingClient) {
       toast.error("Client is required");
       return;
     }
-    if (getClientNames.indexOf(client) === -1) {
+    if (getClientNames.indexOf(billingClient) === -1) {
       toast.error("Client not found!");
       return;
     }
@@ -162,146 +194,220 @@ const OrderAddPage = () => {
     setOpened(false);
   };
 
+  const headers = [
+    {
+      title: "Mill",
+      width: "30px",
+    },
+    {
+      title: "Quality",
+      width: "70px",
+    },
+    {
+      title: "Size",
+      width: "70px",
+    },
+    {
+      title: "Weight",
+      width: "50px",
+    },
+    {
+      title: "GSM",
+      width: "50px",
+    },
+    {
+      title: "Sheets",
+      width: "50px",
+    },
+    {
+      title: "Godown",
+      width: "75px",
+    },
+    {
+      title: "Transit",
+      width: "75px",
+    },
+    {
+      title: "Ordered",
+      width: "75px",
+    },
+    {
+      title: "Total",
+      width: "75px",
+    },
+    {
+      title: "Quantity <PKT>",
+      width: "100px",
+    },
+    {
+      title: "Rate <₹>",
+      width: "100px",
+    },
+  ];
+
   const submitHandler = async () => {
     console.log("submit");
-    if (true) return;
-    const mergedStocks = selectedStock
-      .map((stock) => {
-        if (!stock.stock || stock.stock.length === 0) return;
-
-        return [...stock.stock];
-      })
-      .flat()
-      .filter((item) => item !== undefined);
-
-    const sortedStocks = selectedStock
-      .map((stock) => {
-        if (!stock.stock || stock.stock.length === 0) return;
-
-        const bundles = { ...stock.bundleSelected };
-
-        // Creates a copy of the array
-        // sort edits the variables hence, we need to create a copy of the array
-        const refStocks = [...stock.stock].sort((a, b) => {
-          const aDate = new Date(a.createdAt).valueOf();
-          const bDate = new Date(b.createdAt).valueOf();
-          return aDate - bDate;
-        });
-
-        const statusArr: ("quantity" | "transit" | "ordered")[] = [
-          "quantity",
-          "transit",
-          "ordered",
-        ];
-
-        const allChanges = statusArr
-          .map((status) => {
-            const changes = refStocks.map((item) => {
-              const bundleQuanity = bundles[item.bundle];
-              let value = item[status];
-              if (bundleQuanity === 0 || !bundleQuanity || value === 0)
-                return {
-                  id: item.id,
-                  [status]: 0,
-                };
-              let final: number;
-              let reduced: number;
-              if (bundleQuanity < value) {
-                final = 0;
-                reduced = bundleQuanity;
-              } else {
-                final = bundleQuanity - value;
-                reduced = value;
-              }
-              bundles[item.bundle] = final;
-              return {
-                id: item.id,
-                [status]: reduced,
-              };
-            });
-
-            return changes;
-          })
-          .flat();
-
-        const finalChanges = allChanges.map((change, index) => {
-          const sameStuff = allChanges.filter((item) => item.id === change.id);
-          if (index + 1 > allChanges.length / 3) return null;
-          return sameStuff.reduce((acc, curr) => {
-            return {
-              ...acc,
-              ...curr,
-            };
-          });
-        });
-
-        return finalChanges.filter((item) => item !== null);
-      })
-      .flat();
-
-    const results = StockChangeSchema.safeParse(sortedStocks);
-
-    if (!results.success) {
-      toast.error("Something went wrong!");
+    if (
+      !billingClient ||
+      !shippingClient ||
+      !shippingAddress ||
+      !billingAddress
+    ) {
+      toast.error("Client or Address is missing");
       return;
-    } else {
-      const distributedStocks = results.data;
-      const finalStocks = mergedStocks.map((stock) => {
-        if (!stock) return null;
-        const distributedStock = distributedStocks.find(
-          (item) => item.id === stock.id
+    }
+    if (!invoice) {
+      toast.error("Invoice Code is required");
+      return;
+    }
+
+    const orders: CreateStockOrderType[] = [];
+    const orderDetails: CreateOrderType = {
+      billingAddress,
+      shippingAddress,
+      clientName: billingClient,
+      shippingClientName: shippingClient,
+      orderDate: date ? date : new Date(),
+      orderId: invoice,
+    };
+
+    selectedStock.forEach(async (item) => {
+      let quantity = item.quantity;
+
+      if (quantity === 0 || item.stock?.length === 0) return;
+
+      // Reduces the client order quantity from the stock
+
+      if (!item.stock) return;
+
+      console.log(item.stock);
+
+      const sortedOrders = item.stock
+        .slice()
+        .sort(
+          (a, b) =>
+            Date.parse(a.createdAt.toDateString()) -
+            Date.parse(b.createdAt.toDateString())
         );
-        if (!distributedStock) return null;
+
+      const quantityReduced = sortedOrders.map((stockItem) => {
+        if (quantity === 0)
+          return {
+            stockId: stockItem.id,
+            quantity: 0,
+          };
+        let orderQuantity = 0;
+        orderQuantity =
+          quantity > stockItem.quantity ? stockItem.quantity : quantity;
+        quantity -= orderQuantity;
+
         return {
-          id: stock.id,
-          quantity: stock.quantity - distributedStock.quantity,
-          transit: stock.transit - distributedStock.transit,
-          ordered: stock.ordered - distributedStock.ordered,
-          pending:
-            distributedStock.quantity +
-            distributedStock.transit +
-            distributedStock.ordered,
+          stockId: stockItem.id,
+          quantity: orderQuantity,
         };
       });
 
-      const reducedStocks = finalStocks.filter((item) => {
-        if (item === null) return false;
-        if (item.pending === 0) return false;
-        return true;
+      const transitReduced = sortedOrders.map((stockItem) => {
+        if (quantity === 0)
+          return {
+            stockId: stockItem.id,
+            transit: 0,
+          };
+        let orderQuantity = 0;
+        orderQuantity =
+          quantity > stockItem.transit ? stockItem.transit : quantity;
+        quantity -= orderQuantity;
+
+        return {
+          stockId: stockItem.id,
+          transit: orderQuantity,
+        };
       });
 
-      const data = {
-        orderId: invoice,
-        billingAddress,
-        shippingAddress,
-        clientName: client,
-        stocks: reducedStocks,
-      };
-      const results2 = CreateOrderSchema.safeParse(data);
+      const orderedReduced = sortedOrders.map((stockItem) => {
+        if (quantity === 0)
+          return {
+            stockId: stockItem.id,
+            ordered: 0,
+          };
+        let orderQuantity = 0;
+        orderQuantity =
+          quantity > stockItem.ordered ? stockItem.ordered : quantity;
+        quantity -= orderQuantity;
 
-      if (!results2.success) {
-        results2.error.errors.map((e) =>
-          toast.error(e.message, {
-            position: "top-right",
-          })
-        );
-      } else {
-        const orderData = results2.data;
-        const CreateOrderPromise = createOrder(orderData);
+        return {
+          stockId: stockItem.id,
+          ordered: orderQuantity,
+        };
+      });
 
-        toast.promise(CreateOrderPromise, {
-          loading: "Creating Order...",
-          success: "Order Created",
-          error: "Error Creating Order",
-        });
+      const totalReduced = sortedOrders
+        .map((_, index) => {
+          return {
+            ...quantityReduced[index],
+            ...transitReduced[index],
+            ...orderedReduced[index],
+            rate: item.rate,
+          };
+        })
+        .map((item) => {
+          item.quantity = item.quantity ? item.quantity : 0;
+          item.transit = item.transit ? item.transit : 0;
+          item.ordered = item.ordered ? item.ordered : 0;
 
-        CreateOrderPromise.then(() => {
-          dispatch(resetSelectedSpecs());
-          router.push("/orders");
-        }).catch(() => {
-          console.log("Error");
-        });
-      }
+          return {
+            quantity: item.quantity + item.transit + item.ordered,
+            rate: item.rate,
+            stockId: item.stockId ? item.stockId : "wtf",
+            orderId: invoice,
+          };
+        })
+        .filter((item) => item.quantity > 0);
+
+      console.log(item);
+      console.log(totalReduced);
+      orders.push(...totalReduced);
+    });
+
+    console.log("Orders", orders);
+
+    // First Create an Order
+    const orderResults = CreateOrderSchema.safeParse(orderDetails);
+
+    if (!orderResults.success) {
+      toast.error("Error in Order");
+      return;
+    } else {
+      const CreateOrderPromise = createOrder(orderResults.data);
+
+      toast.promise(CreateOrderPromise, {
+        loading: "Creating Order",
+        success: "Order Created",
+        error: "Error in Order",
+      });
+
+      await CreateOrderPromise;
+    }
+
+    // Then Create Stock Orders
+
+    const stockOrderResults = z.array(CreateStockOrderSchema).safeParse(orders);
+    if (!stockOrderResults.success) {
+      toast.error("Error in Stock Order");
+      return;
+    } else {
+      const CreateStockOrderPromise = createStockOrder(stockOrderResults.data);
+
+      toast.promise(CreateStockOrderPromise, {
+        loading: "Allocating Stocks",
+        success: "Stocks Allocated",
+        error: "Error in Stock Order",
+      });
+
+      await CreateStockOrderPromise.then(() => {
+        dispatch(resetSelectedSpecs());
+        router.push("/orders");
+      });
     }
   };
 
@@ -312,14 +418,10 @@ const OrderAddPage = () => {
         opened={opened}
         onClose={() => setOpened(false)}
         title="Set these for all"
-        withCloseButton={false}
-        closeOnClickOutside={false}
-        closeOnEscape={false}
       >
         <ModalWrapper onSubmit={modalSubmitHandler}>
           <InputWrapper>
             <Text type="MediumBold">Invoice Code</Text>
-
             <TextInput
               value={invoice}
               onChange={(e) => setInvoice(e.target.value.trim())}
@@ -329,10 +431,10 @@ const OrderAddPage = () => {
           <InputWrapper>
             <Text type="MediumBold">Client</Text>
             <Autocomplete
-              value={client}
+              value={billingClient}
               limit={20}
               maxDropdownHeight={300}
-              onChange={(value) => setClient(value.trim())}
+              onChange={(value) => setBillingClient(value.trim())}
               placeholder="Choose Client"
               data={getClientNames}
             />
@@ -341,24 +443,46 @@ const OrderAddPage = () => {
         </ModalWrapper>
       </Modal>
       {/* MODAL END */}
-      <Text>Place Order</Text>
+      <InfoWrapper>
+        <Text>Place Order</Text>
+        <Button onClick={() => setOpened(true)}>Set for all</Button>
+      </InfoWrapper>
       <Row>
         <Text type="MediumRegular">Invoice Code:</Text>
         <Text type="MediumBold">{invoice}</Text>
       </Row>
       <Row>
-        <Text type="MediumRegular">Client:</Text>
-        <Text type="MediumBold">{client}</Text>
+        <Text type="MediumRegular">Billing Client:</Text>
+        <Text type="MediumBold">{billingClient}</Text>
       </Row>
       <DividerWrapper />
-      <Text type="ExtralargeBold">Selected Specs</Text>
+      <InfoWrapper>
+        {headers.map((header, index) => {
+          return (
+            <InfoRow css={{ width: header.width }} key={index}>
+              <Text type="SmallMedium">{header.title}</Text>
+            </InfoRow>
+          );
+        })}
+      </InfoWrapper>
       {selectedStock.map((stock) => {
         return <StockItemChange stock={stock} key={stock.id} />;
       })}
       <Divider />
       <Row>
         <InputWrapper>
-          {/* <Text type="MediumBold">Billing Address</Text> */}
+          <Autocomplete
+            label="Billing Client"
+            withAsterisk
+            value={billingClient}
+            limit={20}
+            maxDropdownHeight={300}
+            onChange={(value) => setBillingClient(value.trim())}
+            placeholder="Choose Client"
+            data={getClientNames}
+          />
+        </InputWrapper>
+        <InputWrapper>
           <Autocomplete
             label="Billing Address"
             withAsterisk
@@ -367,7 +491,22 @@ const OrderAddPage = () => {
             maxDropdownHeight={300}
             onChange={(value) => setBillingAddress(value)}
             placeholder="Choose Billing Address"
-            data={getClientAddress}
+            data={getClientAddress(billingClient)}
+          />
+        </InputWrapper>
+      </Row>
+      <Row>
+        <InputWrapper>
+          {/* <Text type="MediumBold">Billing Address</Text> */}
+          <Autocomplete
+            label="Shipping Client"
+            withAsterisk
+            value={shippingClient}
+            limit={20}
+            maxDropdownHeight={300}
+            onChange={(value) => setShippingClient(value.trim())}
+            placeholder="Choose Client"
+            data={getClientNames}
           />
         </InputWrapper>
         <InputWrapper>
@@ -380,10 +519,14 @@ const OrderAddPage = () => {
             maxDropdownHeight={300}
             onChange={(value) => setShippingAddress(value)}
             placeholder="Choose Shipping Address"
-            data={getClientAddress}
+            data={getClientAddress(shippingClient)}
           />
         </InputWrapper>
       </Row>
+      <InfoRow>
+        <Text type="MediumRegular">Delivery Date</Text>
+        <Datepicker date={date} setDate={setDate} />
+      </InfoRow>
       <Row>
         <ActionButton onClick={submitHandler}>Confirm Order</ActionButton>
         <Button onClick={() => router.push("/stocks")}>Go Back</Button>

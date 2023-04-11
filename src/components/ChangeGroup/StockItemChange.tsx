@@ -1,5 +1,5 @@
 import Text from "../UI/Text";
-import { InitalState, updateSelectedBundle } from "~/store/selectedSpecs";
+import { changeNumberSpecs, InitalState } from "~/store/selectedSpecs";
 import { useMemo, useState } from "react";
 import { styled } from "stitches.config";
 import { NumberInput } from "@mantine/core";
@@ -11,7 +11,7 @@ const InfoWrapper = styled("div", {
   display: "flex",
   flexDirection: "row",
   justifyContent: "flex-start",
-  alignItems: "flex-start",
+  alignItems: "center",
   gap: "$gapMedium",
   overflowX: "auto",
   overflowY: "hidden",
@@ -58,6 +58,15 @@ type StockItemChangeProps = {
 type StockConfig = {
   title: string;
   value: string | number | null;
+  width: string;
+};
+
+type InputConfig = {
+  title: string;
+  key: "quantity" | "rate";
+  value: number;
+  width: string;
+  max: number;
 };
 
 type Client = {
@@ -77,38 +86,79 @@ export type BundleConfig = {
 };
 
 const StockItemChange = ({ stock }: StockItemChangeProps) => {
+  const dispatch = useAppDispatch();
+
   const StockData: StockConfig[] = [
     {
       title: "Mill",
       value: stock.millName,
+      width: "30px",
     },
     {
       title: "Quality",
       value: stock.qualityName,
+      width: "70px",
     },
     {
-      title: "Breadth",
-      value: stock.breadth,
-    },
-    {
-      title: "Length",
-      value: stock.length ? stock.length : "-",
+      title: "Size",
+      value: `${stock.breadth}X${stock.length}`,
+      width: "70px",
     },
     {
       title: "Weight",
-      value: stock.weight,
+      value: `${stock.weight}KG`,
+      width: "50px",
     },
     {
       title: "GSM",
-      value: stock.gsm,
+      value: `${stock.gsm}G`,
+      width: "50px",
     },
     {
       title: "Sheets",
-      value: stock.sheets,
+      value: `${stock.sheets}S`,
+      width: "50px",
+    },
+    {
+      title: "Godown",
+      value: `${stock.totalQuantity}`,
+      width: "75px",
+    },
+    {
+      title: "Transit",
+      value: `${stock.totalTransit}`,
+      width: "75px",
+    },
+    {
+      title: "Ordered",
+      value: `${stock.totalOrdered}`,
+      width: "75px",
+    },
+    {
+      title: "Total",
+      value: `${stock.totalQuantity + stock.totalTransit + stock.totalOrdered}`,
+      width: "75px",
     },
   ];
 
-  const bundles = useMemo(() => {
+  const InputStockData: InputConfig[] = [
+    {
+      title: "Quantity",
+      key: "quantity",
+      value: stock.quantity,
+      width: "100px",
+      max: stock.totalQuantity + stock.totalTransit + stock.totalOrdered,
+    },
+    {
+      title: "Rate",
+      key: "rate",
+      value: stock.rate,
+      width: "100px",
+      max: 100000,
+    },
+  ];
+
+  /* const bundles = useMemo(() => {
     const bundleNames = new Set<number>();
     const bundleData = stock.stock?.map((item) => {
       bundleNames.add(item.bundle);
@@ -166,7 +216,7 @@ const StockItemChange = ({ stock }: StockItemChangeProps) => {
       .sort((a, b) => a.bundle - b.bundle)
       .filter((item) => item.total > 0)
       .map((item) => {
-        /* THIS WILL FILTER EMPTY CLIENTS AND MERGE THE REST */
+        // THIS WILL FILTER EMPTY CLIENTS AND MERGE THE REST
 
         // Create new array to store client
         const foundClient: Client[] = [];
@@ -193,83 +243,53 @@ const StockItemChange = ({ stock }: StockItemChangeProps) => {
       });
 
     return finalBundleData;
-  }, [stock]);
+  }, [stock]); */
 
-  console.log("BUNDLES", bundles);
+  /* console.log("BUNDLES", bundles); */
 
   return (
     <>
       <InfoWrapper>
         {StockData.map((data, index) => {
           return (
-            <InfoRow key={stock.id + "inforow" + index}>
-              <Text width="100px" type="MediumRegular">
-                {data.title}
-              </Text>
+            <InfoRow
+              css={{ width: data.width }}
+              key={stock.id + "inforow" + index}
+            >
               <Text type="MediumSemibold">{data.value}</Text>
             </InfoRow>
           );
         })}
-
-        {/* {bundles.map((data, index) => {
+        {InputStockData.map((data, index) => {
           return (
-            <BundleItemChange
-              data={data}
-              id={stock.id}
+            <InfoRow
+              css={{ width: data.width }}
               key={stock.id + "inforow" + index}
-            />
+            >
+              <NumberInput
+                placeholder={`Enter ${data.title}`}
+                defaultValue={0}
+                precision={0}
+                min={0}
+                max={data.max}
+                value={data.value}
+                onChange={(value) => {
+                  if (value === undefined || value === null) return;
+                  dispatch(
+                    changeNumberSpecs({
+                      type: data.key,
+                      value,
+                      id: stock.id,
+                    })
+                  );
+                }}
+              />
+            </InfoRow>
           );
-        })} */}
+        })}
       </InfoWrapper>
-      <div style={{ width: "70%" }}>
-        <BundleTable data={bundles} />
-      </div>
-      <DividerWrapper />
+      {/* <DividerWrapper /> */}
     </>
-  );
-};
-
-const BundleItemChange = ({ data, id }: { data: BundleConfig; id: string }) => {
-  const [value, setValue] = useState<number>(0);
-  const [error, setError] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
-  const handleChange = (value: number | undefined) => {
-    if (value === undefined) return;
-    console.log(value);
-    if (value !== 0 && value % data.bundle !== 0) {
-      setError(true);
-    } else {
-      setError(false);
-    }
-
-    dispatch(
-      updateSelectedBundle({
-        id,
-        key: data.bundle,
-        value,
-      })
-    );
-
-    setValue(value);
-  };
-
-  return (
-    <InfoRow>
-      <Text width="100px" type="MediumBold">
-        {data.title}
-        <NumberSpan>{data.total} PKTS</NumberSpan>
-      </Text>
-      <NumberInputWrapper>
-        <NumberInput
-          error={error ? `Number must be divisible by ${data.bundle}` : false}
-          onChange={(value) => handleChange(value)}
-          value={value}
-          step={data.bundle}
-          max={data.total}
-          min={0}
-        />
-      </NumberInputWrapper>
-    </InfoRow>
   );
 };
 

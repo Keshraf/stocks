@@ -13,7 +13,6 @@ export const StockSchema = z.object({
 });
 
 export const AddStockSchema = StockSchema.extend({
-  client: z.string().trim().optional(),
   rate: z.number().positive(),
 });
 
@@ -65,8 +64,6 @@ export interface PrismaStock {
   updatedAt: Date;
   specsId: string;
   specs?: PrismaSpecs[];
-  clientName?: string | null;
-  client?: PrismaDataClient[] | null;
 }
 
 export interface PrismaStockOrder {

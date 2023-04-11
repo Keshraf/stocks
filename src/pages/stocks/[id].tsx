@@ -1,4 +1,4 @@
-import { Loader } from "@mantine/core";
+import { Loader, Tabs } from "@mantine/core";
 import { useRouter } from "next/router";
 import { styled } from "stitches.config";
 import StockItemTable from "~/components/Table/StockItemTable";
@@ -127,7 +127,23 @@ const StockIdPage = () => {
             );
           })}
         </InfoWrapper>
-        <StockItemTable data={data.stock} />
+        <Tabs
+          style={{
+            width: "100%",
+          }}
+          defaultValue="stock"
+        >
+          <Tabs.List>
+            <Tabs.Tab value="stock">Stocks</Tabs.Tab>
+            <Tabs.Tab value="client">Clients</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="stock" pt="xs">
+            <StockItemTable data={data.stock} />
+          </Tabs.Panel>
+          <Tabs.Panel value="client" pt="xs">
+            Client
+          </Tabs.Panel>
+        </Tabs>
       </Wrapper>
     </>
   );

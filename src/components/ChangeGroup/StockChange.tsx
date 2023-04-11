@@ -87,7 +87,7 @@ const InfoWrapper = styled("div", {
   display: "flex",
   flexDirection: "row",
   justifyContent: "flex-start",
-  alignItems: "flex-start",
+  alignItems: "center",
   gap: "$gapMedium",
   overflowX: "auto",
   overflowY: "hidden",
