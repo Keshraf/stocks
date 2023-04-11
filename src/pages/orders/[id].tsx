@@ -187,7 +187,9 @@ const OrderIdPage = () => {
     },
     {
       label: "Order Date",
-      value: new Date(orderDetails.orderDate).toLocaleDateString(),
+      value: orderDetails.orderDate
+        ? new Date(orderDetails.orderDate).toLocaleDateString()
+        : "-",
       width: "100px",
     },
     {
