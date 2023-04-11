@@ -96,7 +96,7 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
           transit: item.transit,
           ordered: item.ordered,
           invoice: item.invoice === "-" ? "" : item.invoice,
-          client: item.client === "-" ? "" : item.client,
+          /* client: item.client === "-" ? "" : item.client, */
           quantity: item.quantity,
         })
       );
@@ -127,7 +127,7 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               <TableHeadItem css={{ width: "150px" }}>
                 {"Order No."}
               </TableHeadItem>
-              <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem>
+              {/* <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem> */}
               <TableHeadItem>{"Transit"}</TableHeadItem>
               <TableHeadItem>{"Ordered"}</TableHeadItem>
             </TableRow>
@@ -171,7 +171,7 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                   <TableItem>{item.gsm} G</TableItem>
                   <TableItem>{item.sheets} S</TableItem>
                   <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
-                  <TableItem css={{ width: "150px" }}>{item.client}</TableItem>
+                  {/* <TableItem css={{ width: "150px" }}>{item.client}</TableItem> */}
                   <TableItem status={item.transit > 0 ? "alert" : "normal"}>
                     {item.transit} PKT
                   </TableItem>

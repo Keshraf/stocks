@@ -13,7 +13,7 @@ export type SelectedStocksSchema = {
   qualityName: string;
   millName: string;
   invoice: string;
-  client: string;
+  /* client: string; */
 };
 
 type ChangeNumberPayload = {
