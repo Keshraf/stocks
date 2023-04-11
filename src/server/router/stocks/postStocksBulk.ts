@@ -48,7 +48,7 @@ export const postStocksBulkRouter = router({
         skipDuplicates: true,
       });
 
-      input.forEach(async (stock) => {
+      /* input.forEach(async (stock) => {
         await ctx.prisma.specs.create({
           data: {
             qualityName: stock.qualityName,
@@ -75,7 +75,7 @@ export const postStocksBulkRouter = router({
             },
           },
         });
-      });
+      }); */
 
       return {
         message: "Stocks added successfully",

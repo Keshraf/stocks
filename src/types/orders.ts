@@ -37,7 +37,7 @@ export const ImportedOrderSchema = z.object({
   shippingClientName: z.string().min(2),
   createdAt: z.date(),
   updatedAt: z.date(),
-  orderDate: z.date(),
+  orderDate: z.date().nullable(),
   stockOrder: z.array(StockOrderSchema),
 });
 
