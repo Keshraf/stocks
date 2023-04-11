@@ -3,7 +3,7 @@ import { styled } from "../../../stitches.config";
 import Datepicker from "../DatePicker";
 import SearchBar from "../SearchBar";
 import { Button } from "../UI/Buttons";
-import { AiOutlinePlus } from "react-icons/ai";
+import { FiPackage } from "react-icons/fi";
 import { CgFileAdd } from "react-icons/cg";
 import { theme } from "../../../stitches.config";
 import Text from "../UI/Text";
@@ -58,11 +58,6 @@ const ActionHeader = () => {
         <Datepicker date={date} setDate={setDate} />
       </DateContainer>
       <SearchBar query={query} setQuery={setQuery} />
-      <Button as={Link} href="/clients/new">
-        <Text type="MediumSemibold">Add</Text>
-        <Text type="MediumSemibold">Client</Text>
-        <AiOutlinePlus fontSize={18} color={theme.colors.content.value} />
-      </Button>
     </Container>
   );
 };

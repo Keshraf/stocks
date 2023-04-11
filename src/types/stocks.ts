@@ -4,20 +4,19 @@ export const StockSchema = z.object({
   mill: z.string(),
   qualityName: z.string().trim(),
   breadth: z.number().positive(),
-  length: z.number().nonnegative(),
+  length: z.number().nonnegative().nullable(),
   weight: z.number().positive(),
   gsm: z.number().positive(),
   sheets: z.number().nonnegative(),
-  bundle: z.number().nonnegative(),
   quantity: z.number().nonnegative(),
   invoice: z.string().trim().min(3),
 });
 
 export const AddStockSchema = StockSchema.extend({
-  transit: z.number().nonnegative(),
-  ordered: z.number().nonnegative(),
-  client: z.string().trim().optional(),
+  rate: z.number().positive(),
 });
+
+export const AddStockSchemaArr = z.array(AddStockSchema);
 
 export interface PrismaQuality {
   id: string;
@@ -57,12 +56,9 @@ export interface PrismaStock {
   quantity: number;
   transit: number;
   ordered: number;
-  bundle: number;
-  pending: number;
-  billed: number;
-  shipped: number;
   invoiceName: string;
-  invoice?: PrismaStockInvoice[];
+  rate: number;
+  invoice: PrismaStockInvoice;
   order?: PrismaStockOrder[];
   createdAt: Date;
   updatedAt: Date;
@@ -76,9 +72,11 @@ export interface PrismaStockOrder {
   updatedAt: Date;
   orderId: string;
   stockId: string;
-  order: PrismaOrder;
-  stock: PrismaStock;
-  quanity: number;
+  order?: PrismaOrder;
+  stock?: PrismaStock;
+  pending: number;
+  billed: number;
+  shipped: number;
   remark?: Remark[];
 }
 
@@ -96,19 +94,18 @@ export interface PrismaStockInvoice {
   createdAt: Date;
   updatedAt: Date;
   invoice: string;
-  stock: Stock[];
-  clientId: string | null;
-  client: PrismaDataClient[] | null;
+  stock?: Stock[];
 }
 
 export interface PrismaOrder {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  status: string;
-  clientId: string;
+  clientName: string;
   billingAddress: string;
   shippingAddress: string;
+  shippingClientName: string;
+  orderId: string;
   client?: PrismaDataClient;
   stockorder?: PrismaStockOrder[];
 }
@@ -129,8 +126,8 @@ export interface PrismaDataClient {
 export const StockUpdateSchema = z.object({
   id: z.string(),
   quantity: z.number(),
-  from: z.enum(["transit", "ordered", "quantity"]),
-  to: z.enum(["transit", "ordered", "quantity"]),
+  transit: z.number(),
+  ordered: z.number(),
 });
 
 export type StockUpdate = z.infer<typeof StockUpdateSchema>;

@@ -5,7 +5,6 @@ export type SelectedStocksSchema = {
   ordered: number;
   transit: number;
   quantity: number;
-  bundle: number;
   breadth: number;
   length: number | null;
   gsm: number;
@@ -14,24 +13,19 @@ export type SelectedStocksSchema = {
   qualityName: string;
   millName: string;
   invoice: string;
-  client: string;
+  /* client: string; */
 };
 
 type ChangeNumberPayload = {
   id: string;
   value: number;
-  type: "amount";
-};
-type ChangeStringPayload = {
-  id: string;
-  value: "Ordered" | "Godown" | "Transit";
-  type: "from" | "to";
+  type: "changedOrdered" | "changedTransit" | "changedQuantity";
 };
 
 export type InitialState = SelectedStocksSchema & {
-  from: "Ordered" | "Godown" | "Transit";
-  to: "Ordered" | "Godown" | "Transit";
-  amount: number;
+  changedOrdered: number;
+  changedTransit: number;
+  changedQuantity: number;
 };
 
 const initialState: InitialState[] = [];
@@ -43,18 +37,12 @@ export const selectedStocksSlice = createSlice({
     addSelectedStocks: (state, action: PayloadAction<SelectedStocksSchema>) => {
       state.push({
         ...action.payload,
-        from: "Ordered",
-        to: "Transit",
-        amount: 0,
+        changedOrdered: action.payload.ordered,
+        changedTransit: action.payload.transit,
+        changedQuantity: action.payload.quantity,
       });
     },
     changeNumberStocks: (state, action: PayloadAction<ChangeNumberPayload>) => {
-      state.map((item) => {
-        if (item.id === action.payload.id)
-          item[action.payload.type] = action.payload.value;
-      });
-    },
-    changeStringStocks: (state, action: PayloadAction<ChangeStringPayload>) => {
       state.map((item) => {
         if (item.id === action.payload.id)
           item[action.payload.type] = action.payload.value;
@@ -76,7 +64,6 @@ export const {
   removeStocks,
   resetSelectedStocks,
   changeNumberStocks,
-  changeStringStocks,
 } = selectedStocksSlice.actions;
 
 export default selectedStocksSlice.reducer;

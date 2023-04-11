@@ -3,18 +3,18 @@ import Text from "../UI/Text";
 import { Autocomplete, Button, NumberInput, TextInput } from "@mantine/core";
 import { toast } from "react-hot-toast";
 import {
-  removeSpecs,
-  type InitalState,
-  changeNumberSpecs,
-  changeStringSpecs,
-} from "~/store/selectedSpecs";
+  type selectedAddStockSchema,
+  updateAddStockById,
+  removeAddStockById,
+} from "~/store/selectedAddStock";
 import { useEffect, useState } from "react";
 import { AddStockSchema } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 import { useAppDispatch } from "~/store";
+import { type } from "os";
 
 const InfoRow = styled("div", {
-  width: "100%",
+  width: "auto",
   height: "auto",
   display: "flex",
   flexDirection: "column",
@@ -23,36 +23,11 @@ const InfoRow = styled("div", {
   gap: "$gapMedium",
 });
 
-const InputWrapper = styled("div", {
-  width: "100%",
-  /* minWidth: "100px", */
-  height: "auto",
-  display: "flex",
-  flexDirection: "column",
-  gap: "$gapMedium",
-});
-
-const InputGroup = styled("div", {
-  width: "100%",
-  height: "auto",
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "flex-start",
-  alignItems: "flex-end",
-  gap: "$gapMedium",
-  /* flexWrap: "wrap", */
-});
-
 type StockConfig = {
   title: string;
-  key:
-    | "millName"
-    | "qualityName"
-    | "breadth"
-    | "length"
-    | "weight"
-    | "gsm"
-    | "sheets";
+  value: string;
+  width: string;
+  color?: string;
 };
 
 const StockWrapper = styled("div", {
@@ -71,137 +46,104 @@ const InfoWrapper = styled("div", {
   display: "flex",
   flexDirection: "row",
   justifyContent: "flex-start",
-  alignItems: "flex-start",
-  gap: "$gapMedium",
+  alignItems: "center",
+  gap: "10px",
   overflowX: "auto",
   overflowY: "hidden",
 });
 
-const DividerWrapper = styled("div", {
-  width: "100%",
-  height: "2px",
-  backgroundColor: "$highlight",
-});
-
 type Props = {
-  stock: InitalState;
+  stock: selectedAddStockSchema;
   clientList: string[];
+  index: number;
 };
 
 type FormDataType = {
   label: string;
   placeholder: string;
   precision: number;
-  name: "bundle" | "quantity" | "transit" | "ordered";
+  name: "godownOrder" | "clientOrder" | "rate";
   value: number;
 };
 
-const StockAdd = ({ stock, clientList }: Props) => {
+type UpdateStock =
+  | {
+      value: string;
+      type: "client" | "invoice";
+    }
+  | {
+      value: number;
+      type: "godownOrder" | "clientOrder" | "rate";
+    };
+
+const StockAdd = ({ stock, clientList, index }: Props) => {
   const dispatch = useAppDispatch();
-  const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
+  /* const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation(); */
 
   const StockData: StockConfig[] = [
     {
       title: "Mill Name",
-      key: "millName",
+      value: stock.millName,
+      width: "30px",
     },
     {
       title: "Quality",
-      key: "qualityName",
+      value: stock.qualityName,
+      width: "70px",
     },
     {
-      title: "Breadth",
-      key: "breadth",
-    },
-    {
-      title: "Length",
-      key: "length",
+      title: "Size",
+      value: `${stock.breadth}X${stock.length}`,
+      width: "70px",
     },
     {
       title: "Weight",
-      key: "weight",
+      value: `${stock.weight}KG`,
+      width: "50px",
     },
     {
       title: "GSM",
-      key: "gsm",
+      value: `${stock.gsm}G`,
+      width: "50px",
     },
     {
       title: "Sheets",
-      key: "sheets",
+      value: `${stock.sheets}S`,
+      width: "50px",
     },
   ];
 
   const formNumberData: FormDataType[] = [
     {
-      label: "Bundle",
-      placeholder: "Enter Bundle",
+      label: "Godown Order",
+      placeholder: "Godown",
       precision: 0,
-      name: "bundle",
-      value: stock.bundle,
+      name: "godownOrder",
+      value: stock.godownOrder,
     },
     {
-      label: "Godown",
-      placeholder: "Enter Godown Packets",
+      label: "Client Order",
+      placeholder: "Client",
       precision: 0,
-      name: "quantity",
-      value: stock.quantity,
+      name: "clientOrder",
+      value: stock.clientOrder,
     },
     {
-      label: "Transit",
-      placeholder: "Enter Transit Packets",
-      precision: 0,
-      name: "transit",
-      value: stock.transit,
-    },
-    {
-      label: "Ordered",
-      placeholder: "Enter Ordered Packets",
-      precision: 0,
-      name: "ordered",
-      value: stock.ordered,
+      label: "Rate",
+      placeholder: "Rate",
+      precision: 1,
+      name: "rate",
+      value: stock.rate,
     },
   ];
 
-  const addStockHandler = async () => {
-    const data = {
-      mill: stock.millName,
-      qualityName: stock.qualityName,
-      breadth: Number(stock.breadth),
-      length: Number(stock.length),
-      quantity: Number(stock.quantity),
-      gsm: Number(stock.gsm),
-      bundle: Number(stock.bundle),
-      sheets: Number(stock.sheets),
-      weight: Number(stock.weight),
-      transit: Number(stock.transit),
-      ordered: Number(stock.ordered),
-      invoice: stock.invoice,
-      client: stock.client,
-    };
-
-    const result = AddStockSchema.safeParse(data);
-    if (!result.success) {
-      result.error.errors.map((e) =>
-        toast.error(e.message, {
-          position: "top-right",
-        })
-      );
-    } else {
-      console.log(result.data);
-      const AddStockPromise = addStock(result.data);
-
-      toast.promise(AddStockPromise, {
-        loading: "Adding Stock...",
-        success: "Stock Added",
-        error: "Error Adding Stock",
-      });
-
-      AddStockPromise.then(() => {
-        dispatch(removeSpecs(stock.id));
-      }).catch(() => {
-        console.log("Error");
-      });
-    }
+  const updateStockById = ({ value, type }: UpdateStock) => {
+    dispatch(
+      updateAddStockById({
+        ...stock,
+        [type]: value,
+      })
+    );
   };
 
   return (
@@ -209,83 +151,59 @@ const StockAdd = ({ stock, clientList }: Props) => {
       <InfoWrapper>
         {StockData.map((data, index) => {
           return (
-            <InfoRow key={stock.id + "inforow" + index}>
-              <Text width="100px" type="MediumRegular">
-                {data.title}
-              </Text>
-              <Text type="MediumSemibold">{stock[data.key]}</Text>
+            <InfoRow
+              css={{ width: data.width }}
+              key={stock.id + "inforow" + index}
+            >
+              <Text type="MediumSemibold">{data.value}</Text>
             </InfoRow>
           );
         })}
-      </InfoWrapper>
-      <InputGroup>
         {formNumberData.map((input, index) => {
           return (
-            <InputWrapper key={input.label + index}>
-              <Text type="MediumSemibold">{input.label}</Text>
+            <InfoRow css={{ width: "100px" }} key={input.label + index}>
               <NumberInput
                 min={0}
                 value={input.value}
                 onChange={(value) => {
-                  if (value && value >= 0) {
-                    dispatch(
-                      changeNumberSpecs({
-                        id: stock.id,
-                        type: input.name,
-                        value,
-                      })
-                    );
+                  if (value !== undefined) {
+                    updateStockById({ value, type: input.name });
                   }
                 }}
                 defaultValue={0}
                 name={input.name}
                 placeholder={input.placeholder}
-                step={0.5}
                 precision={input.precision}
               />
-            </InputWrapper>
+            </InfoRow>
           );
         })}
-      </InputGroup>
-      <InputWrapper>
-        <Text type="MediumBold">Order No.</Text>
-        <TextInput
-          value={stock.invoice}
-          onChange={(e) => {
-            dispatch(
-              changeStringSpecs({
-                id: stock.id,
-                type: "invoice",
-                value: e.target.value.trim(),
-              })
-            );
-          }}
-          placeholder="Enter Order No."
-        />
-      </InputWrapper>
-      <InputWrapper>
-        <Text type="MediumBold">Client</Text>
-        <Autocomplete
-          value={stock.client}
-          limit={20}
-          maxDropdownHeight={300}
-          onChange={(value) => {
-            dispatch(
-              changeStringSpecs({
-                id: stock.id,
-                type: "client",
-                value: value.trim(),
-              })
-            );
-          }}
-          placeholder="Choose Client"
-          data={clientList}
-        />
-      </InputWrapper>
-      <Button onClick={addStockHandler} type="submit">
-        Submit
-      </Button>
-      <DividerWrapper />
+        <InfoRow css={{ width: "150px" }}>
+          <Autocomplete
+            value={stock.client}
+            limit={20}
+            maxDropdownHeight={300}
+            onChange={(value) => {
+              if (value !== undefined) {
+                updateStockById({ value, type: "client" });
+              }
+            }}
+            placeholder="Choose Client"
+            data={clientList}
+          />
+        </InfoRow>
+        <InfoRow css={{ width: "150px" }}>
+          <TextInput
+            value={stock.invoice}
+            onChange={(value) => {
+              if (value.target.value) {
+                updateStockById({ value: value.target.value, type: "invoice" });
+              }
+            }}
+            placeholder="Enter Order No."
+          />
+        </InfoRow>
+      </InfoWrapper>
     </StockWrapper>
   );
 };

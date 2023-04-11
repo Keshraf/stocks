@@ -40,7 +40,7 @@ const Upload = () => {
   const [value, setValue] = useState<File | null>(null);
   const sendStocks = trpc.stocks.postStocksBulk.useMutation();
 
-  function getSpecs(str: string) {
+  /* function getSpecs(str: string) {
     const splitStr = str.split(" ");
     let mill: string = "";
     let qualityName: string = "";
@@ -140,12 +140,12 @@ const Upload = () => {
     const response = await sendStocks.mutateAsync(formatedData);
 
     console.log("Response", response);
-  };
+  }; */
   return (
     <>
       <Main>
         <Text type="LargeBold">Upload</Text>
-        <InputContainer onSubmit={submitHandler}>
+        <InputContainer /* onSubmit={submitHandler} */>
           <FileInput
             icon={
               <RiFileExcel2Fill size={18} color={theme.colors.content.value} />

@@ -9,7 +9,7 @@ export const updateStocksQuantityRouter = router({
       const companyId = ctx.user.company;
 
       const updatedStocks = input.map(async (stock) => {
-        const { id, quantity, from, to } = stock;
+        const { id, quantity, transit, ordered } = stock;
 
         const stockToUpdate = ctx.prisma.stock
           .update({
@@ -17,12 +17,9 @@ export const updateStocksQuantityRouter = router({
               id,
             },
             data: {
-              [from]: {
-                decrement: quantity,
-              },
-              [to]: {
-                increment: quantity,
-              },
+              quantity,
+              transit,
+              ordered,
             },
           })
           .catch((err) => {

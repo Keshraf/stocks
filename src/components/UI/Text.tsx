@@ -39,9 +39,12 @@ type Weight = "light" | "regular" | "medium" | "semibold" | "bold";
 const weight: Weight[] = ["light", "regular", "medium", "semibold", "bold"];
 
 type Props = {
+  color?: string;
   width?: string;
   type?: Names;
   children: ReactNode;
+  textAlign?: "left" | "center" | "right";
+  justifyContent?: "flex-start" | "center" | "flex-end";
 };
 
 const TextCombinations = size
@@ -88,13 +91,23 @@ const config = TextCombinations.map((val) => {
   };
 });
 
-const Text = ({ type = "ExtralargeBold", children, width }: Props) => {
+const Text = ({
+  type = "ExtralargeBold",
+  children,
+  width,
+  textAlign = "left",
+  color = "$content",
+  justifyContent = "flex-start",
+}: Props) => {
   let index = names.indexOf(type);
 
   return (
     <DefaultText
-      style={{
+      css={{
         width: width,
+        color: color,
+        textAlign: textAlign,
+        justifyContent: justifyContent,
       }}
       {...config[index]}
     >

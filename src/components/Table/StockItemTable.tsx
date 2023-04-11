@@ -45,7 +45,8 @@ const StockItemTable = ({ data }: { data: StockItemData[] }) => {
               <TableHeadItem css={{ width: "200px" }}>
                 {"Created At"}
               </TableHeadItem>
-              <TableHeadItem>{"Bundle"}</TableHeadItem>
+              {/* <TableHeadItem>{"Client"}</TableHeadItem> */}
+              <TableHeadItem>{"Rate"}</TableHeadItem>
               <TableHeadItem>{"Quantity"}</TableHeadItem>
               <TableHeadItem>{"Transit"}</TableHeadItem>
               <TableHeadItem>{"Ordered"}</TableHeadItem>
@@ -63,7 +64,10 @@ const StockItemTable = ({ data }: { data: StockItemData[] }) => {
                   <TableItem css={{ width: "200px" }}>
                     {item.createdAt.toDateString()}
                   </TableItem>
-                  <TableItem>1X{item.bundle}</TableItem>
+                  {/* <TableItem>
+                    {item.clientName ? item.clientName : "-"}
+                  </TableItem> */}
+                  <TableItem>{item.rate ? item.rate : "-"}</TableItem>
                   <TableItem css={{ fontWeight: "$semibold" }}>
                     {item.quantity}
                   </TableItem>

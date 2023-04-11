@@ -28,7 +28,6 @@ export type StocksTableData = {
   ordered: number;
   transit: number;
   quantity: number;
-  bundle: number;
   breadth: number;
   length: number | null;
   gsm: number;
@@ -37,7 +36,7 @@ export type StocksTableData = {
   qualityName: string;
   millName: string;
   invoice: string;
-  client: string;
+  /* client: string; */
 };
 
 const MillPage = () => {
@@ -61,7 +60,6 @@ const MillPage = () => {
       ordered: stock.ordered,
       transit: stock.transit,
       quantity: stock.quantity,
-      bundle: stock.bundle,
       breadth: stock.specs.breadth,
       length: stock.specs.length,
       gsm: stock.specs.gsm,
@@ -70,7 +68,7 @@ const MillPage = () => {
       qualityName: stock.specs.qualityName,
       millName: stock.specs.quality.millName,
       invoice: stock.invoiceName || "-",
-      client: stock.invoice.clientName || "-",
+      /* client: stock.clientName || "-", */
     };
   });
 

@@ -5,7 +5,8 @@ import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
-import { AddStock, AddStockSchema } from "~/types/stocks";
+import { AddPreorderInput, AddPreorderSchema } from "~/types/preorder";
+import { AddStock, AddStockSchema, AddStockSchemaArr } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {
@@ -60,13 +61,14 @@ const StockNewPage = () => {
   const [bundle, setBundle] = useState<number>(0);
   const [sheets, setSheets] = useState<number>(0);
   const [weight, setWeight] = useState<number>(0);
-  const [transit, setTransit] = useState<number>(0);
-  const [ordered, setOrdered] = useState<number>(0);
+  const [clientQuantity, setClientQuantity] = useState<number>(0);
   const [invoice, setInvoice] = useState<string>("");
   const [client, setClient] = useState<string>("");
+  const [rate, setRate] = useState<number>(0);
 
   const { data, isLoading } = trpc.mills.getMills.useQuery();
   const { mutateAsync: addStock } = trpc.stocks.addStock.useMutation();
+  const { mutateAsync: addPreorder } = trpc.preorder.addPreorder.useMutation();
   const { data: clientData, isLoading: clientLoading } =
     trpc.clients.getClients.useQuery();
 
@@ -143,31 +145,24 @@ const StockNewPage = () => {
       precision: 0,
     },
     {
-      variable: bundle,
-      setVariable: setBundle,
-      label: "Bundle",
-      placeholder: "Enter Bundle",
-      precision: 0,
-    },
-    {
       variable: quantity,
       setVariable: setQuantity,
-      label: "In-Stock Godown Packets",
+      label: "Godown Order",
       placeholder: "Enter Godown Packets",
       precision: 0,
     },
     {
-      variable: transit,
-      setVariable: setTransit,
-      label: "Transit Packets",
-      placeholder: "Enter Transit Packets",
+      variable: clientQuantity,
+      setVariable: setClientQuantity,
+      label: "Client Order",
+      placeholder: "Enter Client Packets",
       precision: 0,
     },
     {
-      variable: ordered,
-      setVariable: setOrdered,
-      label: "Ordered Packets",
-      placeholder: "Enter Ordered Packets",
+      variable: rate,
+      setVariable: setRate,
+      label: "Rate",
+      placeholder: "Enter Rate",
       precision: 0,
     },
   ];
@@ -178,17 +173,29 @@ const StockNewPage = () => {
       qualityName,
       breadth,
       length,
-      quantity,
       gsm,
-      bundle,
       sheets,
       weight,
-      transit,
-      ordered,
       invoice,
-      client,
+      quantity: quantity + clientQuantity,
+      rate,
     };
-    const result = AddStockSchema.safeParse(stock);
+
+    const preorderData = {
+      client: client ? client : "",
+      invoiceName: invoice,
+      quantity: clientQuantity,
+      breadth,
+      length,
+      gsm,
+      sheets,
+      weight,
+      qualityName,
+      status: "pending",
+    } as AddPreorderInput;
+
+    const result = AddStockSchemaArr.safeParse([stock]);
+    const preorderResult = AddPreorderSchema.safeParse(preorderData);
     if (!result.success) {
       result.error.errors.map((e) =>
         toast.error(e.message, {
@@ -205,8 +212,19 @@ const StockNewPage = () => {
         error: "Error Adding Stock",
       });
 
-      AddStockPromise.then(() => {
+      AddStockPromise.then(async () => {
         router.push("/stocks");
+
+        if (!preorderResult.success) {
+          return;
+        }
+        const AddPreorderPromise = await addPreorder(
+          [preorderResult.data].filter(
+            (preorder) => preorder.quantity > 0 && preorder.client !== ""
+          )
+        );
+
+        toast.success("Preorder Added");
       }).catch(() => {
         console.log("Error Adding Stock");
       });
