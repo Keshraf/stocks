@@ -12,8 +12,10 @@ import Text from "../UI/Text";
 import { styled } from "stitches.config";
 import { Checkbox } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { useAppSelector } from "~/store";
+import { useAppDispatch, useAppSelector } from "~/store";
 import { useRouter } from "next/router";
+import { addOrderSelected, removeOrderById } from "~/store/selectedOrder";
+import OrderTableActions from "./components/OrderTableActions";
 
 const Wrapper = styled("div", {
   width: "100%",
@@ -39,6 +41,9 @@ interface Headers {
 }
 
 const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
+  const selectedOrders = useAppSelector((state) => state.selectedOrder);
+  const dispatch = useAppDispatch();
+
   const [tableCheckbox, setTableCheckbox] = useState(false);
   const search = useAppSelector((state) => state.search);
   const [formattedData, setFormattedData] = useState<ImportedOrderType[]>([]);
@@ -103,6 +108,19 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
     router.push(`/orders/${id}`);
   };
 
+  function checkHandler(
+    e: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean,
+    id: string
+  ) {
+    e.stopPropagation();
+    if (checked) {
+      dispatch(addOrderSelected(id));
+    } else {
+      dispatch(removeOrderById(id));
+    }
+  }
+
   return (
     <Wrapper>
       <TableWrapper>
@@ -153,9 +171,9 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
                         style={{ width: header.width }}
                       >
                         <Checkbox
-                          checked={tableCheckbox}
+                          checked={selectedOrders.includes(client.id)}
                           onChange={(e) =>
-                            setTableCheckbox(e.currentTarget.checked)
+                            checkHandler(e, e.currentTarget.checked, client.id)
                           }
                           size="xs"
                         />

@@ -2,6 +2,7 @@ import { Loader, Tabs } from "@mantine/core";
 import { ReactElement, useEffect, useState } from "react";
 import { styled } from "stitches.config";
 import ActionHeader from "~/components/ActionHeader/ActionHeaderOrder";
+import OrderTableActions from "~/components/Table/components/OrderTableActions";
 import OrderTable from "~/components/Table/OrderTable";
 import Text from "~/components/UI/Text";
 import UserCheck from "~/components/UserCheck";
@@ -19,6 +20,7 @@ const Wrapper = styled("main", {
   border: "1px solid $highlight",
   padding: "20px",
   gap: "$gapXLarge",
+  position: "relative",
   variants: {
     direction: {
       center: {
@@ -27,6 +29,17 @@ const Wrapper = styled("main", {
       },
     },
   },
+});
+
+const ActionWrapper = styled("div", {
+  width: "100%",
+  height: "auto",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "row",
+  position: "absolute",
+  bottom: "0px",
 });
 
 const OrderPage = () => {
@@ -86,6 +99,12 @@ const OrderPage = () => {
         </Tabs.List>
       </Tabs>
       <OrderTable data={data.orders} />
+      <ActionWrapper>
+        <OrderTableActions
+          activeTab={activeTab ? activeTab : "pending"}
+          refetch={refetch}
+        />
+      </ActionWrapper>
     </Wrapper>
   );
 };
