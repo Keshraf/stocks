@@ -109,18 +109,19 @@ model StockInvoice {
 
 // Individual Stock Additions of a Single Specication of a Quality
 model Stock {
-  id          String       @id @default(uuid())
-  specs       Specs        @relation(fields: [specsId], references: [id])
-  specsId     String
-  quantity    Int          @default(0)
-  transit     Int          @default(0)
-  ordered     Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  rate        Float        @default(0)
-  order       StockOrder[]
-  invoice     StockInvoice @relation(fields: [invoiceName], references: [invoice])
-  invoiceName String
+  id           String       @id @default(uuid())
+  specs        Specs        @relation(fields: [specsId], references: [id])
+  specsId      String
+  quantity     Int          @default(0)
+  transit      Int          @default(0)
+  ordered      Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  rate         Float        @default(0)
+  order        StockOrder[]
+  invoice      StockInvoice @relation(fields: [invoiceName], references: [invoice])
+  invoiceName  String
+  salesOrderNo String?
 }
 
 // Connects a Single Client to a Single Order. Allowing for multiple orders in a single client

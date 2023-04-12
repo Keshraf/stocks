@@ -13,7 +13,7 @@ export const StockSchema = z.object({
 });
 
 export const AddStockSchema = StockSchema.extend({
-  rate: z.number().positive(),
+  rate: z.number(),
 });
 
 export const AddStockSchemaArr = z.array(AddStockSchema);
