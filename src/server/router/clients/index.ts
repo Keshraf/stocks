@@ -5,6 +5,7 @@ import { getClientByIdRouter } from "./getClientById";
 import { deleteClientByIdRouter } from "./deleteClientById";
 import { updateClientByIdRouter } from "./updateClientById";
 import { addBulkClientRouter } from "./addBulkClient";
+import { addClientAddressRouter } from "./addClientAddress";
 
 export const clientsRouter = mergeRouters(
   getClientsRouter,
@@ -12,5 +13,6 @@ export const clientsRouter = mergeRouters(
   getClientByIdRouter,
   deleteClientByIdRouter,
   updateClientByIdRouter,
-  addBulkClientRouter
+  addBulkClientRouter,
+  addClientAddressRouter
 );

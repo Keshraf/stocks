@@ -111,6 +111,9 @@ const InfoRow = styled("div", {
 
 const OrderAddPage = () => {
   const [opened, setOpened] = useState(true);
+  const [addressOpened, setAddressOpened] = useState(false);
+  const [clientChanged, setClientChanged] = useState<string>("");
+  const [newAddress, setNewAddress] = useState<string>("");
   const [invoice, setInvoice] = useState("");
   const [billingClient, setBillingClient] = useState("");
   const [shippingClient, setShippingClient] = useState("");
@@ -123,13 +126,18 @@ const OrderAddPage = () => {
   const selectedStock = useAppSelector((state) => state.selectedSpecs);
   const dispatch = useAppDispatch();
 
-  const { data: clientData, isLoading: clientLoading } =
-    trpc.clients.getClients.useQuery();
+  const {
+    data: clientData,
+    isLoading: clientLoading,
+    refetch: refetchClientData,
+  } = trpc.clients.getClients.useQuery();
   const { mutateAsync: createOrder } = trpc.orders.createOrder.useMutation();
   const { mutateAsync: createStockOrder } =
     trpc.orders.createStockOrder.useMutation();
   const { data: invoiceData, isLoading: invoiceLoading } =
     trpc.invoices.getInvoices.useQuery();
+  const { mutateAsync: addNewClientAddress } =
+    trpc.clients.addClientAddress.useMutation();
 
   const getClientNames = useMemo(() => {
     if (!clientData) return [];
@@ -411,6 +419,39 @@ const OrderAddPage = () => {
     }
   };
 
+  const addAddressHandler = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!clientChanged) return;
+    if (!newAddress) return;
+    if (!getClientNames.includes(clientChanged)) {
+      toast.error("Client not found");
+      return;
+    }
+
+    try {
+      const AddNewAddressPromise = addNewClientAddress({
+        client: clientChanged,
+        address: newAddress,
+      }).then(() => {
+        setNewAddress("");
+        setClientChanged("");
+        setAddressOpened(false);
+      });
+
+      toast.promise(AddNewAddressPromise, {
+        loading: "Adding Address",
+        success: "Address Added",
+        error: "Error in Adding Address",
+      });
+
+      await AddNewAddressPromise;
+      await refetchClientData();
+    } catch (error) {
+      toast.error("Error in Adding Address");
+    }
+  };
+
   return (
     <Wrapper>
       {/* MODAL START */}
@@ -424,7 +465,7 @@ const OrderAddPage = () => {
             <Text type="MediumBold">Invoice Code</Text>
             <TextInput
               value={invoice}
-              onChange={(e) => setInvoice(e.target.value.trim())}
+              onChange={(e) => setInvoice(e.target.value)}
               placeholder="Enter Invoice Code"
             />
           </InputWrapper>
@@ -434,7 +475,7 @@ const OrderAddPage = () => {
               value={billingClient}
               limit={20}
               maxDropdownHeight={300}
-              onChange={(value) => setBillingClient(value.trim())}
+              onChange={(value) => setBillingClient(value)}
               placeholder="Choose Client"
               data={getClientNames}
             />
@@ -443,6 +484,26 @@ const OrderAddPage = () => {
         </ModalWrapper>
       </Modal>
       {/* MODAL END */}
+      {/* ADDRESS MODAL */}
+      <Modal
+        opened={addressOpened}
+        onClose={() => setAddressOpened(false)}
+        title="Set Address"
+      >
+        <ModalWrapper onSubmit={addAddressHandler}>
+          <Text>{clientChanged}</Text>
+          <InputWrapper>
+            <Text type="MediumBold">New Address</Text>
+            <TextInput
+              value={newAddress}
+              onChange={(e) => setNewAddress(e.target.value)}
+              placeholder="Enter New Address"
+            />
+          </InputWrapper>
+          <ActionButton type="submit">Confirm</ActionButton>
+        </ModalWrapper>
+      </Modal>
+      {/* ADDRESS MODAL END */}
       <InfoWrapper>
         <Text>Place Order</Text>
         <Button onClick={() => setOpened(true)}>Set for all</Button>
@@ -477,7 +538,7 @@ const OrderAddPage = () => {
             value={billingClient}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setBillingClient(value.trim())}
+            onChange={(value) => setBillingClient(value)}
             placeholder="Choose Client"
             data={getClientNames}
           />
@@ -489,9 +550,19 @@ const OrderAddPage = () => {
             value={billingAddress}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setBillingAddress(value)}
+            onChange={(value) => {
+              if (value === "+ Add New Address") {
+                if (billingClient) {
+                  setClientChanged(billingClient);
+                  setAddressOpened(true);
+                }
+                return;
+              } else {
+                setBillingAddress(value);
+              }
+            }}
             placeholder="Choose Billing Address"
-            data={getClientAddress(billingClient)}
+            data={[...getClientAddress(billingClient), "+ Add New Address"]}
           />
         </InputWrapper>
       </Row>
@@ -504,7 +575,7 @@ const OrderAddPage = () => {
             value={shippingClient}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setShippingClient(value.trim())}
+            onChange={(value) => setShippingClient(value)}
             placeholder="Choose Client"
             data={getClientNames}
           />
@@ -517,9 +588,19 @@ const OrderAddPage = () => {
             value={shippingAddress}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setShippingAddress(value)}
+            onChange={(value) => {
+              if (value === "+ Add New Address") {
+                if (shippingClient) {
+                  setClientChanged(shippingClient);
+                  setAddressOpened(true);
+                }
+                return;
+              } else {
+                setShippingAddress(value);
+              }
+            }}
             placeholder="Choose Shipping Address"
-            data={getClientAddress(shippingClient)}
+            data={[...getClientAddress(shippingClient), "+ Add New Address"]}
           />
         </InputWrapper>
       </Row>
