@@ -381,6 +381,7 @@ const OrderAddPage = () => {
       toast.error("Error in Order");
       return;
     } else {
+      console.log("ORDER : ", orderResults.data);
       const CreateOrderPromise = createOrder(orderResults.data);
 
       toast.promise(CreateOrderPromise, {
@@ -399,6 +400,8 @@ const OrderAddPage = () => {
       toast.error("Error in Stock Order");
       return;
     } else {
+      console.log("STOCK ORDER : ", stockOrderResults.data);
+
       const CreateStockOrderPromise = createStockOrder(stockOrderResults.data);
 
       toast.promise(CreateStockOrderPromise, {
@@ -539,7 +542,7 @@ const OrderAddPage = () => {
             label="Billing Client"
             withAsterisk
             value={billingClient}
-            limit={20}
+            limit={50}
             maxDropdownHeight={300}
             onChange={(value) => setBillingClient(value)}
             placeholder="Choose Client"
@@ -575,7 +578,7 @@ const OrderAddPage = () => {
             label="Shipping Client"
             withAsterisk
             value={shippingClient}
-            limit={20}
+            limit={50}
             maxDropdownHeight={300}
             onChange={(value) => setShippingClient(value)}
             placeholder="Choose Client"
