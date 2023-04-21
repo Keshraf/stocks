@@ -453,7 +453,7 @@ const OrderAddPage = () => {
   return (
     <Wrapper>
       {/* MODAL START */}
-      <Modal
+      {/* <Modal
         opened={opened}
         onClose={() => setOpened(false)}
         title="Set these for all"
@@ -480,7 +480,7 @@ const OrderAddPage = () => {
           </InputWrapper>
           <ActionButton type="submit">Confirm</ActionButton>
         </ModalWrapper>
-      </Modal>
+      </Modal> */}
       {/* MODAL END */}
       {/* ADDRESS MODAL */}
       <Modal
@@ -504,16 +504,16 @@ const OrderAddPage = () => {
       {/* ADDRESS MODAL END */}
       <InfoWrapper>
         <Text>Place Order</Text>
-        <Button onClick={() => setOpened(true)}>Set for all</Button>
+        {/* <Button onClick={() => setOpened(true)}>Set for all</Button> */}
       </InfoWrapper>
-      <Row>
+      {/* <Row>
         <Text type="MediumRegular">Invoice Code:</Text>
         <Text type="MediumBold">{invoice}</Text>
       </Row>
       <Row>
         <Text type="MediumRegular">Billing Client:</Text>
         <Text type="MediumBold">{billingClient}</Text>
-      </Row>
+      </Row> */}
       <DividerWrapper />
       <InfoWrapper>
         {headers.map((header, index) => {

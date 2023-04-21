@@ -13,7 +13,11 @@ import { type PrismaSpecs } from "../../types/stocks";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "~/store";
 import { Checkbox } from "@mantine/core";
-import { addSelectedSpecs, removeSpecs } from "~/store/selectedSpecs";
+import {
+  addSelectedSpecs,
+  removeSpecs,
+  resetSelectedSpecs,
+} from "~/store/selectedSpecs";
 
 const Wrapper = styled("div", {
   width: "100%",
@@ -264,7 +268,19 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
               <TableHeadItem css={{ width: "25px" }}>
                 <Checkbox
                   checked={tableCheckbox}
-                  onChange={(e) => setTableCheckbox(e.currentTarget.checked)}
+                  onChange={(e) => {
+                    setTableCheckbox(e.currentTarget.checked);
+
+                    if (!e.currentTarget.checked) {
+                      dispatch(resetSelectedSpecs());
+                    } else {
+                      formattedData.forEach((item) => {
+                        if (selectedSpecs.find((spec) => spec.id === item.id))
+                          return;
+                        checkHandler(e, e.currentTarget.checked, item.id);
+                      });
+                    }
+                  }}
                   size="xs"
                 />
               </TableHeadItem>
@@ -292,9 +308,9 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
                 checked = true;
               }
 
-              if (tableCheckbox && !checked) {
+              /* if (tableCheckbox && !checked) {
                 return <></>;
-              }
+              } */
 
               return (
                 <TableRow

@@ -2,7 +2,11 @@ import { Checkbox } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { type StocksTableData } from "~/pages/mills";
 import { useAppDispatch, useAppSelector } from "~/store";
-import { addSelectedStocks, removeStocks } from "~/store/selectedStocks";
+import {
+  addSelectedStocks,
+  removeStocks,
+  resetSelectedStocks,
+} from "~/store/selectedStocks";
 import { styled } from "../../../stitches.config";
 import {
   TableItem,
@@ -114,7 +118,18 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               <TableHeadItem css={{ width: "25px" }}>
                 <Checkbox
                   checked={tableCheckbox}
-                  onChange={(e) => setTableCheckbox(e.currentTarget.checked)}
+                  onChange={(e) => {
+                    setTableCheckbox(e.currentTarget.checked);
+                    if (!e.currentTarget.checked) {
+                      dispatch(resetSelectedStocks());
+                    } else {
+                      formattedData.forEach((item) => {
+                        if (selectedStocks.find((spec) => spec.id === item.id))
+                          return;
+                        checkHandler(e, e.currentTarget.checked, item, item.id);
+                      });
+                    }
+                  }}
                   size="xs"
                 />
               </TableHeadItem>
@@ -141,9 +156,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                 checked = true;
               }
 
-              if (tableCheckbox && !checked) {
+              /* if (tableCheckbox && !checked) {
                 return <></>;
-              }
+              } */
 
               return (
                 <TableRow key={index}>
