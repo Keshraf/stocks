@@ -255,12 +255,7 @@ const OrderAddPage = () => {
 
   const submitHandler = async () => {
     console.log("submit");
-    if (
-      !billingClient ||
-      !shippingClient ||
-      !shippingAddress ||
-      !billingAddress
-    ) {
+    if (!billingClient || !shippingClient) {
       toast.error("Client or Address is missing");
       return;
     }
@@ -271,8 +266,8 @@ const OrderAddPage = () => {
 
     const orders: CreateStockOrderType[] = [];
     const orderDetails: CreateOrderType = {
-      billingAddress,
-      shippingAddress,
+      billingAddress: billingAddress ? billingAddress : "",
+      shippingAddress: shippingAddress ? shippingAddress : "",
       clientName: billingClient,
       shippingClientName: shippingClient,
       orderDate: date ? date : new Date(),
@@ -530,6 +525,14 @@ const OrderAddPage = () => {
         return <StockItemChange stock={stock} key={stock.id} />;
       })}
       <Divider />
+      <InputWrapper>
+        <Text type="MediumBold">Invoice Code</Text>
+        <TextInput
+          value={invoice}
+          onChange={(e) => setInvoice(e.target.value)}
+          placeholder="Enter Invoice Code"
+        />
+      </InputWrapper>
       <Row>
         <InputWrapper>
           <Autocomplete
@@ -546,7 +549,6 @@ const OrderAddPage = () => {
         <InputWrapper>
           <Autocomplete
             label="Billing Address"
-            withAsterisk
             value={billingAddress}
             limit={20}
             maxDropdownHeight={300}
@@ -584,7 +586,6 @@ const OrderAddPage = () => {
           {/* <Text type="MediumBold">Shipping Address</Text> */}
           <Autocomplete
             label="Shipping Address"
-            withAsterisk
             value={shippingAddress}
             limit={20}
             maxDropdownHeight={300}
