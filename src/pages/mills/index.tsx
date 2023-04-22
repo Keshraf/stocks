@@ -36,6 +36,7 @@ export type StocksTableData = {
   qualityName: string;
   millName: string;
   invoice: string;
+  salesOrder: string;
   /* client: string; */
 };
 
@@ -68,6 +69,7 @@ const MillPage = () => {
       qualityName: stock.specs.qualityName,
       millName: stock.specs.quality.millName,
       invoice: stock.invoiceName || "-",
+      salesOrder: stock.salesOrderNo || "-",
       /* client: stock.clientName || "-", */
     };
   });

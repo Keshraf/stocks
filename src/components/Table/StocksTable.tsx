@@ -142,6 +142,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               <TableHeadItem css={{ width: "150px" }}>
                 {"Order No."}
               </TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>
+                {"Sales Order No."}
+              </TableHeadItem>
               {/* <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem> */}
               <TableHeadItem>{"Transit"}</TableHeadItem>
               <TableHeadItem>{"Ordered"}</TableHeadItem>
@@ -186,6 +189,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                   <TableItem>{item.gsm} G</TableItem>
                   <TableItem>{item.sheets} S</TableItem>
                   <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
+                  <TableItem css={{ width: "150px" }}>
+                    {item.salesOrder}
+                  </TableItem>
                   {/* <TableItem css={{ width: "150px" }}>{item.client}</TableItem> */}
                   <TableItem status={item.transit > 0 ? "alert" : "normal"}>
                     {item.transit} PKT
