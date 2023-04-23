@@ -155,6 +155,7 @@ const StockIdPage = () => {
               leftIcon={<TbEdit size={16} />}
               variant="outline"
               color="blue"
+              onClick={() => router.push(`/stocks/${id}/update`)}
             >
               Edit
             </Button>
