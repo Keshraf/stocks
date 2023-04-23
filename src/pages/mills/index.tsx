@@ -1,5 +1,5 @@
 import { Loader } from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
+import { useLocalStorage, useSessionStorage } from "@mantine/hooks";
 import { ReactElement, useEffect, useState } from "react";
 import { styled } from "stitches.config";
 import ActionHeader from "~/components/ActionHeader/ActionHeaderMillOrder";
@@ -41,7 +41,7 @@ export type StocksTableData = {
 };
 
 const MillPage = () => {
-  const [refetch, setRefetch] = useLocalStorage({
+  const [refetch, setRefetch] = useSessionStorage({
     key: "refetchStocks",
   });
   const [transit, setTransit] = useState(true);

@@ -14,7 +14,7 @@ import { Button, Modal, TextInput } from "@mantine/core";
 import { trpc } from "~/utils/trpc";
 import { toast } from "react-hot-toast";
 import { resetSelectedStocks } from "~/store/selectedStocks";
-import { useLocalStorage } from "@mantine/hooks";
+import { useLocalStorage, useSessionStorage } from "@mantine/hooks";
 
 const Container = styled("div", {
   width: "100%",
@@ -36,7 +36,7 @@ const Form = styled("form", {
 });
 
 const ActionHeader = () => {
-  const [refetch, setRefetch] = useLocalStorage({
+  const [refetch, setRefetch] = useSessionStorage({
     key: "refetchStocks",
     defaultValue: "false",
   });
