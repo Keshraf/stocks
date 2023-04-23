@@ -110,7 +110,7 @@ model StockInvoice {
 // Individual Stock Additions of a Single Specication of a Quality
 model Stock {
   id           String       @id @default(uuid())
-  specs        Specs        @relation(fields: [specsId], references: [id])
+  specs        Specs        @relation(fields: [specsId], references: [id], onDelete: Cascade)
   specsId      String
   quantity     Int          @default(0)
   transit      Int          @default(0)
@@ -150,7 +150,7 @@ model StockOrder {
   rate      Float    @default(0)
   order     Order    @relation(fields: [orderId], references: [id])
   orderId   String
-  stock     Stock    @relation(fields: [stockId], references: [id])
+  stock     Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
   stockId   String
   remark    Remark[]
 }
