@@ -6,7 +6,7 @@ import { styled } from "stitches.config";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
 import { AddPreorderInput, AddPreorderSchema } from "~/types/preorder";
-import { AddStock, AddStockSchema, AddStockSchemaArr } from "~/types/stocks";
+import { AddStock, AddStockSchemaArr } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {

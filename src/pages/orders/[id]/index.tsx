@@ -1,10 +1,11 @@
-import { Loader, Tabs } from "@mantine/core";
+import { Button, Loader, Tabs } from "@mantine/core";
 import { useRouter } from "next/router";
 
 import { trpc } from "~/utils/trpc";
 import { styled } from "stitches.config";
 import Text from "~/components/UI/Text";
 import OrderDetailTable from "~/components/Table/OrderDetailTable";
+import { TbEdit, TbTrash } from "react-icons/tb";
 
 export type OrderDetails = {
   specId: string;
@@ -79,6 +80,25 @@ const InfoRow = styled("div", {
   flexDirection: "column",
   justifyContent: "flex-start",
   alignItems: "flex-start",
+  gap: "$gapMedium",
+});
+
+const Row = styled("div", {
+  width: "100%",
+  height: "auto",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+});
+
+const IconRow = styled("div", {
+  width: "fit-content",
+  height: "auto",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  alignItems: "center",
   gap: "$gapMedium",
 });
 
@@ -223,7 +243,7 @@ const OrderIdPage = () => {
     },
     {
       title: "Quality",
-      width: "70px",
+      width: "150px",
     },
     {
       title: "Size",
@@ -258,7 +278,27 @@ const OrderIdPage = () => {
   return (
     <>
       <Wrapper>
-        <Text>Order Details</Text>
+        <Row>
+          <Text type="LargeBold">Order Details</Text>
+          <IconRow>
+            <Button
+              leftIcon={<TbEdit size={16} />}
+              variant="outline"
+              color="blue"
+              onClick={() => {}}
+            >
+              Edit
+            </Button>
+            <Button
+              leftIcon={<TbTrash size={16} />}
+              variant="outline"
+              color="red"
+              onClick={() => {}}
+            >
+              Delete
+            </Button>
+          </IconRow>
+        </Row>
         <InfoWrapper>
           {Header.map((data, index) => {
             return (

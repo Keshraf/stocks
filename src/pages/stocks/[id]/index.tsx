@@ -1,6 +1,6 @@
 import { Button, Loader, Tabs } from "@mantine/core";
 import { useRouter } from "next/router";
-import { styled, theme } from "stitches.config";
+import { styled } from "stitches.config";
 import StockItemTable from "~/components/Table/StockItemTable";
 import Text from "~/components/UI/Text";
 import { trpc } from "~/utils/trpc";

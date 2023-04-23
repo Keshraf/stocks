@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { styled } from "../../../stitches.config";
 import Datepicker from "../DatePicker";
 import SearchBar from "../SearchBar";
-import { Button } from "../UI/Buttons";
 import { FiPackage } from "react-icons/fi";
 import { CgFileAdd } from "react-icons/cg";
 import { theme } from "../../../stitches.config";
@@ -11,6 +10,11 @@ import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "~/store";
 import { setSearch } from "~/store/search";
 import { useRouter } from "next/router";
+import { Button, Modal, TextInput } from "@mantine/core";
+import { trpc } from "~/utils/trpc";
+import { toast } from "react-hot-toast";
+import { resetSelectedStocks } from "~/store/selectedStocks";
+import { useLocalStorage } from "@mantine/hooks";
 
 const Container = styled("div", {
   width: "100%",
@@ -25,16 +29,30 @@ const DateContainer = styled("div", {
   minWidth: "156px",
 });
 
+const Form = styled("form", {
+  display: "flex",
+  flexDirection: "column",
+  gap: "$gapMedium",
+});
+
 const ActionHeader = () => {
+  const [refetch, setRefetch] = useLocalStorage({
+    key: "refetchStocks",
+    defaultValue: "false",
+  });
+  const selectStocks = useAppSelector((state) => state.selectedStocks);
   const search = useAppSelector((state) => state.search);
   const [query, setQuery] = useState<string>(search);
   const [date, setDate] = useState<Date | null>(new Date());
+  const [opened, setOpened] = useState(false);
+  const [orderNo, setOrderNo] = useState<string>("");
   const dispatch = useAppDispatch();
 
   const router = useRouter();
+  const { mutateAsync: updateSalesOrderNo } =
+    trpc.stocks.updateStockSalesOrderNo.useMutation();
 
   useEffect(() => {
-    console.log("query", query);
     dispatch(setSearch(query));
   }, [query, dispatch]);
 
@@ -52,8 +70,40 @@ const ActionHeader = () => {
     };
   }, [dispatch, router.events]);
 
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const ids = selectStocks.map((stock) => stock.id);
+    const UpdatePromise = updateSalesOrderNo({
+      id: ids,
+      salesOrderNo: orderNo,
+    });
+    toast.promise(UpdatePromise, {
+      loading: "Updating Sales Order No.",
+      success: "Sales Order No. Updated",
+      error: "Error updating Sales Order No.",
+    });
+    await UpdatePromise;
+    dispatch(resetSelectedStocks());
+    setRefetch("true");
+    setOpened(false);
+  };
+
   return (
     <Container>
+      <Modal
+        title="Set Sales Order No. for Selected Stocks"
+        opened={opened}
+        onClose={() => setOpened(false)}
+      >
+        <Form onSubmit={submitHandler}>
+          <TextInput
+            value={orderNo}
+            onChange={(e) => setOrderNo(e.target.value)}
+            placeholder="Enter Sales order no."
+          />
+          <Button type="submit">Confirm</Button>
+        </Form>
+      </Modal>
       <DateContainer>
         <Datepicker date={date} setDate={setDate} />
       </DateContainer>
@@ -63,6 +113,15 @@ const ActionHeader = () => {
         <Text type="MediumSemibold">Goods</Text>
         <FiPackage fontSize={18} color={theme.colors.content.value} />
       </Button> */}
+      {selectStocks.length > 0 && (
+        <Button
+          style={{ height: "48px" }}
+          radius="md"
+          onClick={() => setOpened(true)}
+        >
+          Add Sales Order No.
+        </Button>
+      )}
     </Container>
   );
 };

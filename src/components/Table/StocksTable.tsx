@@ -68,11 +68,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
     return sorted;
   }, [data, mills]);
 
-  console.log(sortedData);
-
   useEffect(() => {
     const filteredData = sortedData.filter((item) => {
-      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice}`;
+      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice} ${item.salesOrder}`;
 
       return stockSentence.toLowerCase().includes(search.toLowerCase());
     });

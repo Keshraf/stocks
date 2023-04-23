@@ -10,11 +10,12 @@ import {
 import { ImportedOrderType } from "~/types/orders";
 import Text from "../UI/Text";
 import { styled } from "stitches.config";
-import { Checkbox } from "@mantine/core";
+import { Button, Checkbox } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "~/store";
 import { useRouter } from "next/router";
 import { type OrderDetails } from "~/pages/orders/[id]";
+import { TbEdit } from "react-icons/tb";
 
 const Wrapper = styled("div", {
   width: "100%",
@@ -85,7 +86,7 @@ const OrderDetailTable = ({ data }: { data: OrderDetails }) => {
     {
       title: "Quality",
       value: data.qualityName,
-      width: "70px",
+      width: "150px",
     },
     {
       title: "Size",
@@ -149,6 +150,14 @@ const OrderDetailTable = ({ data }: { data: OrderDetails }) => {
             </InfoRow>
           );
         })}
+        <Button
+          leftIcon={<TbEdit size={16} />}
+          variant="outline"
+          color="blue"
+          onClick={() => {}}
+        >
+          Edit
+        </Button>
       </InfoWrapper>
     </StockWrapper>
   );

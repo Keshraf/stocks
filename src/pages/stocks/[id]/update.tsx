@@ -1,6 +1,6 @@
-import { Autocomplete, Button, Loader, NumberInput } from "@mantine/core";
+import { Button, Loader, NumberInput } from "@mantine/core";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { styled } from "stitches.config";
 import { z } from "zod";
@@ -58,11 +58,8 @@ const UpdateById = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const [millName, setMillName] = useState<string>("");
-  const [qualityName, setQualityName] = useState<string>("");
   const [breadth, setBreadth] = useState<number>(0);
   const [length, setLength] = useState<number>(0);
-  const [quantity, setQuantity] = useState<number>(0);
   const [gsm, setGsm] = useState<number>(0);
   const [sheets, setSheets] = useState<number>(0);
   const [weight, setWeight] = useState<number>(0);
