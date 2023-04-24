@@ -148,7 +148,7 @@ model StockOrder {
   billed    Int      @default(0)
   shipped   Int      @default(0)
   rate      Float    @default(0)
-  order     Order    @relation(fields: [orderId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
   stock     Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
   stockId   String

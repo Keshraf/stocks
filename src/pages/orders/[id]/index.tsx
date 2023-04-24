@@ -6,8 +6,10 @@ import { styled } from "stitches.config";
 import Text from "~/components/UI/Text";
 import OrderDetailTable from "~/components/Table/OrderDetailTable";
 import { TbEdit, TbTrash } from "react-icons/tb";
+import { toast } from "react-hot-toast";
 
 export type OrderDetails = {
+  id: string;
   specId: string;
   qualityName: string;
   millName: string;
@@ -16,6 +18,7 @@ export type OrderDetails = {
   weight: number;
   gsm: number;
   sheets: number;
+  rate: number;
   pending: number;
   billed: number;
   shipped: number;
@@ -128,6 +131,8 @@ const OrderIdPage = () => {
   }
 
   const { data, isLoading } = trpc.orders.getOrderById.useQuery(id);
+  const { mutateAsync: deleteOrderById } =
+    trpc.orders.deleteOrder.useMutation();
 
   if (!data || isLoading || !data.order) {
     return (
@@ -154,6 +159,7 @@ const OrderIdPage = () => {
     allSpecs.add(stockOrder.stock.specs.id);
 
     return {
+      id: stockOrder.id,
       specId: stockOrder.stock.specs.id,
       qualityName: stockOrder.stock.specs.qualityName,
       millName: stockOrder.stock.specs.quality.millName,
@@ -162,6 +168,7 @@ const OrderIdPage = () => {
       weight: stockOrder.stock.specs.weight,
       gsm: stockOrder.stock.specs.gsm,
       sheets: stockOrder.stock.specs.sheets,
+      rate: stockOrder.rate,
       pending: stockOrder.pending,
       billed: stockOrder.billed,
       shipped: stockOrder.shipped,
@@ -262,6 +269,10 @@ const OrderIdPage = () => {
       width: "70px",
     },
     {
+      title: "Rate",
+      width: "70px",
+    },
+    {
       title: "Pending",
       width: "100px",
     },
@@ -274,6 +285,17 @@ const OrderIdPage = () => {
       width: "100px",
     },
   ];
+
+  const deleteOrder = async () => {
+    const DeletePromise = deleteOrderById(orderDetails.orderId);
+    toast.promise(DeletePromise, {
+      loading: "Deleting Order",
+      success: "Order Deleted",
+      error: "Error Deleting Order",
+    });
+    await DeletePromise;
+    router.push("/orders");
+  };
 
   return (
     <>
@@ -293,7 +315,7 @@ const OrderIdPage = () => {
               leftIcon={<TbTrash size={16} />}
               variant="outline"
               color="red"
-              onClick={() => {}}
+              onClick={deleteOrder}
             >
               Delete
             </Button>

@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "~/store";
 import { useRouter } from "next/router";
 import { type OrderDetails } from "~/pages/orders/[id]";
-import { TbEdit } from "react-icons/tb";
+import { TbEdit, TbTrash } from "react-icons/tb";
 
 const Wrapper = styled("div", {
   width: "100%",
@@ -109,6 +109,11 @@ const OrderDetailTable = ({ data }: { data: OrderDetails }) => {
       width: "70px",
     },
     {
+      title: "Rate",
+      value: `₹${data.rate}`,
+      width: "70px",
+    },
+    {
       title: "Pending",
       value: `${data.pending}`,
       width: "100px",
@@ -150,13 +155,11 @@ const OrderDetailTable = ({ data }: { data: OrderDetails }) => {
             </InfoRow>
           );
         })}
-        <Button
-          leftIcon={<TbEdit size={16} />}
-          variant="outline"
-          color="blue"
-          onClick={() => {}}
-        >
-          Edit
+        <Button variant="outline" color="blue" onClick={() => {}}>
+          <TbEdit size={16} />
+        </Button>
+        <Button variant="outline" color="red" onClick={() => {}}>
+          <TbTrash size={16} />
         </Button>
       </InfoWrapper>
     </StockWrapper>
