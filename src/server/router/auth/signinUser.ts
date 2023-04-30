@@ -42,7 +42,7 @@ export const signinUserRouter = router({
           ctx.res.setHeader(
             "Set-Cookie",
             cookie.serialize("STOCKS_ACCESS_TOKEN", token, {
-              httpOnly: true,
+              httpOnly: false,
               maxAge: 14 * 60 * 60,
               path: "/",
               sameSite: "lax",
