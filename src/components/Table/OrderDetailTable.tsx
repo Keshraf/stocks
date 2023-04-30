@@ -155,10 +155,10 @@ const OrderDetailTable = ({ data }: { data: OrderDetails }) => {
             </InfoRow>
           );
         })}
-        <Button variant="outline" color="blue" onClick={() => {}}>
+        <Button size="xs" variant="outline" color="blue" onClick={() => {}}>
           <TbEdit size={16} />
         </Button>
-        <Button variant="outline" color="red" onClick={() => {}}>
+        <Button size="xs" variant="outline" color="red" onClick={() => {}}>
           <TbTrash size={16} />
         </Button>
       </InfoWrapper>
