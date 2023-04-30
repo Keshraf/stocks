@@ -47,7 +47,7 @@ const InfoWrapper = styled("div", {
   flexDirection: "row",
   justifyContent: "flex-start",
   alignItems: "center",
-  gap: "10px",
+  gap: "$gapMedium",
   overflowX: "auto",
   overflowY: "hidden",
 });
@@ -114,10 +114,10 @@ const MillTransferPage = () => {
       title: "Order No.",
       width: "150px",
     },
-    {
+    /* {
       title: "Client",
       width: "150px",
-    },
+    }, */
     {
       title: "Remaining",
       width: "100px",

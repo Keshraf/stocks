@@ -232,6 +232,18 @@ const StockChange = ({ stock }: Props) => {
                 precision={0}
                 min={0}
                 value={data.value}
+                onBlur={(e) => {
+                  if (e.target.value === "") {
+                    dispatch(
+                      changeNumberStocks({
+                        type: data.key,
+                        value: 0,
+                        id: stock.id,
+                      })
+                    );
+                    return;
+                  }
+                }}
                 onChange={(value) => {
                   if (value === undefined || value === null) return;
                   dispatch(
