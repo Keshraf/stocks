@@ -5,6 +5,9 @@ import { createStockOrderRouter } from "./createStockOrder";
 import { getOrderByIdRouter } from "./getOrderById";
 import { shiftOrderRouter } from "./shiftOrder";
 import { deleteOrderRouter } from "./deleteOrder";
+import { updateStockOrderRouter } from "./updateStockOrder";
+import { deleteStockOrderRouter } from "./deleteStockOrder";
+import { updateOrderRouter } from "./updateOrder";
 
 export const ordersRouter = mergeRouters(
   createOrderRouter,
@@ -12,5 +15,8 @@ export const ordersRouter = mergeRouters(
   createStockOrderRouter,
   getOrderByIdRouter,
   shiftOrderRouter,
-  deleteOrderRouter
+  deleteOrderRouter,
+  updateStockOrderRouter,
+  deleteStockOrderRouter,
+  updateOrderRouter
 );

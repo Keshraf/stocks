@@ -130,7 +130,7 @@ const OrderIdPage = () => {
     return <Text>Invalid ID</Text>;
   }
 
-  const { data, isLoading } = trpc.orders.getOrderById.useQuery(id);
+  const { data, isLoading, refetch } = trpc.orders.getOrderById.useQuery(id);
   const { mutateAsync: deleteOrderById } =
     trpc.orders.deleteOrder.useMutation();
 
@@ -181,6 +181,9 @@ const OrderIdPage = () => {
     const filteredArr: OrderDetails[] = formattedOrderDetails.filter(
       (order) => order.specId === spec
     );
+
+    console.log("Filtered Arr: ", filteredArr);
+
     const stats = filteredArr.reduce(
       (acc, curr) => {
         return {
@@ -195,6 +198,8 @@ const OrderIdPage = () => {
         shipped: 0,
       }
     );
+
+    console.log("Reduced Arr: ", stats);
 
     const firstArr = filteredArr[0];
 
@@ -345,7 +350,7 @@ const OrderIdPage = () => {
           })}
         </InfoWrapper2>
         {orderStats.map((item) => (
-          <OrderDetailTable data={item} key={item.specId} />
+          <OrderDetailTable refetch={refetch} data={item} key={item.specId} />
         ))}
       </Wrapper>
     </>
