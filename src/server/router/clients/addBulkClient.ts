@@ -1,10 +1,19 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "~/server/trpc";
-import { NewClientSchema } from "~/types/clients";
+
+const NewClientSchemaArr = z.array(
+  z.object({
+    name: z.string(),
+    address: z.string().optional(),
+    phone: z.string().optional(),
+    email: z.string().optional(),
+    gst: z.string().optional(),
+  })
+);
 
 export const addBulkClientRouter = router({
   addBulkClient: protectedProcedure
-    .input(z.array(z.string()))
+    .input(NewClientSchemaArr)
     .mutation(async ({ ctx, input }) => {
       const companyId = ctx.user.company;
 
@@ -15,7 +24,11 @@ export const addBulkClientRouter = router({
       const clients = await ctx.prisma.client.createMany({
         data: input.map((value) => {
           return {
-            name: value,
+            name: value.name,
+            address: value.address ? value.address : "",
+            mobile: value.phone ? value.phone : "",
+            email: value.email ? value.email : "",
+            gst: value.gst ? value.gst : "",
             companyId,
           };
         }),

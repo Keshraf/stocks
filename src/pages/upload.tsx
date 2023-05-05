@@ -41,7 +41,23 @@ interface DataItem {
 interface ClientItem {
   sr: string;
   name: string;
+  address: string;
+  contact: string;
+  mobile: string;
+  phone: string;
+  email: string;
+  pin: string;
+  pan: string;
+  gst: string;
 }
+
+type ClientData = {
+  name: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  gst?: string;
+};
 
 const Upload = () => {
   const [value, setValue] = useState<File | null>(null);
@@ -160,6 +176,8 @@ const Upload = () => {
 
     const chunkedArr = chunk(formattedData, 10);
 
+    console.log("Chunked", chunkedArr);
+
     if (results.success) {
       for (let index = 0; index < chunkedArr.length; index++) {
         const element = chunkedArr[index];
@@ -187,18 +205,84 @@ const Upload = () => {
     const data = utils
       // @ts-ignore
       .sheet_to_json<ClientItem>(wb.Sheets[wb.SheetNames[0]], {
-        header: ["sr", "name"],
+        header: [
+          "sr",
+          "name",
+          "address",
+          "contact",
+          "mobile",
+          "phone",
+          "email",
+          "pin",
+          "pan",
+          "gst",
+        ],
       });
 
-    const slicedData = data.slice(1).map((item) => item.name);
+    console.log("Raw", data);
 
-    const chunk = (arr: any[], size: number) => {
+    const slicedData: ClientData[] = data.slice(2).map((item) => {
+      const {
+        sr,
+        address,
+        name,
+        contact,
+        mobile,
+        phone,
+        email,
+        pin,
+        pan,
+        gst,
+      } = item;
+
+      let no = "";
+
+      if (mobile && mobile.length >= 10) {
+        if (mobile.includes("+91")) {
+          no = mobile.substring(3);
+        } else if (phone.includes("+91 ")) {
+          no = phone.substring(4);
+        } else if (mobile.length === 10) {
+          no = mobile;
+        } else {
+          no = "";
+        }
+      }
+
+      if (no === "") {
+        if (phone && phone.length >= 10) {
+          if (phone.includes("+91")) {
+            no = phone.substring(3);
+          } else if (phone.includes("+91 ")) {
+            no = phone.substring(4);
+          } else if (phone.length === 10) {
+            no = phone;
+          } else {
+            no = "";
+          }
+        }
+      }
+
+      return {
+        name,
+        address,
+        phone: no,
+        email,
+        gst,
+      };
+    });
+
+    console.log("Response", slicedData);
+
+    const chunk = (arr: ClientData[], size: number) => {
       return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
         arr.slice(i * size, i * size + size)
       );
     };
 
-    const chunkedArr = chunk(slicedData, 10);
+    const chunkedArr = chunk(slicedData, 20);
+
+    console.log("Chunked", chunkedArr);
 
     for (let index = 0; index < chunkedArr.length; index++) {
       const element = chunkedArr[index];
