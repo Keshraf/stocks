@@ -544,7 +544,10 @@ const OrderAddPage = () => {
             value={billingClient}
             limit={50}
             maxDropdownHeight={300}
-            onChange={(value) => setBillingClient(value)}
+            onChange={(value) => {
+              setBillingClient(value);
+              setBillingAddress("");
+            }}
             placeholder="Choose Client"
             data={getClientNames}
           />
@@ -580,7 +583,10 @@ const OrderAddPage = () => {
             value={shippingClient}
             limit={50}
             maxDropdownHeight={300}
-            onChange={(value) => setShippingClient(value)}
+            onChange={(value) => {
+              setShippingClient(value);
+              setShippingAddress("");
+            }}
             placeholder="Choose Client"
             data={getClientNames}
           />

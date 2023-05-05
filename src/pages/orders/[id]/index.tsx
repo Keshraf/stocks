@@ -1,4 +1,11 @@
-import { Button, Loader, Tabs } from "@mantine/core";
+import {
+  Autocomplete,
+  Button,
+  Loader,
+  Modal,
+  Tabs,
+  TextInput,
+} from "@mantine/core";
 import { useRouter } from "next/router";
 
 import { trpc } from "~/utils/trpc";
@@ -7,6 +14,8 @@ import Text from "~/components/UI/Text";
 import OrderDetailTable from "~/components/Table/OrderDetailTable";
 import { TbEdit, TbTrash } from "react-icons/tb";
 import { toast } from "react-hot-toast";
+import { FormEvent, useMemo, useState } from "react";
+import Datepicker from "~/components/DatePicker";
 
 export type OrderDetails = {
   id: string;
@@ -76,6 +85,14 @@ const InfoWrapper2 = styled("div", {
   overflowY: "hidden",
 });
 
+const InputWrapper = styled("div", {
+  width: "100%",
+  height: "auto",
+  display: "flex",
+  flexDirection: "column",
+  gap: "$gapMedium",
+});
+
 const InfoRow = styled("div", {
   width: "fit-content",
   height: "auto",
@@ -93,6 +110,7 @@ const Row = styled("div", {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
+  gap: "$gapMedium",
 });
 
 const IconRow = styled("div", {
@@ -105,9 +123,50 @@ const IconRow = styled("div", {
   gap: "$gapMedium",
 });
 
+const Form = styled("form", {
+  width: "100%",
+  height: "auto",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  gap: "$gapMedium",
+});
+
 const OrderIdPage = () => {
   const router = useRouter();
+  const [opened, setOpened] = useState(false);
+  const [invoice, setInvoice] = useState("");
+  const [billingClient, setBillingClient] = useState("");
+  const [shippingClient, setShippingClient] = useState("");
+  const [billingAddress, setBillingAddress] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [date, setDate] = useState<Date | null>(null);
   const { id } = router.query;
+
+  const {
+    data: clientData,
+    isLoading: clientLoading,
+    refetch: refetchClientData,
+  } = trpc.clients.getClients.useQuery();
+
+  const getClientNames = useMemo(() => {
+    if (!clientData) return [];
+    const clientNames: string[] = [];
+    clientData.forEach((client) => clientNames.push(client.name));
+    return clientNames;
+  }, [clientData]);
+
+  const getClientAddress = (cli: string) => {
+    if (!clientData) return [];
+    const clientAddress: string[] = [];
+    clientData.forEach((clientItem) => {
+      if (clientItem.name === cli) {
+        clientAddress.push(...clientItem.address);
+      }
+    });
+    return clientAddress;
+  };
 
   if (!router.isReady) {
     return (
@@ -133,6 +192,7 @@ const OrderIdPage = () => {
   const { data, isLoading, refetch } = trpc.orders.getOrderById.useQuery(id);
   const { mutateAsync: deleteOrderById } =
     trpc.orders.deleteOrder.useMutation();
+  const { mutateAsync: updateOrder } = trpc.orders.updateOrder.useMutation();
 
   if (!data || isLoading || !data.order) {
     return (
@@ -220,7 +280,7 @@ const OrderIdPage = () => {
     {
       label: "Order Date",
       value: orderDetails.orderDate
-        ? new Date(orderDetails.orderDate).toLocaleDateString()
+        ? new Date(orderDetails.orderDate).toDateString()
         : "-",
       width: "100px",
     },
@@ -302,8 +362,118 @@ const OrderIdPage = () => {
     router.push("/orders");
   };
 
+  const updateOrderHandler = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const UpdatePromise = updateOrder({
+      id,
+      orderId: invoice,
+      clientName: billingClient,
+      shippingClientName: shippingClient,
+      billingAddress: billingAddress,
+      shippingAddress: shippingAddress,
+      orderDate: date ? date : new Date(),
+    });
+    toast.promise(UpdatePromise, {
+      loading: "Updating Order",
+      success: "Order Updated",
+      error: "Error Updating Order",
+    });
+    await UpdatePromise.then(() => {
+      refetch();
+      setOpened(false);
+    });
+  };
+
   return (
     <>
+      <Modal
+        opened={opened}
+        onClose={() => setOpened(false)}
+        title="Update Order Item"
+        centered
+        size="xl"
+      >
+        <Form onSubmit={updateOrderHandler}>
+          <InputWrapper>
+            <Text type="MediumBold">Invoice Code</Text>
+            <TextInput
+              value={invoice}
+              onChange={(e) => setInvoice(e.target.value)}
+              placeholder="Enter Invoice Code"
+            />
+          </InputWrapper>
+          <Row>
+            <InputWrapper>
+              <Autocomplete
+                label="Billing Client"
+                withAsterisk
+                value={billingClient}
+                limit={50}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  setBillingClient(value);
+                  setBillingAddress("");
+                }}
+                placeholder="Choose Client"
+                data={getClientNames}
+              />
+            </InputWrapper>
+            <InputWrapper>
+              <Autocomplete
+                label="Billing Address"
+                value={billingAddress}
+                limit={20}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  setBillingAddress(value);
+                }}
+                placeholder="Choose Billing Address"
+                data={[...getClientAddress(billingClient)]}
+              />
+            </InputWrapper>
+          </Row>
+          <Row>
+            <InputWrapper>
+              {/* <Text type="MediumBold">Billing Address</Text> */}
+              <Autocomplete
+                label="Shipping Client"
+                withAsterisk
+                value={shippingClient}
+                limit={50}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  setShippingClient(value);
+                  setShippingAddress("");
+                }}
+                placeholder="Choose Client"
+                data={getClientNames}
+              />
+            </InputWrapper>
+            <InputWrapper>
+              {/* <Text type="MediumBold">Shipping Address</Text> */}
+              <Autocomplete
+                label="Shipping Address"
+                value={shippingAddress}
+                limit={20}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  setShippingAddress(value);
+                }}
+                placeholder="Choose Shipping Address"
+                data={[...getClientAddress(shippingClient)]}
+              />
+            </InputWrapper>
+          </Row>
+          <InfoRow>
+            <Text type="MediumRegular">Delivery Date</Text>
+            <Datepicker date={date} setDate={setDate} />
+          </InfoRow>
+          <Button type="submit" color="blue">
+            Submit
+          </Button>
+        </Form>
+      </Modal>
       <Wrapper>
         <Row>
           <Text type="LargeBold">Order Details</Text>
@@ -312,7 +482,15 @@ const OrderIdPage = () => {
               leftIcon={<TbEdit size={16} />}
               variant="outline"
               color="blue"
-              onClick={() => {}}
+              onClick={() => {
+                setOpened(true);
+                setInvoice(orderDetails.orderId);
+                setBillingClient(orderDetails.clientName);
+                setShippingClient(orderDetails.shippingClientName);
+                setBillingAddress(orderDetails.billingAddress);
+                setShippingAddress(orderDetails.shippingAddress);
+                setDate(orderDetails.orderDate);
+              }}
             >
               Edit
             </Button>

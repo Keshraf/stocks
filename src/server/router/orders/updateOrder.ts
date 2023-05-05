@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "~/server/trpc";
 
 const UpdateStockOrderSchema = z.object({
+  id: z.string(),
   orderId: z.string(),
   orderDate: z.date(),
   billingAddress: z.string(),
@@ -23,9 +24,12 @@ export const updateOrderRouter = router({
       await ctx.prisma.order
         .update({
           where: {
-            orderId: input.orderId,
+            id: input.id,
           },
           data: {
+            orderId: {
+              set: input.orderId,
+            },
             orderDate: input.orderDate,
             billingAddress: input.billingAddress,
             shippingAddress: input.shippingAddress,
@@ -35,11 +39,11 @@ export const updateOrderRouter = router({
         })
         .then(() => {
           return {
-            message: "Order deleted successfully",
+            message: "Order updated successfully",
           };
         })
         .catch((err) => {
-          throw new Error(err);
+          throw new Error("Error UPDATING CLIENT", err);
         });
     }),
 });
