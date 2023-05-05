@@ -1,9 +1,7 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "~/server/trpc";
 
-const DeleteStockOrderSchema = z.object({
-  id: z.string(),
-});
+const DeleteStockOrderSchema = z.array(z.string());
 
 export const deleteStockOrderRouter = router({
   deleteStockOrder: protectedProcedure
@@ -17,14 +15,16 @@ export const deleteStockOrderRouter = router({
 
       console.log("INPUT: ", input);
 
-      const stockOrder = await ctx.prisma.stockOrder.delete({
+      const stockOrder = await ctx.prisma.stockOrder.deleteMany({
         where: {
-          id: input.id,
+          id: {
+            in: input,
+          },
         },
       });
 
       return {
-        message: "Order created successfully",
+        message: "Stock Order deleted successfully",
         stockOrder: stockOrder,
       };
     }),

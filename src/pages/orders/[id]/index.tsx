@@ -18,7 +18,7 @@ import { FormEvent, useMemo, useState } from "react";
 import Datepicker from "~/components/DatePicker";
 
 export type OrderDetails = {
-  id: string;
+  id: string | string[];
   specId: string;
   qualityName: string;
   millName: string;
@@ -267,7 +267,8 @@ const OrderIdPage = () => {
       orderStats.push({
         ...firstArr,
         ...stats,
-      });
+        id: filteredArr.map((item) => item.id),
+      } as OrderDetails);
     }
   });
 

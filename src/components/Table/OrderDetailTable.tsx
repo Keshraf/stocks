@@ -96,6 +96,9 @@ const OrderDetailTable = ({
   const { mutateAsync: updateStockOrder } =
     trpc.orders.updateStockOrder.useMutation();
 
+  const { mutateAsync: deleteStockOrder } =
+    trpc.orders.deleteStockOrder.useMutation();
+
   const router = useRouter();
   const StockData: StockConfig[] = [
     {
@@ -162,7 +165,7 @@ const OrderDetailTable = ({
     router.push(`/orders/${id}`);
   };
 
-  const updateOrderHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  /* const updateOrderHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const [rate, pending, billed, shipped] = Object.values(e.target)
       .filter((value) => value instanceof HTMLInputElement)
@@ -189,6 +192,24 @@ const OrderDetailTable = ({
       refetch();
       setOpened(false);
     });
+  }; */
+
+  const deleteHandler = async () => {
+    console.log(data);
+
+    const deleteStockOrderPromise = deleteStockOrder(
+      Array.isArray(data.id) ? data.id : [data.id]
+    );
+
+    toast.promise(deleteStockOrderPromise, {
+      loading: "Deleting Order...",
+      success: "Order Deleted",
+      error: "Error Deleting Order",
+    });
+
+    await deleteStockOrderPromise.then(() => {
+      refetch();
+    });
   };
 
   return (
@@ -199,7 +220,7 @@ const OrderDetailTable = ({
         title="Update Order Item"
         centered
       >
-        <Form onSubmit={updateOrderHandler}>
+        <Form onSubmit={() => {}}>
           {StockData.map((value, index) => {
             if (index < 6) return null;
             let val = Number(value.value);
@@ -242,7 +263,12 @@ const OrderDetailTable = ({
           >
             <TbEdit size={16} />
           </Button>
-          <Button size="xs" variant="outline" color="red" onClick={() => {}}>
+          <Button
+            size="xs"
+            variant="outline"
+            color="red"
+            onClick={deleteHandler}
+          >
             <TbTrash size={16} />
           </Button>
         </InfoWrapper>
