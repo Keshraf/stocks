@@ -26,7 +26,7 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>Balaji Khata</title>
+        <title>Balaji Stocks</title>
       </Head>
       <Page>
         <div className={flex({ direction: "column", gap: "extralarge" })}>
