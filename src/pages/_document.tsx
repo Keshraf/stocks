@@ -10,7 +10,7 @@ export default function Document() {
           dangerouslySetInnerHTML={{ __html: getCssText() }}
         />
         <meta name="description" content="Stock Management Application" />
-        <link rel="icon" href="/Logo.svg" />
+        <link rel="icon" href="/Logo2.svg" />
         {/* <meta name="viewport" content="width=device-width, initial-scale=1" /> */}
       </Head>
       <body>

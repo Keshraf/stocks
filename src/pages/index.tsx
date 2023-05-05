@@ -30,7 +30,7 @@ const Home = () => {
       </Head>
       <Page>
         <div className={flex({ direction: "column", gap: "extralarge" })}>
-          <Image src="/Logo.svg" alt="Logo" width={75} height={75} />
+          <Image src="/Logo3.svg" alt="Logo" width={75} height={75} />
           <DefaultText weight="bold" css={{ fontSize: "68px" }}>
             Balaji Stock
           </DefaultText>
