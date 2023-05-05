@@ -8,8 +8,8 @@ export const CreateStockOrderSchema = z.object({
 });
 
 export const CreateOrderSchema = z.object({
-  billingAddress: z.string().min(3, { message: "Billing address not given" }),
-  shippingAddress: z.string().min(3, { message: "Shipping address not given" }),
+  billingAddress: z.string(),
+  shippingAddress: z.string(),
   clientName: z.string().min(2),
   shippingClientName: z.string().min(2),
   orderId: z.string().min(3, { message: "Order ID is too short!" }),

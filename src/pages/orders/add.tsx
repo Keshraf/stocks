@@ -1,4 +1,12 @@
-import { Autocomplete, Divider, Loader, Modal, TextInput } from "@mantine/core";
+import {
+  Autocomplete,
+  Divider,
+  Group,
+  Loader,
+  Modal,
+  Radio,
+  TextInput,
+} from "@mantine/core";
 import { useRouter } from "next/router";
 import {
   FormEvent,
@@ -111,25 +119,34 @@ const InfoRow = styled("div", {
 
 const OrderAddPage = () => {
   const [opened, setOpened] = useState(true);
+  const [addressOpened, setAddressOpened] = useState(false);
+  const [clientChanged, setClientChanged] = useState<string>("");
+  const [newAddress, setNewAddress] = useState<string>("");
   const [invoice, setInvoice] = useState("");
   const [billingClient, setBillingClient] = useState("");
   const [shippingClient, setShippingClient] = useState("");
   const [billingAddress, setBillingAddress] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [date, setDate] = useState<Date | null>(null);
+  const [radioValue, setRadioValue] = useState<string>("new");
 
   const router = useRouter();
 
   const selectedStock = useAppSelector((state) => state.selectedSpecs);
   const dispatch = useAppDispatch();
 
-  const { data: clientData, isLoading: clientLoading } =
-    trpc.clients.getClients.useQuery();
+  const {
+    data: clientData,
+    isLoading: clientLoading,
+    refetch: refetchClientData,
+  } = trpc.clients.getClients.useQuery();
   const { mutateAsync: createOrder } = trpc.orders.createOrder.useMutation();
   const { mutateAsync: createStockOrder } =
     trpc.orders.createStockOrder.useMutation();
   const { data: invoiceData, isLoading: invoiceLoading } =
     trpc.invoices.getInvoices.useQuery();
+  const { mutateAsync: addNewClientAddress } =
+    trpc.clients.addClientAddress.useMutation();
 
   const getClientNames = useMemo(() => {
     if (!clientData) return [];
@@ -247,12 +264,7 @@ const OrderAddPage = () => {
 
   const submitHandler = async () => {
     console.log("submit");
-    if (
-      !billingClient ||
-      !shippingClient ||
-      !shippingAddress ||
-      !billingAddress
-    ) {
+    if (radioValue === "new" && (!billingClient || !shippingClient)) {
       toast.error("Client or Address is missing");
       return;
     }
@@ -262,14 +274,6 @@ const OrderAddPage = () => {
     }
 
     const orders: CreateStockOrderType[] = [];
-    const orderDetails: CreateOrderType = {
-      billingAddress,
-      shippingAddress,
-      clientName: billingClient,
-      shippingClientName: shippingClient,
-      orderDate: date ? date : new Date(),
-      orderId: invoice,
-    };
 
     selectedStock.forEach(async (item) => {
       let quantity = item.quantity;
@@ -371,22 +375,34 @@ const OrderAddPage = () => {
 
     console.log("Orders", orders);
 
-    // First Create an Order
-    const orderResults = CreateOrderSchema.safeParse(orderDetails);
+    if (radioValue === "new") {
+      const orderDetails: CreateOrderType = {
+        billingAddress: billingAddress ? billingAddress : "",
+        shippingAddress: shippingAddress ? shippingAddress : "",
+        clientName: billingClient,
+        shippingClientName: shippingClient,
+        orderDate: date ? date : new Date(),
+        orderId: invoice,
+      };
 
-    if (!orderResults.success) {
-      toast.error("Error in Order");
-      return;
-    } else {
-      const CreateOrderPromise = createOrder(orderResults.data);
+      // First Create an Order
+      const orderResults = CreateOrderSchema.safeParse(orderDetails);
 
-      toast.promise(CreateOrderPromise, {
-        loading: "Creating Order",
-        success: "Order Created",
-        error: "Error in Order",
-      });
+      if (!orderResults.success) {
+        toast.error("Error in Order");
+        return;
+      } else {
+        console.log("ORDER : ", orderResults.data);
+        const CreateOrderPromise = createOrder(orderResults.data);
 
-      await CreateOrderPromise;
+        toast.promise(CreateOrderPromise, {
+          loading: "Creating Order",
+          success: "Order Created",
+          error: "Error in Order",
+        });
+
+        await CreateOrderPromise;
+      }
     }
 
     // Then Create Stock Orders
@@ -396,6 +412,8 @@ const OrderAddPage = () => {
       toast.error("Error in Stock Order");
       return;
     } else {
+      console.log("STOCK ORDER : ", stockOrderResults.data);
+
       const CreateStockOrderPromise = createStockOrder(stockOrderResults.data);
 
       toast.promise(CreateStockOrderPromise, {
@@ -411,50 +429,64 @@ const OrderAddPage = () => {
     }
   };
 
+  const addAddressHandler = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!clientChanged) return;
+    if (!newAddress) return;
+    if (!getClientNames.includes(clientChanged)) {
+      toast.error("Client not found");
+      return;
+    }
+
+    try {
+      const AddNewAddressPromise = addNewClientAddress({
+        client: clientChanged,
+        address: newAddress,
+      }).then(() => {
+        setNewAddress("");
+        setClientChanged("");
+        setAddressOpened(false);
+      });
+
+      toast.promise(AddNewAddressPromise, {
+        loading: "Adding Address",
+        success: "Address Added",
+        error: "Error in Adding Address",
+      });
+
+      await AddNewAddressPromise;
+      await refetchClientData();
+    } catch (error) {
+      toast.error("Error in Adding Address");
+    }
+  };
+
   return (
     <Wrapper>
-      {/* MODAL START */}
       <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
-        title="Set these for all"
+        opened={addressOpened}
+        onClose={() => setAddressOpened(false)}
+        title="Set Address"
       >
-        <ModalWrapper onSubmit={modalSubmitHandler}>
+        <ModalWrapper onSubmit={addAddressHandler}>
+          <Text>{clientChanged}</Text>
           <InputWrapper>
-            <Text type="MediumBold">Invoice Code</Text>
+            <Text type="MediumBold">New Address</Text>
             <TextInput
-              value={invoice}
-              onChange={(e) => setInvoice(e.target.value.trim())}
-              placeholder="Enter Invoice Code"
-            />
-          </InputWrapper>
-          <InputWrapper>
-            <Text type="MediumBold">Client</Text>
-            <Autocomplete
-              value={billingClient}
-              limit={20}
-              maxDropdownHeight={300}
-              onChange={(value) => setBillingClient(value.trim())}
-              placeholder="Choose Client"
-              data={getClientNames}
+              value={newAddress}
+              onChange={(e) => setNewAddress(e.target.value)}
+              placeholder="Enter New Address"
             />
           </InputWrapper>
           <ActionButton type="submit">Confirm</ActionButton>
         </ModalWrapper>
       </Modal>
-      {/* MODAL END */}
+      {/* ADDRESS MODAL END */}
       <InfoWrapper>
         <Text>Place Order</Text>
-        <Button onClick={() => setOpened(true)}>Set for all</Button>
       </InfoWrapper>
-      <Row>
-        <Text type="MediumRegular">Invoice Code:</Text>
-        <Text type="MediumBold">{invoice}</Text>
-      </Row>
-      <Row>
-        <Text type="MediumRegular">Billing Client:</Text>
-        <Text type="MediumBold">{billingClient}</Text>
-      </Row>
+
       <DividerWrapper />
       <InfoWrapper>
         {headers.map((header, index) => {
@@ -469,64 +501,115 @@ const OrderAddPage = () => {
         return <StockItemChange stock={stock} key={stock.id} />;
       })}
       <Divider />
-      <Row>
-        <InputWrapper>
-          <Autocomplete
-            label="Billing Client"
-            withAsterisk
-            value={billingClient}
-            limit={20}
-            maxDropdownHeight={300}
-            onChange={(value) => setBillingClient(value.trim())}
-            placeholder="Choose Client"
-            data={getClientNames}
-          />
-        </InputWrapper>
-        <InputWrapper>
-          <Autocomplete
-            label="Billing Address"
-            withAsterisk
-            value={billingAddress}
-            limit={20}
-            maxDropdownHeight={300}
-            onChange={(value) => setBillingAddress(value)}
-            placeholder="Choose Billing Address"
-            data={getClientAddress(billingClient)}
-          />
-        </InputWrapper>
-      </Row>
-      <Row>
-        <InputWrapper>
-          {/* <Text type="MediumBold">Billing Address</Text> */}
-          <Autocomplete
-            label="Shipping Client"
-            withAsterisk
-            value={shippingClient}
-            limit={20}
-            maxDropdownHeight={300}
-            onChange={(value) => setShippingClient(value.trim())}
-            placeholder="Choose Client"
-            data={getClientNames}
-          />
-        </InputWrapper>
-        <InputWrapper>
-          {/* <Text type="MediumBold">Shipping Address</Text> */}
-          <Autocomplete
-            label="Shipping Address"
-            withAsterisk
-            value={shippingAddress}
-            limit={20}
-            maxDropdownHeight={300}
-            onChange={(value) => setShippingAddress(value)}
-            placeholder="Choose Shipping Address"
-            data={getClientAddress(shippingClient)}
-          />
-        </InputWrapper>
-      </Row>
-      <InfoRow>
-        <Text type="MediumRegular">Delivery Date</Text>
-        <Datepicker date={date} setDate={setDate} />
-      </InfoRow>
+      <Radio.Group
+        name="order"
+        withAsterisk
+        value={radioValue}
+        onChange={setRadioValue}
+      >
+        <Group mt="xs">
+          <Radio value="new" label="New Order" />
+          <Radio value="old" label="Existing Order" />
+        </Group>
+      </Radio.Group>
+      <InputWrapper>
+        <TextInput
+          label="Invoice Code"
+          value={invoice}
+          onChange={(e) => setInvoice(e.target.value)}
+          placeholder="Enter Invoice Code"
+          withAsterisk
+        />
+      </InputWrapper>
+      {radioValue === "new" && (
+        <>
+          <Row>
+            <InputWrapper>
+              <Autocomplete
+                label="Billing Client"
+                withAsterisk
+                value={billingClient}
+                limit={50}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  setBillingClient(value);
+                  setBillingAddress("");
+                }}
+                placeholder="Choose Client"
+                data={getClientNames}
+              />
+            </InputWrapper>
+            <InputWrapper>
+              <Autocomplete
+                label="Billing Address"
+                value={billingAddress}
+                limit={20}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  if (value === "+ Add New Address") {
+                    if (billingClient) {
+                      setClientChanged(billingClient);
+                      setAddressOpened(true);
+                    }
+                    return;
+                  } else {
+                    setBillingAddress(value);
+                  }
+                }}
+                placeholder="Choose Billing Address"
+                data={[...getClientAddress(billingClient), "+ Add New Address"]}
+              />
+            </InputWrapper>
+          </Row>
+          <Row>
+            <InputWrapper>
+              {/* <Text type="MediumBold">Billing Address</Text> */}
+              <Autocomplete
+                label="Shipping Client"
+                withAsterisk
+                value={shippingClient}
+                limit={50}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  setShippingClient(value);
+                  setShippingAddress("");
+                }}
+                placeholder="Choose Client"
+                data={getClientNames}
+              />
+            </InputWrapper>
+            <InputWrapper>
+              {/* <Text type="MediumBold">Shipping Address</Text> */}
+              <Autocomplete
+                label="Shipping Address"
+                value={shippingAddress}
+                limit={20}
+                maxDropdownHeight={300}
+                onChange={(value) => {
+                  if (value === "+ Add New Address") {
+                    if (shippingClient) {
+                      setClientChanged(shippingClient);
+                      setAddressOpened(true);
+                    }
+                    return;
+                  } else {
+                    setShippingAddress(value);
+                  }
+                }}
+                placeholder="Choose Shipping Address"
+                data={[
+                  ...getClientAddress(shippingClient),
+                  "+ Add New Address",
+                ]}
+              />
+            </InputWrapper>
+          </Row>
+          <InfoRow>
+            <Text type="MediumRegular">Delivery Date</Text>
+            <Datepicker date={date} setDate={setDate} />
+          </InfoRow>
+        </>
+      )}
       <Row>
         <ActionButton onClick={submitHandler}>Confirm Order</ActionButton>
         <Button onClick={() => router.push("/stocks")}>Go Back</Button>

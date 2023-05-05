@@ -1,9 +1,11 @@
-import { Loader, Tabs } from "@mantine/core";
+import { Button, Loader, Tabs } from "@mantine/core";
 import { useRouter } from "next/router";
 import { styled } from "stitches.config";
 import StockItemTable from "~/components/Table/StockItemTable";
 import Text from "~/components/UI/Text";
 import { trpc } from "~/utils/trpc";
+import { TbEdit, TbTrash } from "react-icons/tb";
+import { toast } from "react-hot-toast";
 
 const Wrapper = styled("main", {
   width: "100%",
@@ -49,6 +51,25 @@ const InfoRow = styled("div", {
   gap: "$gapMedium",
 });
 
+const Row = styled("div", {
+  width: "100%",
+  height: "auto",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+});
+
+const IconRow = styled("div", {
+  width: "fit-content",
+  height: "auto",
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "flex-start",
+  alignItems: "center",
+  gap: "$gapMedium",
+});
+
 const StockIdPage = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -74,6 +95,8 @@ const StockIdPage = () => {
     return <Text>Invalid ID</Text>;
   }
   const { data, isLoading } = trpc.stocks.getSpecById.useQuery(id);
+  const { mutateAsync: deleteSpecsById } =
+    trpc.stocks.deleteSpecs.useMutation();
 
   if (isLoading || !data)
     return (
@@ -111,10 +134,41 @@ const StockIdPage = () => {
     },
   ];
 
+  const deleteHandler = async () => {
+    const DeletePromise = deleteSpecsById(id);
+    toast.promise(DeletePromise, {
+      loading: "Deleting...",
+      success: "Deleted",
+      error: "Error",
+    });
+    await DeletePromise;
+    router.push("/stocks");
+  };
+
   return (
     <>
       <Wrapper>
-        <Text type="LargeBold">Stock Details</Text>
+        <Row>
+          <Text type="LargeBold">Stock Details</Text>
+          <IconRow>
+            <Button
+              leftIcon={<TbEdit size={16} />}
+              variant="outline"
+              color="blue"
+              onClick={() => router.push(`/stocks/${id}/update`)}
+            >
+              Edit
+            </Button>
+            <Button
+              leftIcon={<TbTrash size={16} />}
+              variant="outline"
+              color="red"
+              onClick={deleteHandler}
+            >
+              Delete
+            </Button>
+          </IconRow>
+        </Row>
         <InfoWrapper>
           {Header.map((data, index) => {
             return (

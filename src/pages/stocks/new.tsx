@@ -6,7 +6,7 @@ import { styled } from "stitches.config";
 import { ActionButton, Button } from "~/components/UI/Buttons";
 import Text from "~/components/UI/Text";
 import { AddPreorderInput, AddPreorderSchema } from "~/types/preorder";
-import { AddStock, AddStockSchema, AddStockSchemaArr } from "~/types/stocks";
+import { AddStock, AddStockSchemaArr } from "~/types/stocks";
 import { trpc } from "~/utils/trpc";
 
 const Wrapper = styled("main", {
@@ -241,7 +241,7 @@ const StockNewPage = () => {
             value={millName}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setMillName(value.trim().toUpperCase())}
+            onChange={(value) => setMillName(value.toUpperCase())}
             placeholder="Choose Mill"
             data={getMillNames()}
           />
@@ -252,7 +252,7 @@ const StockNewPage = () => {
             value={qualityName}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setQualityName(value.trim().toUpperCase())}
+            onChange={(value) => setQualityName(value.toUpperCase())}
             placeholder="Choose Quality"
             data={getQualityNames()}
           />
@@ -286,7 +286,7 @@ const StockNewPage = () => {
             value={client}
             limit={20}
             maxDropdownHeight={300}
-            onChange={(value) => setClient(value.trim())}
+            onChange={(value) => setClient(value)}
             placeholder="Choose Client"
             data={getClientNames()}
           />

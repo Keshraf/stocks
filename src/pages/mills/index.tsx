@@ -1,10 +1,10 @@
 import { Loader } from "@mantine/core";
-import { ReactElement, useState } from "react";
+import { useLocalStorage, useSessionStorage } from "@mantine/hooks";
+import { ReactElement, useEffect, useState } from "react";
 import { styled } from "stitches.config";
 import ActionHeader from "~/components/ActionHeader/ActionHeaderMillOrder";
 import StockTableActions from "~/components/Table/components/StocksTableActions";
 import StocksTable from "~/components/Table/StocksTable";
-import Text from "~/components/UI/Text";
 import UserCheck from "~/components/UserCheck";
 import { trpc } from "~/utils/trpc";
 
@@ -36,16 +36,27 @@ export type StocksTableData = {
   qualityName: string;
   millName: string;
   invoice: string;
+  salesOrder: string;
   /* client: string; */
 };
 
 const MillPage = () => {
+  const [refetch, setRefetch] = useSessionStorage({
+    key: "refetchStocks",
+  });
   const [transit, setTransit] = useState(true);
   const [ordered, setOrdered] = useState(true);
   const stocks = trpc.stocks.getStocks.useQuery({
     transit,
     ordered,
   });
+
+  useEffect(() => {
+    if (refetch === "true") {
+      stocks.refetch();
+      setRefetch("false");
+    }
+  }, [refetch, setRefetch, stocks]);
 
   if (!stocks.data)
     return (
@@ -68,11 +79,9 @@ const MillPage = () => {
       qualityName: stock.specs.qualityName,
       millName: stock.specs.quality.millName,
       invoice: stock.invoiceName || "-",
-      /* client: stock.clientName || "-", */
+      salesOrder: stock.salesOrderNo || "-",
     };
   });
-
-  console.log(wrangledData);
 
   return (
     <>

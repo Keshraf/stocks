@@ -6,6 +6,10 @@ import { addStockRouter } from "./addStocks";
 import { getSpecByIdRouter } from "./getSpecById";
 import { updateStocksQuantityRouter } from "./updateStocksQuantity";
 import { getSpecsByIdsRouter } from "./getSpecsByIds";
+import { deleteSpecsRouter } from "./deleteSpecs";
+import { updateSpecsByIdRouter } from "./updateSpecsById";
+import { updateStockSalesOrderNoRouter } from "./updateStockSalesOrderNo";
+import { deleteStocksRouter } from "./deleteStocks";
 
 export const stocksRouter = mergeRouters(
   getSpecsRouter,
@@ -14,5 +18,9 @@ export const stocksRouter = mergeRouters(
   getSpecByIdRouter,
   getSpecsByIdsRouter,
   updateStocksQuantityRouter,
-  addStockRouter
+  addStockRouter,
+  deleteSpecsRouter,
+  updateSpecsByIdRouter,
+  updateStockSalesOrderNoRouter,
+  deleteStocksRouter
 );

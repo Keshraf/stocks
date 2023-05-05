@@ -132,9 +132,17 @@ const OrderTable = ({ data }: { data: ImportedOrderType[] }) => {
                   <TableHeadItem css={{ width: header.width }} key={header.key}>
                     <Checkbox
                       checked={tableCheckbox}
-                      onChange={(e) =>
-                        setTableCheckbox(e.currentTarget.checked)
-                      }
+                      onChange={(e) => {
+                        setTableCheckbox(e.currentTarget.checked);
+                        formattedData.forEach((item) => {
+                          if (e.currentTarget.checked) {
+                            if (selectedOrders.includes(item.id)) return;
+                            dispatch(addOrderSelected(item.id));
+                          } else {
+                            dispatch(removeOrderById(item.id));
+                          }
+                        });
+                      }}
                       size="xs"
                     />
                   </TableHeadItem>

@@ -15,7 +15,10 @@
     "@mantine/form": "^5.9.5",
     "@mantine/hooks": "^5.9.5",
     "@next/font": "13.1.0",
-    "@prisma/client": "^4.10.1",
+    "@prisma/client": "^4.13.0",
+    "@react-email/button": "^0.0.8",
+    "@react-email/html": "^0.0.4",
+    "@react-email/render": "^0.0.7",
     "@reduxjs/toolkit": "^1.9.2",
     "@stitches/react": "^1.2.8",
     "@tanstack/react-query": "^4.20.4",
@@ -31,8 +34,10 @@
     "dayjs": "^1.11.7",
     "eslint": "8.30.0",
     "eslint-config-next": "^12.0.4",
+    "exceljs": "^4.3.0",
     "jsonwebtoken": "^9.0.0",
     "next": "13.1.0",
+    "nodemailer": "^6.9.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.4.0",
@@ -41,7 +46,8 @@
     "superjson": "^1.12.1",
     "ts-node": "^10.9.1",
     "typescript": "4.9.4",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz",
+    "usehooks-ts": "^2.9.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.20.2"
   },
   "devDependencies": {
@@ -49,7 +55,8 @@
     "@types/bcrypt": "^5.0.0",
     "@types/cookie": "^0.5.1",
     "@types/jsonwebtoken": "^9.0.0",
-    "prisma": "^4.10.1"
+    "@types/nodemailer": "^6.4.7",
+    "prisma": "^4.13.0"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

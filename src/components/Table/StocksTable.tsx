@@ -2,7 +2,11 @@ import { Checkbox } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { type StocksTableData } from "~/pages/mills";
 import { useAppDispatch, useAppSelector } from "~/store";
-import { addSelectedStocks, removeStocks } from "~/store/selectedStocks";
+import {
+  addSelectedStocks,
+  removeStocks,
+  resetSelectedStocks,
+} from "~/store/selectedStocks";
 import { styled } from "../../../stitches.config";
 import {
   TableItem,
@@ -64,11 +68,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
     return sorted;
   }, [data, mills]);
 
-  console.log(sortedData);
-
   useEffect(() => {
     const filteredData = sortedData.filter((item) => {
-      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice}`;
+      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S ${item.invoice} ${item.salesOrder}`;
 
       return stockSentence.toLowerCase().includes(search.toLowerCase());
     });
@@ -114,7 +116,18 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               <TableHeadItem css={{ width: "25px" }}>
                 <Checkbox
                   checked={tableCheckbox}
-                  onChange={(e) => setTableCheckbox(e.currentTarget.checked)}
+                  onChange={(e) => {
+                    setTableCheckbox(e.currentTarget.checked);
+                    if (!e.currentTarget.checked) {
+                      dispatch(resetSelectedStocks());
+                    } else {
+                      formattedData.forEach((item) => {
+                        if (selectedStocks.find((spec) => spec.id === item.id))
+                          return;
+                        checkHandler(e, e.currentTarget.checked, item, item.id);
+                      });
+                    }
+                  }}
                   size="xs"
                 />
               </TableHeadItem>
@@ -126,6 +139,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
               <TableHeadItem>{"Sheets"}</TableHeadItem>
               <TableHeadItem css={{ width: "150px" }}>
                 {"Order No."}
+              </TableHeadItem>
+              <TableHeadItem css={{ width: "150px" }}>
+                {"Sales Order No."}
               </TableHeadItem>
               {/* <TableHeadItem css={{ width: "150px" }}>Client</TableHeadItem> */}
               <TableHeadItem>{"Transit"}</TableHeadItem>
@@ -141,9 +157,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                 checked = true;
               }
 
-              if (tableCheckbox && !checked) {
+              /* if (tableCheckbox && !checked) {
                 return <></>;
-              }
+              } */
 
               return (
                 <TableRow key={index}>
@@ -171,6 +187,9 @@ const StocksTable = ({ data }: { data: StocksTableData[] }) => {
                   <TableItem>{item.gsm} G</TableItem>
                   <TableItem>{item.sheets} S</TableItem>
                   <TableItem css={{ width: "150px" }}>{item.invoice}</TableItem>
+                  <TableItem css={{ width: "150px" }}>
+                    {item.salesOrder}
+                  </TableItem>
                   {/* <TableItem css={{ width: "150px" }}>{item.client}</TableItem> */}
                   <TableItem status={item.transit > 0 ? "alert" : "normal"}>
                     {item.transit} PKT
