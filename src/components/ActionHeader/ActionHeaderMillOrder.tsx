@@ -15,6 +15,7 @@ import { trpc } from "~/utils/trpc";
 import { toast } from "react-hot-toast";
 import { resetSelectedStocks } from "~/store/selectedStocks";
 import { useLocalStorage, useSessionStorage } from "@mantine/hooks";
+import { TbTrash } from "react-icons/tb";
 
 const Container = styled("div", {
   width: "100%",
@@ -40,7 +41,7 @@ const ActionHeader = () => {
     key: "refetchStocks",
     defaultValue: "false",
   });
-  const selectStocks = useAppSelector((state) => state.selectedStocks);
+  const selectedStocks = useAppSelector((state) => state.selectedStocks);
   const search = useAppSelector((state) => state.search);
   const [query, setQuery] = useState<string>(search);
   const [date, setDate] = useState<Date | null>(new Date());
@@ -51,6 +52,8 @@ const ActionHeader = () => {
   const router = useRouter();
   const { mutateAsync: updateSalesOrderNo } =
     trpc.stocks.updateStockSalesOrderNo.useMutation();
+
+  const { mutateAsync: deleteStocks } = trpc.stocks.deleteStocks.useMutation();
 
   useEffect(() => {
     dispatch(setSearch(query));
@@ -72,7 +75,7 @@ const ActionHeader = () => {
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const ids = selectStocks.map((stock) => stock.id);
+    const ids = selectedStocks.map((stock) => stock.id);
     const UpdatePromise = updateSalesOrderNo({
       id: ids,
       salesOrderNo: orderNo,
@@ -86,6 +89,19 @@ const ActionHeader = () => {
     dispatch(resetSelectedStocks());
     setRefetch("true");
     setOpened(false);
+  };
+
+  const deleteHandler = async () => {
+    const ids = selectedStocks.map((stock) => stock.id);
+    const DeletePromise = deleteStocks(ids);
+    toast.promise(DeletePromise, {
+      loading: "Deleting Stocks",
+      success: "Stocks Deleted",
+      error: "Error deleting Stocks",
+    });
+    await DeletePromise;
+    dispatch(resetSelectedStocks());
+    setRefetch("true");
   };
 
   return (
@@ -113,14 +129,27 @@ const ActionHeader = () => {
         <Text type="MediumSemibold">Goods</Text>
         <FiPackage fontSize={18} color={theme.colors.content.value} />
       </Button> */}
-      {selectStocks.length > 0 && (
-        <Button
-          style={{ height: "48px" }}
-          radius="md"
-          onClick={() => setOpened(true)}
-        >
-          Add Sales Order No.
-        </Button>
+      {selectedStocks.length > 0 && (
+        <>
+          <Button
+            style={{ height: "48px" }}
+            leftIcon={<TbTrash />}
+            radius="md"
+            color={"red"}
+            variant="light"
+            onClick={() => deleteHandler()}
+          >
+            Delete
+          </Button>
+          <Button
+            style={{ height: "48px" }}
+            radius="md"
+            onClick={() => setOpened(true)}
+            variant="light"
+          >
+            Add Sales Order No.
+          </Button>
+        </>
       )}
     </Container>
   );

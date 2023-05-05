@@ -78,7 +78,7 @@ type NavArr = {
 const Navigation = () => {
   const [message, setMessage] = useLocalStorage({
     key: "message",
-    defaultValue: "true",
+    defaultValue: "false",
   });
 
   const [activeNav, setActiveNav] = useState<NavText>("Stocks");
