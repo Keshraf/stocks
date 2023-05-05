@@ -253,7 +253,7 @@ const OrderDetailTable = ({
               </InfoRow>
             );
           })}
-          <Button
+          {/* <Button
             size="xs"
             variant="outline"
             color="blue"
@@ -262,7 +262,7 @@ const OrderDetailTable = ({
             }}
           >
             <TbEdit size={16} />
-          </Button>
+          </Button> */}
           <Button
             size="xs"
             variant="outline"
