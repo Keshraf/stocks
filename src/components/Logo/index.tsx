@@ -13,7 +13,7 @@ const ImageContainer = styled(Link, {
 const Logo = () => {
   return (
     <ImageContainer href="/">
-      <Image src="/Logo.svg" alt="Logo" width={36} height={36} />
+      <Image src="/Logo2.svg" alt="Logo" width={36} height={36} />
     </ImageContainer>
   );
 };
