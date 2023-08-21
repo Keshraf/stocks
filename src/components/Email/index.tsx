@@ -1,13 +1,9 @@
-import * as React from "react";
 import { Html } from "@react-email/html";
 import { Button } from "@react-email/button";
-import { styled } from "stitches.config";
 
 type Props = {
   url: string;
 };
-
-const HTML = styled(Html, {});
 
 export function Email(props: Props) {
   const { url } = props;

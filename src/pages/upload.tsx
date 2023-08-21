@@ -190,6 +190,8 @@ const Upload = () => {
             toast.error("Error Adding Stocks");
           });
       }
+    } else {
+      console.log(results.error);
     }
   };
 
@@ -297,7 +299,7 @@ const Upload = () => {
     }
   };
 
-  const stocks = [
+  const stockssss = [
     {
       gsm: 370,
       sheets: 100,
@@ -373,18 +375,6 @@ const Upload = () => {
     {
       gsm: 230,
       sheets: 144,
-      breadth: 63.5,
-      length: 76,
-      weight: 16,
-      qualityName: "LWC",
-      mill: "UNI",
-      quantity: 14,
-      invoice: "001",
-      rate: 0,
-    },
-    {
-      gsm: 230,
-      sheets: 144,
       breadth: 81,
       length: 66,
       weight: 17.7,
@@ -395,6 +385,7 @@ const Upload = () => {
       rate: 0,
     },
     {
+      // NOT DONE
       gsm: 180,
       sheets: 144,
       breadth: 96.5,
@@ -415,6 +406,18 @@ const Upload = () => {
       qualityName: "PDB",
       mill: "UNI",
       quantity: 14,
+      invoice: "001",
+      rate: 0,
+    },
+    {
+      gsm: 250,
+      sheets: 144,
+      breadth: 52,
+      length: 71,
+      weight: 13.3,
+      qualityName: "PDB",
+      mill: "UNI",
+      quantity: 66,
       invoice: "001",
       rate: 0,
     },

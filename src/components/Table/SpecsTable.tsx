@@ -199,7 +199,7 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
 
   useEffect(() => {
     let newFormattedData = originalData.filter((item) => {
-      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S`;
+      const stockSentence = `${item.millName} ${item.qualityName} ${item.breadth} X ${item.length} ${item.millName} ${item.qualityName} ${item.breadth}X${item.length} ${item.weight}KG ${item.gsm}G ${item.sheets} S`;
       return stockSentence.toLowerCase().includes(search.toLowerCase());
     });
 
@@ -208,8 +208,10 @@ const SpecsTable = ({ data }: { data: PrismaSpecs[] }) => {
         if (!item.active) return;
         newFormattedData = newFormattedData.filter((stock) => {
           if (item.greater) {
+            // @ts-ignore
             if (stock[item.key] >= item.defaultValue) return stock;
           } else {
+            // @ts-ignore
             if (stock[item.key] <= item.defaultValue) return stock;
           }
         });
